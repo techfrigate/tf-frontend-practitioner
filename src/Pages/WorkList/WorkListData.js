@@ -1,0 +1,32 @@
+export const data = [
+  {
+    id: "CK -WI-101207792007",
+    title: "Online Visit For Anil Kumar On Jun",
+    time: "26, 2024 11:10 AM",
+    type: "Appointment",
+    assignee:"Dr. Prateek Kumar",
+    status:"Cancelled",
+    labels:"Online",
+    dueDate:"Jun 26, 2024 11:20 AM",
+  },
+  {
+    id: "CK -WI-100954783356",
+    title: "Online Visit For Anil Kumar On Jun",
+    time: "26, 2024 11:10 AM",
+    type: "Appointment",
+    assignee:"Dr. Prateek Kumar",
+    status:"Cancelled",
+    labels:"Online",
+    dueDate:"Jun 26, 2024 11:20 AM",
+  },
+  {
+    id: "CK -WI-101322133876",
+    title: "Online Visit For Anil Kumar On Jun",
+    time: "26, 2024 11:10 AM",
+    type: "Appointment",
+    assignee:"Dr. Prateek Kumar",
+    status:"NoShow",
+    labels:"Online",
+    dueDate:"Jun 26, 2024 11:20 AM",
+  },
+];
