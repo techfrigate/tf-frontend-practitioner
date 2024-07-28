@@ -12,22 +12,37 @@ const CreateNewModal = ({ onClose }) => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [onClose]);
 
   const modalRef = useRef(null);
 
   return (
-    <div ref={modalRef} className="absolute z-20 top-12 right-0 bg-white border border-gray-200 rounded-lg shadow-lg w-50 p-4">
+    <div
+      ref={modalRef}
+      className="absolute z-20 top-12 right-0 bg-white border border-gray-200 rounded-lg shadow-lg w-50 p-4"
+    >
       <div className="flex flex-col space-y-1 text-gray-600 text-sm">
-        <div onClick={() => { navigate('/appointment'); onClose(); }} className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
+        <div
+          onClick={() => {
+            navigate("/appointment");
+            onClose();
+          }}
+          className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
+        >
           <FaCalendarPlus size={16} />
           <p>Appointment</p>
         </div>
-        <div onClick={() => { navigate('/newPatients'); onClose(); }} className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
+        <div
+          onClick={() => {
+            navigate("/newPatients");
+            onClose();
+          }}
+          className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
+        >
           <FaUserInjured size={16} />
           <p>Patient</p>
         </div>

@@ -23,7 +23,7 @@ export const personalInfoFormData = [
       {
         type: "number",
         label: "Contact Number (Log In)",
-        id: "PhNo",
+        id: "ContactNo",
         placeholder: "Enter Your Phone Number",
       },
       {

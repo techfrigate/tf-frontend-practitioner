@@ -1,7 +1,18 @@
 import React from "react";
+import { useDispatch } from "react-redux";
+import { setPatientData } from "../../Store/patientSlice";
 import { data } from "./PatientsData";
+import { useNavigate } from "react-router-dom";
 
 const PatientsTd = ({ offset, itemsPerPage }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const navigateToPatient = (patient) => {
+    dispatch(setPatientData(patient));
+    navigate("/newPatients");
+  };
+
   return (
     <>
       {data.slice(offset, offset + itemsPerPage).map((item) => {
@@ -11,6 +22,7 @@ const PatientsTd = ({ offset, itemsPerPage }) => {
           <tr
             key={item.id}
             className="hover:bg-gray-100 bg-gray-50 border border-gray-300 hover:shadow-lg transition duration-300 ease-in-out cursor-pointer"
+            onClick={() => navigateToPatient(item)}
           >
             <td className="py-4 px-4 text-nowrap text-xs">
               <div className="flex gap-2 items-center">

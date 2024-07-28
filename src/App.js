@@ -11,8 +11,8 @@ import CreateNewPatients from "./Components/Topbar/CreateNewPatients/CreateNewPa
 import Appointment from "./Components/Topbar/Appointment/Appointment";
 import Payment from "./Components/Payment/Payment";
 
-
 function App() {
+  // eslint-disable-next-line
   const [showForm, setShowForm] = useState(false);
 
   const toggleCreateProviderForm = () => {
