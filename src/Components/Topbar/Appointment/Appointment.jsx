@@ -34,19 +34,22 @@ const patients = [
     id: 1,
     name: "Alice Brown",
     age: 25,
-    image: "https://img.freepik.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg",
+    image:
+      "https://img.freepik.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg",
   },
   {
     id: 2,
     name: "Bob Green",
     age: 30,
-    image: "https://t3.ftcdn.net/jpg/01/42/01/84/360_F_142018449_yR0avsaJqbIx8NA47sINMoaxdtn1sPzh.jpg",
+    image:
+      "https://t3.ftcdn.net/jpg/01/42/01/84/360_F_142018449_yR0avsaJqbIx8NA47sINMoaxdtn1sPzh.jpg",
   },
   {
     id: 3,
     name: "Charlie Black",
     age: 28,
-    image: "https://static.vecteezy.com/system/resources/thumbnails/005/346/410/small_2x/close-up-portrait-of-smiling-handsome-young-caucasian-man-face-looking-at-camera-on-isolated-light-gray-studio-background-photo.jpg",
+    image:
+      "https://static.vecteezy.com/system/resources/thumbnails/005/346/410/small_2x/close-up-portrait-of-smiling-handsome-young-caucasian-man-face-looking-at-camera-on-isolated-light-gray-studio-background-photo.jpg",
   },
 ];
 
@@ -92,6 +95,7 @@ const Appointment = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [consultationType, setConsultationType] = useState("inperson");
   const [price, setPrice] = useState(100);
+  // eslint-disable-next-line
   const [schedule, setSchedule] = useState(initialSchedule);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedDate, setSelectedDate] = useState(initialSchedule[0]);
@@ -125,7 +129,7 @@ const Appointment = () => {
     setSelectedDoctor(doctor);
     setFilteredDoctors([]);
     setSearchDoctor(`${doctor.name} - ${doctor.specialty}`);
-  };;
+  };
 
   const handlePatientSelect = (patient) => {
     setSelectedPatient(patient);
@@ -163,7 +167,7 @@ const Appointment = () => {
       <div className="border-2 border-[#ecf7f4] shadow-lg m-3 rounded-lg pb-4 p-4 bg-gray-50 customScrollbar h-[80vh]">
         <h1
           style={{ boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px" }}
-          className="text-xl font-semibold mb-6 text-[#00A182] p-3 rounded-md bg-white"
+          className="text-xl font-semibold mb-6 text-[#00A182] p-3 rounded-md bg-white text-center"
         >
           New Appointment
         </h1>
@@ -236,7 +240,9 @@ const Appointment = () => {
                         <p className="text-gray-800 font-semibold">
                           {patient.name}
                         </p>
-                        <p className="text-gray-500 text-sm">Age: {patient.age}</p>
+                        <p className="text-gray-500 text-sm">
+                          Age: {patient.age}
+                        </p>
                       </div>
                     </div>
                   </li>
