@@ -1,31 +1,38 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
 import CustomTable from "../../Components/Common/CustomTable";
 import PatientsTd from "./PatientsTd";
 import { data } from "./PatientsData";
 import PatientsttrHeader from "./PatientstrHeader";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPatients } from "../../Store/patientSlice";
 
 const Patients = () => {
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-
-  const pageCount = Math.ceil(data.length / itemsPerPage);
-  const offset = currentPage * itemsPerPage;
-
   const handlePageClick = ({ selected }) => {
-    setCurrentPage(selected);
+    setCurrentPage(selected+1);
   };
+
+  const dispatch=  useDispatch()
+
+  useEffect(()=>{
+    dispatch(fetchPatients({page:currentPage,limit:itemsPerPage}))
+  },[currentPage,itemsPerPage])
+
+
+  const{totalPages} = useSelector((state)=>state.patient)
 
   return (
     <div className="overflow-x-auto sm:rounded-lg">
       <CustomTable trHeader={PatientsttrHeader}>
-        <PatientsTd offset={offset} itemsPerPage={itemsPerPage} />
+        <PatientsTd />
       </CustomTable>
       <ReactPaginate
         previousLabel={"«"}
         nextLabel={"»"}
         breakLabel={"..."}
-        pageCount={pageCount}
+        pageCount={totalPages}
         onPageChange={handlePageClick}
         containerClassName={"flex justify-center mt-6 mb-0"}
         pageClassName={"mx-1"}

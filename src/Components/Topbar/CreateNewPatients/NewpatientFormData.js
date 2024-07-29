@@ -1,40 +1,36 @@
 export const personalInfoFormData = [
-  {
-    heading: "PERSONAL INFORMATION",
-    formInput: [
       {
         type: "text",
         label: "First Name",
-        id: "FName",
+        id: "firstName",
         placeholder: "Enter Your Name",
       },
       {
         type: "text",
         label: "Last Name",
-        id: "LName",
+        id: "lastName",
         placeholder: "Last Name",
       },
       {
         type: "date",
         label: "Date of Birth",
-        id: "DOB",
+        id: "dob",
         placeholder: "",
       },
       {
         type: "number",
         label: "Contact Number (Log In)",
-        id: "ContactNo",
+        id: "phoneNumber",
         placeholder: "Enter Your Phone Number",
       },
       {
         type: "email",
         label: "Email",
-        id: "Email",
+        id: "email",
         placeholder: "Enter Your Email",
       },
-    ],
-  },
-];
+    ]
+
 
 export const emergencyContactInfo = [
   {
@@ -69,28 +65,23 @@ export const emergencyContactInfo = [
 ];
 
 export const addressInfo = [
-  {
-    heading: "ADDRESS INFORMATION",
-    formInput: [
       {
         type: "text",
         label: "Address Line 1",
-        id: "Address1",
+        id: "address1",
         placeholder: "Address Line 1",
       },
 
       {
         type: "text",
         label: "Address Line 2",
-        id: "Address2",
+        id: "address2",
         placeholder: "Address Line 2",
       },
       {
         type: "number",
         label: "PIN",
-        id: "PIN",
+        id: "zipCode",
         placeholder: "Zipcode",
       },
-    ],
-  },
-];
+]

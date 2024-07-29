@@ -1,141 +1,155 @@
-import React, { useState, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { savePatient, setPatientData } from "../../../Store/patientSlice";
-import {
-  addressInfo,
-  emergencyContactInfo,
-  personalInfoFormData,
-} from "./NewpatientFormData";
-import PersonalInfo from "./PersonalInfo";
-// import EmergencyContactInfo from "./EmergencyContactInfo";
-import AddressInfo from "./AddressInfo";
+import React, { useEffect, useState } from "react";
 import FileUpload from "./FileUpload";
+import PersonalInfo from "./PersonalInfo";
+import AddressInfo from "./AddressInfo";
+import { personalInfoFormData, addressInfo as addressFormData } from "./NewpatientFormData";
+import { useDispatch, useSelector } from "react-redux";
+import { addPatient, fetchPatientById, patchPatientById } from "../../../Store/patientSlice";
+import { useSearchParams } from "react-router-dom";
+import { useSelect } from "@material-tailwind/react";
 
 const CreateNewPatients = () => {
-  const [file, setFile] = useState(null);
-  // eslint-disable-next-line
-  const [errors, setErrors] = useState({});
-  const [saved, setSaved] = useState(false);
-  const dispatch = useDispatch();
+  const [personalInfo, setPersonalInfo] = useState({
+    firstName: "",
+    lastName: "",
+    dob: "",
+    email: "",
+    gender: "",
+    dialCode: "+91",
+    phoneNumber:""
+  });
 
-  const {
-    patient: patientData = {},
-    status,
-    error,
-  } = useSelector((state) => state.patient);
+  const [addressInfo, setAddressInfo] = useState({
+    address1: "",
+    address2: "",
+    city: "",
+    state: "",
+    country: "",
+    zipCode: ""
+  });
 
-  // console.log("Patient Data:", patientData);
+const[inValidObject,setInvalidObject] =useState({})
+const dispatch = useDispatch()
+const [searchParams] = useSearchParams();
+  const patientId = searchParams.get('id');
 
-  const { patient } = useSelector((state) => state.patient);
-  console.log(patient, "patient Data");
+  const handlePersonalInfoChange = (e) => {
+    const { id, value } = e.target;
+    setPersonalInfo((prevState) => ({
+      ...prevState,
+      [id]: value
+    }));
 
-  const validateInputs = () => {
-    const newErrors = {};
-    let isValid = true;
-
-    const {
-      personalInfo = {},
-      emergencyContact = {},
-      address = {},
-    } = patientData;
-
-    personalInfoFormData.forEach((ele) => {
-      if (!personalInfo[ele.id]) {
-        newErrors[ele.id] = "This field is required";
-        isValid = false;
-      }
-    });
-
-    emergencyContactInfo.forEach((ele) => {
-      if (!emergencyContact[ele.id]) {
-        newErrors[ele.id] = "This field is required";
-        isValid = false;
-      }
-    });
-
-    addressInfo.forEach((ele) => {
-      if (!address[ele.id]) {
-        newErrors[ele.id] = "This field is required";
-        isValid = false;
-      }
-    });
-
-    setErrors(newErrors);
-    return isValid;
+    setInvalidObject((pre)=>({...pre,[id]:""}))
   };
 
-  const handleSave = useCallback(() => {
-    setSaved(true);
-    if (validateInputs()) {
-      const dataToSave = { ...patientData, file };
-      console.log("Saving data:", dataToSave);
-      dispatch(savePatient(dataToSave));
-    }
-    // eslint-disable-next-line
-  }, [dispatch, patientData, file]);
-
-  const handleInputChange = useCallback(
-    (section, data) => {
-      console.log(`Dispatching data for ${section}:`, data);
-      dispatch(setPatientData({ [section]: data }));
-    },
-    [dispatch]
-  );
-
-  const handleInputFocus = useCallback((id) => {
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [id]: "",
+  const handleDialCodeChange = (code) => {
+    setPersonalInfo((prevState) => ({
+      ...prevState,
+      dialCode: code
     }));
-  }, []);
+  };
+
+  const handleAddressInfoChange = (e) => {
+    const { id, value } = e.target;
+    setAddressInfo((prevState) => ({
+      ...prevState,
+      [id]: value
+    }));
+    setInvalidObject((pre)=>({...pre,[id]:""}))
+  };
+
+function hadnleSavePatient(){
+  const validCheck =    {...personalInfo,...addressInfo}  
+    const invalidObj = {}
+    Object.keys(validCheck).map((key)=>{
+    if(!validCheck[key] && key !=="address2"){
+      invalidObj[key] =  `please provied ${key}`
+    }
+  })
+
+  if(!validatePhoneNumber(personalInfo.phoneNumber)) {
+    invalidObj.phoneNumber = `Please provide a valid 10-digit phone number`;
+  }
+ if(!invalidObj){
+  return setInvalidObject(invalidObj)
+ }
+if(!patientId){
+  dispatch(addPatient({...personalInfo,...addressInfo}))
+}else{
+  const updates={
+    ...personalInfo,...addressInfo
+  }
+
+  dispatch(patchPatientById({id:patientId, userId:patient.userId,updates}))
+
+}
+ 
+  
+}
+
+const validatePhoneNumber = (phoneNumber) => {
+  const phoneRegex = /^[0-9]{10}$/;
+  return phoneRegex.test(phoneNumber);
+};
+
+useEffect(() => {
+  if (patientId) {
+    dispatch(fetchPatientById(patientId));
+  }
+}, [patientId, dispatch]);
+
+
+const{patient}  = useSelector((state)=>state.patient)
+
+ 
+useEffect(()=>{
+  if(patient){
+    const{address:{addressLine1,addressLine2,...rest}, phoneNumber:{dialCode,value},firstName,lastName,dob,gender,email} =  patient
+    console.log(patient);
+    setPersonalInfo(()=> ({dialCode,phoneNumber:value,firstName,lastName,dob,gender,email}))
+    setAddressInfo({
+      address1: addressLine1,
+      address2: addressLine2,
+      ...rest
+    });
+  }else{
+    setPersonalInfo({
+      firstName: "",lastName: "",dob: "",email: "",gender: "",dialCode: "+91",phoneNumber:""
+    })
+
+    setAddressInfo({
+      address1: "",address2: "",city: "",state: "",country: "",zipCode: ""
+    })
+  }
+
+},[patient])
+
 
   return (
     <div className="p-4 max-h-full px-3 customScrollbar">
-      <FileUpload file={file} setFile={setFile} />
-      {personalInfoFormData.map((ele, index) => (
-        <PersonalInfo
-          key={index}
-          ele={ele}
-          index={index}
-          setPersonalInfo={(data) => handleInputChange("personalInfo", data)}
-          saved={saved}
-        />
-      ))}
-      {/* {emergencyContactInfo.map((ele, index) => (
-        <EmergencyContactInfo
-          key={index}
-          ele={ele}
-          saved={saved}
-          setEmergencyContact={(data) =>
-            handleInputChange("emergencyContact", data)
-          }
-          onFocus={() => handleInputFocus(ele.id)}
-        />
-      ))} */}
-      {addressInfo.map((ele, index) => (
-        <AddressInfo
-          key={index}
-          ele={ele}
-          saved={saved}
-          setAddress={(data) => handleInputChange("address", data)}
-          onFocus={() => handleInputFocus(ele.id)}
-        />
-      ))}
+      <FileUpload />
+      <PersonalInfo
+        personalInfoFormData={personalInfoFormData}
+        personalInfo={personalInfo}
+        handlePersonalInfoChange={handlePersonalInfoChange}
+        handleDialCodeChange={handleDialCodeChange}
+        inValidObject={inValidObject}
+      />
+      <AddressInfo
+        addressFormData={addressFormData}
+        addressInfo={addressInfo}
+        handleAddressInfoChange={handleAddressInfoChange}
+        inValidObject={inValidObject}
+      />
       <div className="flex justify-center gap-2 mt-4">
         <button className="px-4 pb-2 pt-1.5 text-[14px] border border-[#1e817e] hover:bg-[#239591] hover:text-white rounded">
           Cancel
         </button>
-        <button
-          className="px-4 pb-2 pt-1.5 text-[14px] bg-[#1e817e] text-white hover:bg-[#166866] transition duration-300 ease-in-out rounded"
-          onClick={handleSave}
-          disabled={status === "loading"}
-        >
-          {status === "loading" ? "Saving..." : "Save"}
+        <button className="px-4 pb-2 pt-1.5 text-[14px] bg-[#1e817e] text-white hover:bg-[#166866] transition duration-300 ease-in-out rounded" onClick={hadnleSavePatient}>
+          Save
         </button>
       </div>
-      {status === "failed" && (
-        <div className="mt-4 text-red-500">Error: {error}</div>
-      )}
     </div>
   );
 };
