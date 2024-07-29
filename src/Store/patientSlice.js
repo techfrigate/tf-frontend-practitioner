@@ -12,7 +12,7 @@ const initialState = {
 };
 
 const BASE_URL = 'http://localhost:3000';
-const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmEyNmExNmRlYjZiNWEzMGU0NGQ1NDQiLCJ1c2VyVHlwZSI6ImRvY3RvciIsImlhdCI6MTcyMjIzNTQ0MywiZXhwIjoxNzIyMjQ2MjQzfQ.8mVbnXxuuEdP6NdPKe1VBr3687ileLROjiFH3Ee7_BA';
+const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmEyNmExNmRlYjZiNWEzMGU0NGQ1NDQiLCJ1c2VyVHlwZSI6ImRvY3RvciIsImlhdCI6MTcyMjI0MjQ4NSwiZXhwIjoxNzIyMjUzMjg1fQ.kgSZz0pHrlvrx4SWp2leVX5rAT5UMoEKPFC0WcklKPg';
 const TENANT_ID = '667d5e70038302060ee7370f';
 
 export const fetchPatients = createAsyncThunk(
@@ -91,6 +91,7 @@ export const fetchPatientById = createAsyncThunk(
 export const patchPatientById = createAsyncThunk(
   'patient/patchPatientById',
   async ({ id, userId, updates }, { rejectWithValue }) => {
+    console.log(updates,"updates");
     const { phoneNumber, dialCode, address1, address2, city, state, country, zipCode, ...rest } = updates;
 
     const body = {

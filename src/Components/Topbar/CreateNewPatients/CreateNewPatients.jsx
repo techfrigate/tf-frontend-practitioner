@@ -74,6 +74,8 @@ function hadnleSavePatient(){
  if(!invalidObj){
   return setInvalidObject(invalidObj)
  }
+
+ 
 if(!patientId){
   dispatch(addPatient({...personalInfo,...addressInfo}))
 }else{
@@ -105,13 +107,13 @@ const{patient}  = useSelector((state)=>state.patient)
  
 useEffect(()=>{
   if(patient){
-    const{address:{addressLine1,addressLine2,...rest}, phoneNumber:{dialCode,value},firstName,lastName,dob,gender,email} =  patient
-    console.log(patient);
+    const{address:{addressLine1,addressLine2,city,state,country,zipCode}, phoneNumber:{dialCode,value},firstName,lastName,dob,gender,email} =  patient
+  
     setPersonalInfo(()=> ({dialCode,phoneNumber:value,firstName,lastName,dob,gender,email}))
     setAddressInfo({
       address1: addressLine1,
       address2: addressLine2,
-      ...rest
+      city,state,country,zipCode
     });
   }else{
     setPersonalInfo({

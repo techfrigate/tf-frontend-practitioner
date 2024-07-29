@@ -5,18 +5,18 @@ import CustomSelect from "../../Common/CustomSelect";
 const AddressInfo = ({ addressFormData, addressInfo, handleAddressInfoChange,inValidObject }) => {
   const countryOptions = [
     { value: "india", label: "India" }
-    // Add more countries here
+    
   ];
 
   const stateOptions = [
     { value: "rajasthan", label: "Rajasthan" }
-    // Add more states here
+    
   ];
 
   const cityOptions = [
     { value: "hanumangarh", label: "Hanumangarh" },
     { value: "churu", label: "Churu" }
-    // Add more cities here
+    
   ];
 
   return (
