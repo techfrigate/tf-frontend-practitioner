@@ -12,7 +12,7 @@ const initialState = {
 };
 
 const BASE_URL = 'http://localhost:3000';
-const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmEyNmExNmRlYjZiNWEzMGU0NGQ1NDQiLCJ1c2VyVHlwZSI6ImRvY3RvciIsImlhdCI6MTcyMjI0MjQ4NSwiZXhwIjoxNzIyMjUzMjg1fQ.kgSZz0pHrlvrx4SWp2leVX5rAT5UMoEKPFC0WcklKPg';
+const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmExMzE0ZmMxMzE2YTFjYzg3YzM5MTAiLCJ1c2VyVHlwZSI6ImRvY3RvciIsImlhdCI6MTcyMjM5Mzk2MSwiZXhwIjoxNzIyNDA0NzYxfQ.eIrqrXR64p4oFzU3vPoCpm1GskHqcWWEG3KVHx8JUmg';
 const TENANT_ID = '667d5e70038302060ee7370f';
 
 export const fetchPatients = createAsyncThunk(
@@ -63,6 +63,7 @@ export const addPatient = createAsyncThunk(
           Authorization: `Bearer ${AUTH_TOKEN}`
         }
       });
+      console.log(response.data,"usr res")
       return response.data;
     } catch (error) {
       console.log(error);
@@ -142,6 +143,7 @@ const patientSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload || action.error.message;
       })
+
       .addCase(addPatient.pending, (state) => {
         state.saveStatus = 'loading';
       })
@@ -153,6 +155,7 @@ const patientSlice = createSlice({
         state.saveStatus = 'failed';
         state.saveError = action.payload || action.error.message;
       })
+
       .addCase(fetchPatientById.pending, (state) => {
         state.status = 'loading';
       })
@@ -164,6 +167,7 @@ const patientSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload || action.error.message;
       })
+      
       .addCase(patchPatientById.pending, (state) => {
         state.saveStatus = 'loading';
       })
