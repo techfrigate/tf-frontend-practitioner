@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-tailwind/react": "^2.1.9",
     "@reduxjs/toolkit": "^2.2.6",
+    "@syncfusion/ej2-react-schedule": "^26.2.7",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",

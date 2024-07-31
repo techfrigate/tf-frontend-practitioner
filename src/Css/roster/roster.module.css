@@ -1,0 +1,40 @@
+.roaster_placholder::placeholder {
+    color: #94999f;
+  }
+  .error {
+    border-color: red !important;
+    box-shadow: 0 0 5px red !important;
+  }
+  
+  .drListSroll{
+    overflow-y: scroll;
+  }
+  .drListSroll::-webkit-scrollbar{
+    display: hidden;
+  }
+
+  .custom_schedule{
+    padding: 2px;
+    background-color: aqua;
+  }
+  .custom_schedule .e-selected{
+    background-color:blue;
+  }
+ 
+ .custom_schedule *:hover {
+  transform: none !important;
+  filter: none !important;
+}
+ 
+
+.custom_schedule .e-work-cells, 
+.custom_schedule .e-date-header, 
+.custom_schedule .e-alternate-cells {
+  background-color: #f0f8ff; /* Change cell background color */
+  color: #000000; /* Change cell text color */
+}
+
+.custom_schedule .e-appointment {
+  background-color: #ff4081; /* Change event background color */
+  color: #ffffff; /* Change event text color */
+}
