@@ -12,8 +12,8 @@ const initialState = {
 };
 
 const BASE_URL = 'http://localhost:3000';
-const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmExMzE0ZmMxMzE2YTFjYzg3YzM5MTAiLCJ1c2VyVHlwZSI6ImRvY3RvciIsImlhdCI6MTcyMjM5Mzk2MSwiZXhwIjoxNzIyNDA0NzYxfQ.eIrqrXR64p4oFzU3vPoCpm1GskHqcWWEG3KVHx8JUmg';
-const TENANT_ID = '667d5e70038302060ee7370f';
+const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmIyZWI4MWYxNGRjNDA4YTE2N2Y3MGIiLCJ1c2VyVHlwZSI6InByYWN0aXRpb25lciIsImlhdCI6MTcyMzE3NTAwOSwiZXhwIjoxNzIzMTg1ODA5fQ.J0eewyt4P1SfbAk7YFC-30cyN-NHcQsn4zSmx6pCAQc';
+const TENANT_ID = '66b1f56302c553a9091932be';
 
 export const fetchPatients = createAsyncThunk(
   'patient/fetchPatients',
@@ -64,6 +64,7 @@ export const addPatient = createAsyncThunk(
         }
       });
       console.log(response.data,"usr res")
+      window.location.href=   "http://localhost:3001/patients"
       return response.data;
     } catch (error) {
       console.log(error);

@@ -9,8 +9,8 @@ const initialState = {
 };
 
 const BASE_URL = 'http://localhost:3000';
-const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmExMzFkZWMxMzE2YTFjYzg3YzM5NTMiLCJ1c2VyVHlwZSI6ImRvY3RvciIsImlhdCI6MTcyMjQxMDM3NCwiZXhwIjoxNzIyNDIxMTc0fQ.P6TWAaidEyosGJDlKQtuW_f9t3uunWeU1YfLz-O5QUE';
-const TENANT_ID = '667d5e70038302060ee7370f';
+const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmIyZWI4MWYxNGRjNDA4YTE2N2Y3MGIiLCJ1c2VyVHlwZSI6InByYWN0aXRpb25lciIsImlhdCI6MTcyMzE3NTAwOSwiZXhwIjoxNzIzMTg1ODA5fQ.J0eewyt4P1SfbAk7YFC-30cyN-NHcQsn4zSmx6pCAQc';
+const TENANT_ID = '66b1f56302c553a9091932be';
 
 // Create an async thunk to get rosters
 export const getRosters = createAsyncThunk(

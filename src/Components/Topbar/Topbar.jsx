@@ -94,7 +94,7 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   }, []);
 
   return (
-    <div className="w-full p-2">
+    <div className="w-full p-2 max-h-max">
       <div className="bg-white rounded-md px-10 py-2 flex justify-between items-center">
         <div className="flex flex-col justify-center items-start">
           <h1 className="text-xl font-semibold mb-1 text-gray-800">Hospital</h1>

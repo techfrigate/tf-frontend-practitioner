@@ -1,8 +1,29 @@
 import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateAppointment } from '../../Store/appointmentSlice';
 
 const Payment = () => {
   const [paymentMethod, setPaymentMethod] = useState('Cash');
+const{appointment} =  useSelector(state=>state.appointment)
+console.log(appointment,"appointment");
 
+const dispatch=   useDispatch();
+const handlePayment = ()=>{
+  const {_id, bookingStatus:{_id:bookId,...rest}} =  appointment
+  const paymentStatus =  "completed"
+  const transactionId = "done32424kn"
+
+  const body = {
+    bookingStatus:{
+      ...rest,
+      booked:new Date()
+    },
+    paymentStatus,
+    transactionId
+  }
+
+  dispatch(updateAppointment({_id,body}))
+}
   return (
     <div className="p-8 bg-gray-100 min-h-screen flex flex-col items-center">
       <h1 className="text-2xl font-bold mb-8">Select a Payment Method</h1>
@@ -71,7 +92,7 @@ const Payment = () => {
           <button className="bg-gray-500 text-white py-2 px-6 rounded-md transition transform hover:scale-105 hover:bg-gray-600 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
             Cancel
           </button>
-          <button className="bg-[#00A182] text-white py-2 px-6 rounded-md transition transform hover:scale-105 hover:bg-[#008a6c] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00A182]">
+          <button className="bg-[#00A182] text-white py-2 px-6 rounded-md transition transform hover:scale-105 hover:bg-[#008a6c] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00A182]" onClick={handlePayment}>
             Add Payment
           </button>
         </div>
