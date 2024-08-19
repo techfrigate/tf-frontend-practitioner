@@ -3,12 +3,15 @@ import patientReducer from "./patientSlice";
 import rostersReducer from "./rosterSlice"
 import slotsReducer from "./slotsSlice"
 import appointmentReducers from "./appointmentSlice"
+import profileReducer from "./profileSlice"
 export const store = configureStore({
   reducer: {
     patient: patientReducer ,
     rosters:rostersReducer,
     slots:slotsReducer,
-    appointment:appointmentReducers
+    appointment:appointmentReducers,
+    profile:profileReducer
+
    },
 });
 

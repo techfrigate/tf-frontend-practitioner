@@ -5,20 +5,20 @@ import { editSlotStatus, getSlots } from "./slotsSlice";
 const initialState = {
   appointment: {},
   error: null,
-  appointmentStatus: "idle", // Corrected typo from "idel" to "idle"
+  appointmentStatus: "idle", 
 };
 
 
 const BASE_URL = "http://localhost:3001/appointments";
 const AUTH_TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmIyZWI4MWYxNGRjNDA4YTE2N2Y3MGIiLCJ1c2VyVHlwZSI6InByYWN0aXRpb25lciIsImlhdCI6MTcyMzE3NTAwOSwiZXhwIjoxNzIzMTg1ODA5fQ.J0eewyt4P1SfbAk7YFC-30cyN-NHcQsn4zSmx6pCAQc";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmIyZWI4MWYxNGRjNDA4YTE2N2Y3MGIiLCJ1c2VyVHlwZSI6InByYWN0aXRpb25lciIsImlhdCI6MTcyMzQ0NTQ5NCwiZXhwIjoxNzIzNDU2Mjk0fQ.cOfAP2QUr2orzf4VnPH6ZIiCjj6JwoFvAw_kVDbfCB8";
 const TENANT_ID = "66b1f56302c553a9091932be";
 
 export const createAppointment = createAsyncThunk(
   "appointment/createAppointment",
   async ({body,slotDetailSlotId,slotId,setShowPayment}, { dispatch,rejectWithValue }) => {
     try {
-      const response = await axios.post(BASE_URL, body, { 
+      const response = await axios.post(BASE_URL, {...body,tenantId:TENANT_ID}, { 
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${AUTH_TOKEN}`,
@@ -34,6 +34,7 @@ export const createAppointment = createAsyncThunk(
     }
   }
 );
+
 
 export const updateAppointment = createAsyncThunk(
   "appointment/createAppointment",
