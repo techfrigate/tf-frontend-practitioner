@@ -8,6 +8,7 @@ const{appointment} =  useSelector(state=>state.appointment)
 console.log(appointment,"appointment");
 
 const dispatch=   useDispatch();
+
 const handlePayment = ()=>{
   const {_id, bookingStatus:{_id:bookId,...rest}} =  appointment
   const paymentStatus =  "completed"
@@ -24,6 +25,7 @@ const handlePayment = ()=>{
 
   dispatch(updateAppointment({_id,body}))
 }
+
   return (
     <div className="p-8 bg-gray-100 min-h-screen flex flex-col items-center">
       <h1 className="text-2xl font-bold mb-8">Select a Payment Method</h1>
