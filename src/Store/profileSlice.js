@@ -19,17 +19,17 @@ export const fetchUserProfile = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
-          usertype: "provider",
+          usertype: "practitioner",
           tenantId
         },
       });
-      console.log("response of admin",response.data);
+      console.log("response of practitoner",response.data);
       Cookies.set("Token", response.data.access_token);
       Cookies.set("TenantId", tenantId);
       Cookies.set("UserId", userId);
       return response.data.profile;
     } catch (error) {
-        console.log("aadmin error ", error);
+        console.log("practitioner error", error);
       return rejectWithValue(error.response.data);
     }
   }

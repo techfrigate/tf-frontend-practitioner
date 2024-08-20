@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
+import Cookies from "js-cookie"
 const initialState = {
   patients: [],
   status: 'idle',
@@ -12,8 +12,6 @@ const initialState = {
 };
 
 const BASE_URL = 'http://localhost:3000';
-const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmIyZWI4MWYxNGRjNDA4YTE2N2Y3MGIiLCJ1c2VyVHlwZSI6InByYWN0aXRpb25lciIsImlhdCI6MTcyMzQ0NTQ5NCwiZXhwIjoxNzIzNDU2Mjk0fQ.cOfAP2QUr2orzf4VnPH6ZIiCjj6JwoFvAw_kVDbfCB8';
-const TENANT_ID = '66b1f56302c553a9091932be';
 
 export const fetchPatients = createAsyncThunk(
   'patient/fetchPatients',
@@ -21,8 +19,8 @@ export const fetchPatients = createAsyncThunk(
     try {
       const response = await axios.get(`${BASE_URL}/profiles`, {
         headers: {
-          Authorization: `Bearer ${AUTH_TOKEN}`,
-          "tenantid": TENANT_ID,
+          Authorization: `Bearer ${Cookies.get("Token")}`,
+          "tenantid": Cookies.get("TenantId"),
           "usertype": "patient"
         },
         params: {
@@ -30,9 +28,10 @@ export const fetchPatients = createAsyncThunk(
           limit
         }
       });
+      console.log(response.data,"patient data");
       return { data: response.data.profiles, totalPages: response.data.totalPages };
     } catch (error) {
-      console.log(error);
+      console.log(error,"patient error");
       return rejectWithValue(error.response ? error.response.data : error.message);
     }
   }
@@ -41,7 +40,7 @@ export const fetchPatients = createAsyncThunk(
 export const addPatient = createAsyncThunk(
   'patient/addPatient',
   async (newPatient, { rejectWithValue }) => {
-    const { phoneNumber, dialCode, address1, address2, city, state, country, zipCode, ...rest } = newPatient;
+    const { phoneNumber, dialCode, address1, address2, city, state, country, zipCode,tenantName, ...rest } = newPatient;
 
     const body = {
       ...rest,
@@ -54,20 +53,28 @@ export const addPatient = createAsyncThunk(
         addressLine2: address2,
         city, state, country, zipCode
       },
-      tenantId: TENANT_ID
+      tenants:[
+        {
+          tenantId: Cookies.get("TenantId"),
+          tenantName,
+          userTypes:['patient']
+        }
+      ]
     };
+
+
     try {
-      const response = await axios.post(`${BASE_URL}/profiles`, body, {
+      const response = await axios.post(`${BASE_URL}/profiles/practioner-profile`, body, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${AUTH_TOKEN}`
+          Authorization: `Bearer ${Cookies.get("Token")}`
         }
       });
-      console.log(response.data,"usr res")
-      window.location.href=   "http://localhost:3001/patients"
+      console.log(response.data,"user res")
+      window.location.href=   "http://localhost:3005/patients"
       return response.data;
     } catch (error) {
-      console.log(error);
+      console.log(error, "user error");
       return rejectWithValue(error.response ? error.response.data : error.message);
     }
   }
@@ -79,7 +86,7 @@ export const fetchPatientById = createAsyncThunk(
     try {
       const response = await axios.get(`${BASE_URL}/profiles/${id}`, {
         headers: {
-          Authorization: `Bearer ${AUTH_TOKEN}`,
+          Authorization: `Bearer ${Cookies.get("Token")}`,
         }
       });
       return response.data;
@@ -113,11 +120,11 @@ export const patchPatientById = createAsyncThunk(
       const response = await axios.patch(`${BASE_URL}/profiles/${id}/${userId}`, body, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${AUTH_TOKEN}`
+          Authorization: `Bearer ${Cookies.get("Token")}`
         }
       });
       console.log(response.data);
-      window.location.href= "http://localhost:3001/patients"
+      window.location.href= "http://localhost:3005/patients"
       return response.data;
     } catch (error) {
       console.log(error);

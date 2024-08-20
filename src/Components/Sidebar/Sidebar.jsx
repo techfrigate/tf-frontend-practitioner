@@ -14,7 +14,7 @@ const sidebarLinks = [
   {
     name: "Worklist",
     icon: <FaListAlt size={21} />,
-    route: "/",
+    route: "/worklist",
   },
   {
     name: "Patients",
