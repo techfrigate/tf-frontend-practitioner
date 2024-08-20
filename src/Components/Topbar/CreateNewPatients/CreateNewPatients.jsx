@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addPatient, fetchPatientById, patchPatientById } from "../../../Store/patientSlice";
 import { useSearchParams } from "react-router-dom";
 import { useSelect } from "@material-tailwind/react";
-
+import Cookies from "js-cookie"
 const CreateNewPatients = () => {
   const [personalInfo, setPersonalInfo] = useState({
     firstName: "",
@@ -29,6 +29,7 @@ const CreateNewPatients = () => {
   });
 
 const[inValidObject,setInvalidObject] =useState({})
+const {profileData} =  useSelector((state)=>state.profile)
 const dispatch = useDispatch()
 const [searchParams] = useSearchParams();
   const patientId = searchParams.get('id');
@@ -59,6 +60,8 @@ const [searchParams] = useSearchParams();
     setInvalidObject((pre)=>({...pre,[id]:""}))
   };
 
+
+
 function hadnleSavePatient(){
   const validCheck =    {...personalInfo,...addressInfo}  
     const invalidObj = {}
@@ -76,19 +79,28 @@ function hadnleSavePatient(){
  }
 
  
-if(!patientId){
-  dispatch(addPatient({...personalInfo,...addressInfo}))
-}else{
-  const updates={
-    ...personalInfo,...addressInfo
-  }
 
-  dispatch(patchPatientById({id:patientId, userId:patient.userId,updates}))
-
-}
- 
+  if(!patientId){
+    const tenantId =  Cookies.get("TenantId");
+    const tenantObj =  profileData.tenants.find((elm)=>elm.tenantId===tenantId);
+    const{tenantName} = tenantObj
+    dispatch(addPatient({...personalInfo,...addressInfo,tenantName}))
+  }else{
+    const updates={
+      ...personalInfo,...addressInfo
+    }
   
+    dispatch(patchPatientById({id:patientId, userId:patient.userId,updates}))
+  
+  }
+  
+
+
 }
+
+
+
+ 
 
 const validatePhoneNumber = (phoneNumber) => {
   const phoneRegex = /^[0-9]{10}$/;

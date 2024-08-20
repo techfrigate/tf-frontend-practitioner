@@ -1,4 +1,4 @@
-import { Route, Routes, useSearchParams } from "react-router-dom";
+import { Navigate, Route, Routes, useSearchParams } from "react-router-dom";
 import "./App.css";
 import Sidebar from "./Components/Sidebar/Sidebar";
 import Topbar from "./Components/Topbar/Topbar";
@@ -25,9 +25,9 @@ function App() {
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
 
-  const accessToken = searchParams.get("vt") || Cookies.get("Token");
-  const userId = searchParams.get("ui") || Cookies.get("UserId");
-  const tenantId = searchParams.get("ti") || Cookies.get("TenantId");
+  const accessToken = searchParams.get("vt") ||  Cookies.get("Token");
+  const userId = searchParams.get("ui") ||  Cookies.get("UserId");
+  const tenantId = searchParams.get("ti") ||  Cookies.get("TenantId");
 
   useEffect(() => {
     if (userId && accessToken && tenantId) {
@@ -43,7 +43,8 @@ function App() {
         <div className="px-2 pb-2 h-[100%] w-full">
           <div className={`w-full h-[100%] rounded-md bg-white`}>
             <Routes>
-              <Route path="/" element={<WorkList />} />
+              <Route path="/" element={ <Navigate to="worklist"/>} />
+              <Route path="/worklist" element={<WorkList />} />
               <Route path="/patients" element={<Patients />} />
               <Route path="/calendar" element={<Calendar />} />
               {/* <Route path="/workitem" element={<WorkList2 />} /> */}

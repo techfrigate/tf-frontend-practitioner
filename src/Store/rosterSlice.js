@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-
+import Cookies from "js-cookie"
 // Define the initial state
 const initialState = {
     rosterStatus:"idel",
@@ -9,8 +9,6 @@ const initialState = {
 };
 
 const BASE_URL = 'http://localhost:3000';
-const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmIyZWI4MWYxNGRjNDA4YTE2N2Y3MGIiLCJ1c2VyVHlwZSI6InByYWN0aXRpb25lciIsImlhdCI6MTcyMzQ0NTQ5NCwiZXhwIjoxNzIzNDU2Mjk0fQ.cOfAP2QUr2orzf4VnPH6ZIiCjj6JwoFvAw_kVDbfCB8';
-const TENANT_ID = '66b1f56302c553a9091932be';
 
 // Create an async thunk to get rosters
 export const getRosters = createAsyncThunk(
@@ -19,7 +17,7 @@ export const getRosters = createAsyncThunk(
     try {
       const response = await axios.get(`${BASE_URL}/rosters/practitioner-roster/${userId}`, {
         headers: {
-          Authorization: `Bearer ${AUTH_TOKEN}`
+          Authorization: `Bearer ${Cookies.get("Token")}`
         },
       });
       console.log(response.data);

@@ -112,7 +112,7 @@ const Appointment = () => {
     setFilteredPatients([]);
     setSearchPatient(`${patient.firstName} ${patient.lastName}`);
   };
-console.log(selectedDoctor);
+
   const categorizeSlots = (slotsDetail) => {
     const morningSlots = [];
     const afternoonSlots = [];
