@@ -8,16 +8,17 @@ const initialState = {
   error: null,
 };
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3001';
 
 // Create an async thunk to get rosters
 export const getRosters = createAsyncThunk(
   'rosters/getRosters',
-  async (userId, { rejectWithValue }) => {
+  async (Profileid, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/rosters/practitioner-roster/${userId}`, {
+      const response = await axios.get(`${BASE_URL}/rosters/practitioner-roster/${Profileid}`, {
         headers: {
-          Authorization: `Bearer ${Cookies.get("Token")}`
+          Authorization: `Bearer ${Cookies.get("Token")}`,
+          tenantid:Cookies.get("TenantId")
         },
       });
       console.log(response.data);

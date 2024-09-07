@@ -20,13 +20,18 @@ const Calendar = () => {
   const onPopupOpen = (args) => {
     args.cancel = true;
   };
+  const {profileData} =  useSelector((state)=> state.profile)
 
   const dispatch =  useDispatch();
-
+console.log(profileData);
   useEffect(()=>{
-    dispatch(getRosters("66a131dec1316a1cc87c3953"))
-  },[])
+    if(profileData){
+      dispatch(getRosters(profileData._id))
+    }
+    
+  },[profileData])
  
+
 
 
   const { rostersData } = useSelector((state) => state.rosters);

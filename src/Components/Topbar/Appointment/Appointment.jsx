@@ -179,6 +179,7 @@ const body = {
   patientId,
   locationId,
   practitionerId,
+  channelName:patientId+practitionerId+selectedDate.slotId,
   amountDetails,
   paymentMethod: "online",
   paymentStatus: "pending",
