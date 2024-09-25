@@ -2,17 +2,13 @@ import { Navigate, Route, Routes, useSearchParams } from "react-router-dom";
 import "./App.css";
 import Sidebar from "./Components/Sidebar/Sidebar";
 import Topbar from "./Components/Topbar/Topbar";
-import Patients from "./Pages/Patients/Patients";
+
 import { useEffect, useState } from "react";
-import WorkList from "./Pages/WorkList/WorkList";
-import Calendar from "./Pages/Calendar/Calendar";
-import Billing from "./Pages/Billing/Billing";
-import CreateNewPatients from "./Components/Topbar/CreateNewPatients/CreateNewPatients";
-import Appointment from "./Components/Topbar/Appointment/Appointment";
-import Payment from "./Components/Payment/Payment";
+
 import Cookies from 'js-cookie';
 import { useDispatch } from "react-redux";
 import { fetchUserProfile } from "./Store/profileSlice";
+import routes from "./routes/routes";
 
 function App() {
   const [showForm, setShowForm] = useState(false);
@@ -42,17 +38,15 @@ function App() {
         <Topbar toggleCreateProviderForm={toggleCreateProviderForm} />
         <div className="px-2 pb-2 h-[100%] w-full">
           <div className={`w-full h-[100%] rounded-md bg-white`}>
+          <Suspenss fallback={<div>Loading...</div>}>
             <Routes>
-              <Route path="/" element={ <Navigate to="worklist"/>} />
-              <Route path="/worklist" element={<WorkList />} />
-              <Route path="/patients" element={<Patients />} />
-              <Route path="/calendar" element={<Calendar />} />
-              {/* <Route path="/workitem" element={<WorkList2 />} /> */}
-              <Route path="/billing" element={<Billing />} />
-              <Route path="/newPatients" element={<CreateNewPatients />} />
-              <Route path="/appointment" element={<Appointment />} />
-              <Route path="/payment" element={<Payment />} />
+              {
+                routes.map((route,index)=>(
+                  <Route key={index} path={route.path} element={route.component} />
+                ))
+              }
             </Routes>
+            </Suspenss>
           </div>
         </div>
       </div>
