@@ -3,8 +3,7 @@ import "./App.css";
 import Sidebar from "./Components/Sidebar/Sidebar";
 import Topbar from "./Components/Topbar/Topbar";
 
-import { useEffect, useState } from "react";
-
+import { Suspense, useEffect, useState } from "react";
 import Cookies from 'js-cookie';
 import { useDispatch } from "react-redux";
 import { fetchUserProfile } from "./Store/profileSlice";
@@ -38,7 +37,7 @@ function App() {
         <Topbar toggleCreateProviderForm={toggleCreateProviderForm} />
         <div className="px-2 pb-2 h-[100%] w-full">
           <div className={`w-full h-[100%] rounded-md bg-white`}>
-          <Suspenss fallback={<div>Loading...</div>}>
+          <Suspense fallback={<div>Loading...</div>}>
             <Routes>
               {
                 routes.map((route,index)=>(
@@ -46,7 +45,7 @@ function App() {
                 ))
               }
             </Routes>
-            </Suspenss>
+            </Suspense>
           </div>
         </div>
       </div>
