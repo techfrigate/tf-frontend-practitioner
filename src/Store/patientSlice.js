@@ -10,14 +10,15 @@ const initialState = {
   totalPages: 1,
   patient: null, // Add a new state for a single patient
 };
-
-const BASE_URL = 'http://localhost:3000';
+ 
+const ACCOUNTS_URL  = process.env.REACT_APP_ACCOUNTS_URL
+const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
 
 export const fetchPatients = createAsyncThunk(
   'patient/fetchPatients',
   async ({ page, limit }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/profiles`, {
+      const response = await axios.get(`${ACCOUNTS_URL}/profiles`, {
         headers: {
           Authorization: `Bearer ${Cookies.get("Token")}`,
           "tenantid": Cookies.get("TenantId"),
@@ -64,7 +65,7 @@ export const addPatient = createAsyncThunk(
 
 
     try {
-      const response = await axios.post(`${BASE_URL}/profiles/practioner-profile`, body, {
+      const response = await axios.post(`${ACCOUNTS_URL}/profiles/practioner-profile`, body, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`
@@ -84,7 +85,7 @@ export const fetchPatientById = createAsyncThunk(
   'patient/fetchPatientById',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/profiles/${id}`, {
+      const response = await axios.get(`${ACCOUNTS_URL}/profiles/${id}`, {
         headers: {
           Authorization: `Bearer ${Cookies.get("Token")}`,
         }
@@ -117,7 +118,7 @@ export const patchPatientById = createAsyncThunk(
     };
 
     try {
-      const response = await axios.patch(`${BASE_URL}/profiles/${id}/${userId}`, body, {
+      const response = await axios.patch(`${ACCOUNTS_URL}/profiles/${id}/${userId}`, body, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`
