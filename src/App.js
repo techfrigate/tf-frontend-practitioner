@@ -5,13 +5,13 @@ import Topbar from "./Components/Topbar/Topbar";
 
 import { Suspense, useEffect, useState } from "react";
 import Cookies from 'js-cookie';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchUserProfile } from "./Store/profileSlice";
 import routes from "./routes/routes";
 
 function App() {
   const [showForm, setShowForm] = useState(false);
-
+  const [loading, setLoading] = useState(true);  
   const toggleCreateProviderForm = () => {
     setShowForm((prevShowForm) => !prevShowForm);
   };
@@ -23,14 +23,20 @@ function App() {
   const accessToken = searchParams.get("vt") ||  Cookies.get("Token");
   const userId = searchParams.get("ui") ||  Cookies.get("UserId");
   const tenantId = searchParams.get("ti") ||  Cookies.get("TenantId");
-
+ const {profileData}  =  useSelector((state)=>state.profile)
   useEffect(() => {
-    if (userId && accessToken && tenantId) {
+    if (userId && accessToken && tenantId && !profileData) {
       dispatch(fetchUserProfile({ userId, accessToken, tenantId }));
     }
+
+    setTimeout(() => {
+      setLoading(false);  
+    }, 500); 
   }, [userId, accessToken, tenantId, dispatch]);
 
-  return (
+  return loading  && !profileData ? (
+    <div>Loading...</div>  
+  ) :(
     <div className="flex  bg-gray-200 h-[100vh] ">
       <Sidebar />
       <div className=" flex flex-col w-full max-h-[100vh] box-border overflow-hidden ">

@@ -58,7 +58,7 @@ export const addPatient = createAsyncThunk(
         {
           tenantId: Cookies.get("TenantId"),
           tenantName,
-          userTypes:['patient']
+          userType:'patient'
         }
       ]
     };
