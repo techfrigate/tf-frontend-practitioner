@@ -6,9 +6,9 @@ const ProtectedRoute = ({ children }) => {
     const userId = Cookies.get("UserId");
     const tenantId = Cookies.get("TenantId");
   
-    if (!accessToken || !userId || !tenantId) {
-      return <Navigate to="/unauthorized" />;
-    }
+    // if (!accessToken || !userId || !tenantId) {
+    //   return <Navigate to="/unauthorized" />;
+    // }
     
     return children;
   };

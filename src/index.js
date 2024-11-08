@@ -6,6 +6,8 @@ import store from "./Store";
 import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -13,6 +15,7 @@ root.render(
     <BrowserRouter>
       <React.StrictMode>
         <App />
+        <Toaster position="bottom-right"/>
       </React.StrictMode>
     </BrowserRouter>
   </Provider>

@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { data } from "./WorkListData";
 
-const WorkListTd = ({ offset, itemsPerPage }) => {
+const WorkListTd = ({ offset, itemsPerPage, handlePrescription }) => {
   return (
     <>
       {data.slice(offset, offset + itemsPerPage).map((item) => (
@@ -14,7 +14,12 @@ const WorkListTd = ({ offset, itemsPerPage }) => {
             {item.title}
             <span className="text-xs text-gray-500">{item.time}</span>
           </td>
-          <td className="py-4 px-4 text-nowrap text-xs">{item.type}</td>
+          <td
+            onClick={() => handlePrescription(item)}
+            className="py-4 px-4 text-nowrap text-xs"
+          >
+            {item.type}
+          </td>
           <td className="py-4 px-4 text-nowrap text-xs">
             <div className="flex gap-2 items-center">
               <div className="bg-[#1e817e] w-[30px] h-[30px] rounded-full flex items-center justify-center text-white text-sm">
