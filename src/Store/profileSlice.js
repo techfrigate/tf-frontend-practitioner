@@ -8,14 +8,17 @@ const initialState = {
     loading: false,
     error: null,
   }
-  
+  const ACCOUNTS_URL  = process.env.REACT_APP_ACCOUNTS_URL
+const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
+
+
 // Async thunk for fetching user profile
 export const fetchUserProfile = createAsyncThunk(
   'profile/fetchUserProfile',
   async ({ userId, accessToken, tenantId }, {rejectWithValue}) => {
     console.log(userId, accessToken, tenantId );
     try {
-      const response = await axios.get(`http://localhost:3000/profiles/user-profile/${userId}`, {
+      const response = await axios.get(`${ACCOUNTS_URL}/profiles/user-profile/${userId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,

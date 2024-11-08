@@ -7,13 +7,16 @@ const initialState = {
   slotsError: null,
 };
 
-const BASE_URL = "http://localhost:3001/slots";
+ 
+
+const ACCOUNTS_URL  = process.env.REACT_APP_ACCOUNTS_URL
+const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
 
 export const getSlots = createAsyncThunk(
   "slots/getSlots",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(BASE_URL, {
+      const response = await axios.get(`${ADMIN_URL}/slots`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`,
@@ -35,7 +38,7 @@ export const editSlotStatus = createAsyncThunk(
   async ({slotDetailSlotId,slotId},{dispatch,rejectWithValue})=>{
     try {
 
-      const res =  await axios.patch(`${BASE_URL}/${slotId}`,{},{
+      const res =  await axios.patch(`${ADMIN_URL}/slots/${slotId}`,{},{
         headers:{
              "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`,

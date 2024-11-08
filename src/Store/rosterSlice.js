@@ -8,14 +8,16 @@ const initialState = {
   error: null,
 };
 
-const BASE_URL = 'http://localhost:3001';
+ 
+const ACCOUNTS_URL  = process.env.REACT_APP_ACCOUNTS_URL
+const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
 
 // Create an async thunk to get rosters
 export const getRosters = createAsyncThunk(
   'rosters/getRosters',
   async (Profileid, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/rosters/practitioner-roster/${Profileid}`, {
+      const response = await axios.get(`${ADMIN_URL}/rosters/practitioner-roster/${Profileid}`, {
         headers: {
           Authorization: `Bearer ${Cookies.get("Token")}`,
           tenantid:Cookies.get("TenantId")

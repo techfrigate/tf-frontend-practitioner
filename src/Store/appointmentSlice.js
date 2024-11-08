@@ -9,14 +9,17 @@ const initialState = {
 };
 
 
-const BASE_URL = "http://localhost:3001/appointments";
+ 
+
+const ACCOUNTS_URL  = process.env.REACT_APP_ACCOUNTS_URL
+const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
 
 
 export const createAppointment = createAsyncThunk(
   "appointment/createAppointment",
   async ({body,slotDetailSlotId,slotId,setShowPayment}, { dispatch,rejectWithValue }) => {
     try {
-      const response = await axios.post(BASE_URL, {...body,tenantId:Cookies.get("TenantId")}, { 
+      const response = await axios.post(`${ADMIN_URL}/appointments`, {...body,tenantId:Cookies.get("TenantId")}, { 
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`,
@@ -38,7 +41,7 @@ export const updateAppointment = createAsyncThunk(
   "appointment/createAppointment",
   async ({_id,body}, { dispatch,rejectWithValue }) => {
     try {
-      const response = await axios.patch(`${BASE_URL}/${_id}`, body, { 
+      const response = await axios.patch(`${ADMIN_URL}/appointments/${_id}`, body, { 
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`,
