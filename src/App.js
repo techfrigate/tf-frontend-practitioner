@@ -1,8 +1,31 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { Navigate, Route, Routes, useSearchParams } from "react-router-dom";
 import "./App.css";
-import Sidebar from "./Components/Sidebar/Sidebar";
-import Topbar from "./Components/Topbar/Topbar";
-
+import Sidebar from "./components/Sidebar/Sidebar";
+import Topbar from "./components/Topbar/Topbar";
+import { Suspense } from "react";
 import { useEffect, useState } from "react";
 
 import Cookies from 'js-cookie';
@@ -16,7 +39,6 @@ function App() {
   const toggleCreateProviderForm = () => {
     setShowForm((prevShowForm) => !prevShowForm);
   };
-
 
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
@@ -32,13 +54,13 @@ function App() {
   }, [userId, accessToken, tenantId, dispatch]);
 
   return (
-    <div className="flex  bg-gray-200 h-[100vh] ">
+    <div className="flex bg-gray-200 h-[100vh]">
       <Sidebar />
-      <div className=" flex flex-col w-full max-h-[100vh] box-border overflow-hidden ">
+      <div className=" flex flex-col w-full h-[100%] pb-10 box-border overflow-hidden ">
         <Topbar toggleCreateProviderForm={toggleCreateProviderForm} />
-        <div className="px-2 pb-2 h-[100%] w-full">
-          <div className={`w-full h-[100%] rounded-md bg-white`}>
-          <Suspenss fallback={<div>Loading...</div>}>
+        <div className="px-2 pb-2 h-[92.5%] w-full box-border  ">
+          <div className={`w-full  h-[100%] box-border  overflow-hidden rounded-md bg-white`}>
+          <Suspense fallback={<div>Loading...</div>}>
             <Routes>
               {
                 routes.map((route,index)=>(
@@ -46,7 +68,7 @@ function App() {
                 ))
               }
             </Routes>
-            </Suspenss>
+            </Suspense>
           </div>
         </div>
       </div>
@@ -55,3 +77,8 @@ function App() {
 }
 
 export default App;
+
+
+
+
+

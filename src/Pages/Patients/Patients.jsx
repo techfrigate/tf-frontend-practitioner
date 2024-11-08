@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
-import CustomTable from "../../Components/Common/CustomTable";
+import CustomTable from "../../components/Common/CustomTable";
 import PatientsTd from "./PatientsTd";
 import { data } from "./PatientsData";
 import PatientsttrHeader from "./PatientstrHeader";
