@@ -3,16 +3,16 @@ import {
   Avatar,
   AvatarImage,
   AvatarFallback,
-} from "../../components/ui/avatar";
-import { ScrollArea, ScrollBar } from "../../components/ui/scroll-area";
-import { Badge } from "../../components/ui/badge";
+} from "../../Components/ui/avatar";
+import { ScrollArea, ScrollBar } from "../../Components/ui/scroll-area";
+import { Badge } from "../../Components/ui/badge";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../../components/ui/tabs";
-import { showErrorToast, showSuccessToast } from "../../components/toastUtils";
+} from "../../Components/ui/tabs";
+import { showErrorToast, showSuccessToast } from "../../Components/toastUtils";
 import PatientTableContent from "./PatientTableContent";
 import { useNavigate } from "react-router-dom";
 import { StethoscopeIcon, TableIcon } from "lucide-react";

@@ -148,20 +148,18 @@
 
 // export default PatientTableContent;
 
-
-
 import React from "react";
-import GlobalTable from "../../components/Common/GlobalTable";
-import { Badge } from "../../components/ui/badge";
+import GlobalTable from "../../Components/Common/GlobalTable";
+import { Badge } from "../../Components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { TableCell, TableRow } from "../../components/ui/table";
+import { TableCell, TableRow } from "../../Components/ui/table";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "../../components/ui/select";
+} from "../../Components/ui/select";
 import { useSelector } from "react-redux";
 
 const statusOptions = ["Scheduled", "Checked In", "Checked Out", "Closed"];
@@ -174,7 +172,7 @@ const allowedTransitions = {
   Closed: [],
 };
 
-const PatientTableContent = ({ patients, onStatusChange}) => {
+const PatientTableContent = ({ patients, onStatusChange }) => {
   const navigate = useNavigate();
   const statusColors = {
     Scheduled: "infoLightPurple",

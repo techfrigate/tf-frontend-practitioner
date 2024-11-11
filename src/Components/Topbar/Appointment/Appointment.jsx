@@ -11,6 +11,7 @@ import ScheduleSelector from "../../appointment/ScheduleSelector";
 import AvailableSlots from "../../appointment/AvailableSlots";
 import Payment from "../../Payment/Payment";
 import { createAppointment } from "../../../Store/appointmentSlice";
+import Loading from "../../Common/Loading";
 
 const Appointment = () => {
   const [searchDoctor, setSearchDoctor] = useState("");
@@ -27,8 +28,11 @@ const Appointment = () => {
   const [afternoonSlots, setAfternoonSlots] = useState([]);
   const [eveningSlots, setEveningSlots] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showPayment,setShowPayment] =  useState(false);
-  const { slots: { slotsData },patient: { patients }} = useSelector((state) => state);
+  const [showPayment, setShowPayment] = useState(false);
+  const {
+    slots: { slotsData },
+    patient: { patients, status },
+  } = useSelector((state) => state);
 
   const dispatch = useDispatch();
 
@@ -162,8 +166,8 @@ const handleBookAppointment =()=>{
  const slotSelctedDoctor =  selectedDoctor.slots.find((elm)=>elm._id === selectedDate.slotId)
 const patientId =  selectedPatient._id
 const amount =  consultationType==='Online'?selectedDoctor.slots[0].practitionerData.onlineFees:selectedDoctor.slots[0].practitionerData.inPersonFees
-const amountDetails = {
-  amount,
+    const amountDetails = {
+      amount,
   gst:18,
   discount:0,
   netAmount:amount*82/100
@@ -174,30 +178,30 @@ const{locationId,practitionerId,practitionerData:{_id:precMoongid, ...resPractit
 
 const{phoneNumber:{dialCode,value}, ...resPracData} =  resPractitionerData
 const{address:{_id:locationAddressid,  ...resLocationAddress}, ...resLocaData} = resLocationData
-const body = {
-  slotId: selectedDate.slotId,
-  patientId,
-  locationId,
-  practitionerId,
+    const body = {
+      slotId: selectedDate.slotId,
+      patientId,
+      locationId,
+      practitionerId,
   channelName:patientId+practitionerId+selectedDate.slotId,
-  amountDetails,
-  paymentMethod: "online",
-  paymentStatus: "pending",
-  bookingStatus: {
-    pending: new Date(),
-  },
-  startDateTime,
-  endDateTime,
-  visitType,
-  duration,
+      amountDetails,
+      paymentMethod: "online",
+      paymentStatus: "pending",
+      bookingStatus: {
+        pending: new Date(),
+      },
+      startDateTime,
+      endDateTime,
+      visitType,
+      duration,
   practitionerData:{
-    ...resPracData,
+        ...resPracData,
     phoneNumber:{
       dialCode,value
     }
-  },
+      },
   locationData:{
-    ...resLocaData,
+        ...resLocaData,
     address:{
       ...resLocationAddress
     }
@@ -208,70 +212,71 @@ const body = {
 dispatch(createAppointment({body,slotDetailSlotId,slotId:selectedDate.slotId,setShowPayment}))
 }
 
- 
+
   return (
     <div className="px-3 py-3 h-[100%] customScrollbar">
-    {
-      showPayment?<Payment/>:
-      <div className="border-2 border-[#ecf7f4] shadow-lg   rounded-lg pb-4 p-4 bg-gray-50 h-[100%]  ">
-        <div className="flex flex-col md:flex-row gap-6 w-full max-w-3xl mx-auto">
-          <DoctorSearch
-            searchDoctor={searchDoctor}
-            handleDoctorSearch={handleDoctorSearch}
-            filteredDoctors={filteredDoctors}
-            handleDoctorSelect={handleDoctorSelect}
-          />
-          <PatientSearch
-            searchPatient={searchPatient}
-            handlePatientSearch={handlePatientSearch}
-            filteredPatients={filteredPatients}
-            handlePatientSelect={handlePatientSelect}
-          />
-        </div>
-        {selectedDoctor && selectedPatient && (
-          <div>
-            <div className="flex flex-col lg:flex-row items-center justify-center gap-5">
-              <ConsultationType
-                consultationType={consultationType}
-                handleConsultationChange={handleConsultationChange}
-                selectedDoctor={selectedDoctor}
-              />
-              {consultationDateshow && (
-                <ScheduleSelector
-                  selectedDoctor={selectedDoctor}
+      {showPayment ? (
+        <Payment />
+      ) : (
+        <div className="border-2 border-[#ecf7f4] shadow-lg   rounded-lg pb-4 p-4 bg-gray-50 h-[100%]  ">
+          <div className="flex flex-col md:flex-row gap-6 w-full max-w-3xl mx-auto">
+            <DoctorSearch
+              searchDoctor={searchDoctor}
+              handleDoctorSearch={handleDoctorSearch}
+              filteredDoctors={filteredDoctors}
+              handleDoctorSelect={handleDoctorSelect}
+            />
+            <PatientSearch
+              searchPatient={searchPatient}
+              handlePatientSearch={handlePatientSearch}
+              filteredPatients={filteredPatients}
+              handlePatientSelect={handlePatientSelect}
+            />
+          </div>
+          {selectedDoctor && selectedPatient && (
+            <div>
+              <div className="flex flex-col lg:flex-row items-center justify-center gap-5">
+                <ConsultationType
                   consultationType={consultationType}
-                  handleDateSelect={handleDateSelect}
-                  selectedDate={selectedDate}
-                  currentIndex={currentIndex}
-                  handleArrowClick={handleArrowClick}
+                  handleConsultationChange={handleConsultationChange}
+                  selectedDoctor={selectedDoctor}
+                />
+                {consultationDateshow && (
+                  <ScheduleSelector
+                    selectedDoctor={selectedDoctor}
+                    consultationType={consultationType}
+                    handleDateSelect={handleDateSelect}
+                    selectedDate={selectedDate}
+                    currentIndex={currentIndex}
+                    handleArrowClick={handleArrowClick}
+                  />
+                )}
+              </div>
+              {consultationDateshow && (
+                <AvailableSlots
+                  morningSlots={morningSlots}
+                  afternoonSlots={afternoonSlots}
+                  eveningSlots={eveningSlots}
+                  selectedTimeSlot={selectedTimeSlot}
+                  handleTimeSlotSelect={handleTimeSlotSelect}
                 />
               )}
-            </div>
-            {consultationDateshow && (
-              <AvailableSlots
-                morningSlots={morningSlots}  
-                afternoonSlots={afternoonSlots}
-                eveningSlots={eveningSlots}
-                selectedTimeSlot={selectedTimeSlot}
-                handleTimeSlotSelect={handleTimeSlotSelect}
-              />
-            )}
-            <div className="flex gap-4 justify-end mt-3">
-              <button className="border border-slate-300 py-2 px-6 rounded-md transition transform hover:scale-110 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#008a6c]">
-                Cancel
-              </button>
-              
-                <button className="bg-[#00A182] text-white py-2 px-6 rounded-md transition transform hover:scale-110 hover:bg-[#008a6c] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00A182]" onClick={handleBookAppointment}>
+              <div className="flex gap-4 justify-end mt-3">
+                <button className="border border-slate-300 py-2 px-6 rounded-md transition transform hover:scale-110 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#008a6c]">
+                  Cancel
+                </button>
+
+                <button
+                  className="bg-[#00A182] text-white py-2 px-6 rounded-md transition transform hover:scale-110 hover:bg-[#008a6c] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00A182]"
+                  onClick={handleBookAppointment}
+                >
                   Book Appointment
                 </button>
-          
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-      
-          }
-     
+          )}
+        </div>
+      )}
     </div>
   );
 };

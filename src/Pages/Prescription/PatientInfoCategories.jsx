@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import categories from "./CategoriesData";
 import FillDetailsSheet from "./FillDetailsSheet";
-import GlobalSheet from "../../components/Common/GlobalSheet";
+import GlobalSheet from "../../Components/Common/GlobalSheet";
 import { useLocation } from "react-router-dom";
-import { ScrollArea } from "../../components/ui/scroll-area";
+import { ScrollArea } from "../../Components/ui/scroll-area";
 import { useSelector } from "react-redux";
 
 const PatientInfoCategories = () => {

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
-import CustomTable from "../../components/Common/CustomTable";
+import CustomTable from "../../Components/Common/CustomTable";
 import PatientsTd from "./PatientsTd";
-import { data } from "./PatientsData";
-import PatientsttrHeader from "./PatientstrHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPatients } from "../../Store/patientSlice";
+import Loading from "../../Components/Common/Loading";
+import PatientsttrHeader from "./PatientstrHeader";
 
 const Patients = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,7 +21,10 @@ const Patients = () => {
   },[currentPage,itemsPerPage])
 
 
-  const{totalPages} = useSelector((state)=>state.patient)
+  const{totalPages,status} = useSelector((state)=>state.patient)
+  if (status === "loading") {
+    return <Loading size="16" color="teal-500" className="h-screen" />;
+  }
 
   return (
     <div className="overflow-x-auto sm:rounded-lg">

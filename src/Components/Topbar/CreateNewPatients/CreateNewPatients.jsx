@@ -7,7 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { addPatient, fetchPatientById, patchPatientById } from "../../../Store/patientSlice";
 import { useSearchParams } from "react-router-dom";
 import { useSelect } from "@material-tailwind/react";
-import Cookies from "js-cookie"
+import Cookies from "js-cookie";
+import Loading from "../../Common/Loading";
 const CreateNewPatients = () => {
   const [personalInfo, setPersonalInfo] = useState({
     firstName: "",
@@ -28,10 +29,10 @@ const CreateNewPatients = () => {
     zipCode: ""
   });
 
-const[inValidObject,setInvalidObject] =useState({})
-const {profileData} =  useSelector((state)=>state.profile)
-const dispatch = useDispatch()
-const [searchParams] = useSearchParams();
+  const [inValidObject, setInvalidObject] = useState({});
+  const { profileData, status } = useSelector((state) => state.profile);
+  const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
   const patientId = searchParams.get('id');
 
   const handlePersonalInfoChange = (e) => {
@@ -68,15 +69,15 @@ function hadnleSavePatient(){
     Object.keys(validCheck).map((key)=>{
     if(!validCheck[key] && key !=="address2"){
       invalidObj[key] =  `please provied ${key}`
-    }
+      }
   })
 
   if(!validatePhoneNumber(personalInfo.phoneNumber)) {
-    invalidObj.phoneNumber = `Please provide a valid 10-digit phone number`;
-  }
+      invalidObj.phoneNumber = `Please provide a valid 10-digit phone number`;
+    }
  if(!invalidObj){
   return setInvalidObject(invalidObj)
- }
+    }
 
  
 
@@ -102,43 +103,51 @@ function hadnleSavePatient(){
 
  
 
-const validatePhoneNumber = (phoneNumber) => {
-  const phoneRegex = /^[0-9]{10}$/;
-  return phoneRegex.test(phoneNumber);
-};
+  const validatePhoneNumber = (phoneNumber) => {
+    const phoneRegex = /^[0-9]{10}$/;
+    return phoneRegex.test(phoneNumber);
+  };
 
-useEffect(() => {
-  if (patientId) {
-    dispatch(fetchPatientById(patientId));
-  }
-}, [patientId, dispatch]);
+  useEffect(() => {
+    if (patientId) {
+      dispatch(fetchPatientById(patientId));
+    }
+  }, [patientId, dispatch]);
 
+  const { patient, saveStatus } = useSelector((state) => state.patient);
 
-const{patient}  = useSelector((state)=>state.patient)
-
- 
 useEffect(()=>{
   if(patient){
     const{address:{addressLine1,addressLine2,city,state,country,zipCode}, phoneNumber:{dialCode,value},firstName,lastName,dob,gender,email} =  patient
-  
+
     setPersonalInfo(()=> ({dialCode,phoneNumber:value,firstName,lastName,dob,gender,email}))
-    setAddressInfo({
-      address1: addressLine1,
-      address2: addressLine2,
+      setAddressInfo({
+        address1: addressLine1,
+        address2: addressLine2,
       city,state,country,zipCode
-    });
+      });
   }else{
-    setPersonalInfo({
+      setPersonalInfo({
       firstName: "",lastName: "",dob: "",email: "",gender: "",dialCode: "+91",phoneNumber:""
     })
 
-    setAddressInfo({
-      address1: "",address2: "",city: "",state: "",country: "",zipCode: ""
-    })
+      setAddressInfo({
+        address1: "",
+        address2: "",
+        city: "",
+        state: "",
+        country: "",
+        zipCode: "",
+      });
+    }
+  }, [patient]);
+
+  if (saveStatus === "loading") {
+    return <Loading size="16" color="teal-500" className="h-screen" />;
   }
-
-},[patient])
-
+  if (status === "loading") {
+    return <Loading size="16" color="teal-500" className="h-screen" />;
+  }
 
   return (
     <div className="p-4 max-h-full px-3 customScrollbar">
