@@ -1,29 +1,6 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import { Navigate, Route, Routes, useSearchParams } from "react-router-dom";
 import "./App.css";
- 
+
 import Sidebar from "./Components/Sidebar/Sidebar";
 import Topbar from "./Components/Topbar/Topbar";
 
@@ -32,10 +9,11 @@ import Cookies from 'js-cookie';
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserProfile } from "./Store/profileSlice";
 import routes from "./routes/routes";
+import Loading from "./Components/Common/Loading";
 
 function App() {
   const [showForm, setShowForm] = useState(false);
-  const [loading, setLoading] = useState(true);  
+  const [loading, setLoading] = useState(true);
   const toggleCreateProviderForm = () => {
     setShowForm((prevShowForm) => !prevShowForm);
   };
@@ -53,8 +31,8 @@ function App() {
     }
 
     setTimeout(() => {
-      setLoading(false);  
-    }, 500); 
+      setLoading(false);
+    }, 500);
   }, [userId, accessToken, tenantId, dispatch]);
 
  
@@ -68,14 +46,14 @@ function App() {
         <div className="px-2 pb-2 h-[92.5%] w-full box-border  ">
           <div className={`w-full  h-[100%] box-border  overflow-hidden rounded-md bg-white`}>
  
-          <Suspense fallback={<div>Loading...</div>}>
-            <Routes>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
               {
                 routes.map((route,index)=>(
                   <Route key={index} path={route.path} element={route.component} />
                 ))
               }
-            </Routes>
+              </Routes>
             </Suspense>
           </div>
         </div>
@@ -85,8 +63,3 @@ function App() {
 }
 
 export default App;
-
-
-
-
-

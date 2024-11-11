@@ -1,33 +1,36 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { editSlotStatus, getSlots } from "./slotsSlice";
-import Cookies from "js-cookie"
+import Cookies from "js-cookie";
 const initialState = {
   appointment: {},
   error: null,
-  appointmentStatus: "idle", 
+  appointmentStatus: "idle",
 };
 
-
- 
-
-const ACCOUNTS_URL  = process.env.REACT_APP_ACCOUNTS_URL
-const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
-
+const ACCOUNTS_URL = process.env.REACT_APP_ACCOUNTS_URL;
+const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
 
 export const createAppointment = createAsyncThunk(
   "appointment/createAppointment",
-  async ({body,slotDetailSlotId,slotId,setShowPayment}, { dispatch,rejectWithValue }) => {
+  async (
+    { body, slotDetailSlotId, slotId, setShowPayment },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
-      const response = await axios.post(`${ADMIN_URL}/appointments`, {...body,tenantId:Cookies.get("TenantId")}, { 
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${Cookies.get("Token")}`,
-        },
-      });
+      const response = await axios.post(
+        `${ADMIN_URL}/appointments`,
+        { ...body, tenantId: Cookies.get("TenantId") },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("Token")}`,
+          },
+        }
+      );
       console.log(response.data, "appointment data");
-      dispatch(editSlotStatus({slotDetailSlotId,slotId}))
-      setShowPayment(true);   
+      dispatch(editSlotStatus({ slotDetailSlotId, slotId }));
+      setShowPayment(true);
       return response.data;
     } catch (error) {
       console.log(error);
@@ -36,17 +39,20 @@ export const createAppointment = createAsyncThunk(
   }
 );
 
-
 export const updateAppointment = createAsyncThunk(
   "appointment/createAppointment",
-  async ({_id,body}, { dispatch,rejectWithValue }) => {
+  async ({ _id, body }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await axios.patch(`${ADMIN_URL}/appointments/${_id}`, body, { 
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${Cookies.get("Token")}`,
-        },
-      });
+      const response = await axios.patch(
+        `${ADMIN_URL}/appointments/${_id}`,
+        body,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("Token")}`,
+          },
+        }
+      );
       console.log(response.data);
       return response.data;
     } catch (error) {
@@ -55,7 +61,6 @@ export const updateAppointment = createAsyncThunk(
     }
   }
 );
-
 
 const appointmentSlice = createSlice({
   name: "appointment",

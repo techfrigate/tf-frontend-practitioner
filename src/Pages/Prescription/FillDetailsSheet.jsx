@@ -1,6 +1,6 @@
 import React from "react";
 import { ArrowLeft } from "lucide-react";
-import GlobalForm from "../../components/Common/GlobalForm";
+import GlobalForm from "../../Components/Common/GlobalForm";
 import { useDispatch } from "react-redux";
 import { addFormData, setFormData } from "../../../src/Store/prescriptionformDataSlice";
 import { useSelector } from "react-redux";
@@ -614,7 +614,7 @@ const FillDetailsSheet = ({
 
   // Retrieve form fields for the selected category
   const formFields = categoryFormFields[selectedCategory.name] || [];
- 
+
   return (
     <div className="fixed inset-0 z-50 flex">
       <div

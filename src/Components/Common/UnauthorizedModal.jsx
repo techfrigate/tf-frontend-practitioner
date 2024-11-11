@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 
 const UnauthorizedModal = () => {
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(5);  
+  const [countdown, setCountdown] = useState(5);
 
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCountdown((prevCountdown) => prevCountdown - 1);
     }, 1000);
- 
+
     const timer = setTimeout(() => {
       window.location.href = "http://localhost:3002";
     }, 5000);
@@ -40,4 +40,3 @@ const UnauthorizedModal = () => {
 };
 
 export default UnauthorizedModal;
-   
