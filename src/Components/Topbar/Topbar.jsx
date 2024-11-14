@@ -7,6 +7,8 @@ import NotificationModal from "./NotificationModal";
 import { useLocation } from "react-router-dom";
 import CustomButton from "../Common/CustomButton";
 import CreateNewModal from "./CreateNewModal";
+import HospitalModal from "./HospitalModal";
+import Cookies from "js-cookie";
 
 const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -18,6 +20,11 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   const createNewModalRef = useRef(null);
   const thanosRef = useRef();
 
+  const [selectedTenant, setSelectedTenant] = useState();
+  // eslint-disable-next-line
+  const [isHospitalOpen, setHospitalOpen] = useState(false);
+  const [isUserType, setUserType] = useState(false);
+
   const pathSegments = [
     "Practitioner",
     ...pathname.split("/").filter((x) => x),
@@ -28,6 +35,7 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
       setIsNotificationModalOpen(false);
       setIsHelpModalOpen(false);
       setIsProfileModalOpen(false);
+      setHospitalOpen(false);
     }
   };
 
@@ -71,6 +79,7 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
     setIsProfileModalOpen(false);
   };
 
+ 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -93,12 +102,30 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
     };
   }, []);
 
+  const handleHospitalChange = (tenant) => {
+  
+    Cookies.set("TenantId", tenant.tenantId);
+    setSelectedTenant(tenant);
+    setHospitalOpen(false);
+    window.location.replace(window.location.href);
+  };
+
+  const handleusertypeChange = (tenant) => {
+    Cookies.set("TenantId", tenant.tenantId);
+    setSelectedTenant(tenant);
+    setUserType(false);
+    window.location.replace(window.location.href);
+  };
+
   return (
     <div className="w-full p-2  ">
       <div className="bg-white rounded-md px-10 py-2 flex justify-between items-center">
         <div className="flex flex-col justify-center items-start">
-          <h1 className="text-xl font-semibold mb-1 text-gray-800">Hospital</h1>
-
+          <HospitalModal
+            selectedTenant={selectedTenant}
+            handleHospitalChange={handleHospitalChange}
+            setSelectedTenant={setSelectedTenant}
+          />
           <p className="breadcrumb">
             {pathSegments.map((segment, index) => (
               <span key={index}>
@@ -144,7 +171,7 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
                 onClick={handleProfileClick}
               />
               {isProfileModalOpen && (
-                <ProfileModal onClose={() => setIsProfileModalOpen(false)} />
+                <ProfileModal handleusertypeChange={handleusertypeChange} />
               )}
             </div>
           </div>

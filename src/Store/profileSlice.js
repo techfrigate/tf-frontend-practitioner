@@ -4,9 +4,9 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const initialState = {
-    profileData: null,
-    loading: false,
-    error: null,
+  profileData: null,
+  loading: false,
+  error: null,
   }
   const ACCOUNTS_URL  = process.env.REACT_APP_ACCOUNTS_URL
 const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
@@ -19,20 +19,25 @@ export const fetchUserProfile = createAsyncThunk(
     console.log(userId, accessToken, tenantId );
     try {
       const response = await axios.get(`${ACCOUNTS_URL}/profiles/user-profile/${userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-          usertype: "practitioner",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+            usertype: "practitioner",
           tenantId
-        },
+          },
       });
       console.log("response of practitoner",response.data);
       Cookies.set("Token", response.data.access_token);
       Cookies.set("TenantId", tenantId);
       Cookies.set("UserId", userId);
+
+      localStorage.setItem(
+        "admin_profile",
+        JSON.stringify(response.data.profile)
+      );
       return response.data.profile;
     } catch (error) {
-        console.log("practitioner error", error);
+      console.log("practitioner error", error);
       return rejectWithValue(error.response.data);
     }
   }
