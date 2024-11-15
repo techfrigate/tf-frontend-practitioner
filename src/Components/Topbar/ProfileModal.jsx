@@ -49,7 +49,6 @@ const ProfileModal = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  // const admin_profile = JSON.parse(localStorage.getItem("admin_profile"));
   const tenantId = Cookies.get("TenantId");
 
   const profile = JSON.parse(localStorage.getItem("admin_profile"));
@@ -89,33 +88,24 @@ const ProfileModal = () => {
   }, []);
 
   const handleUserTypeChange = (type) => {
-    const updatedTenants = mergedTenants.map((tenant) => {
-      if (tenant.tenantId === tenantId) {
-        if (!tenant.userType.includes(type)) {
-          tenant.userType.push(type);
-        }
-      }
-      return tenant;
-    });
     setSelectedUserType(type);
-    setIsDropdownOpen(false);
-    console.log(updatedTenants);
     console.log(`User type for tenant ${tenantId} changed to ${type}`);
     const token = Cookies.get("Token");
     const { userId } = profile;
 
     setIsDropdownOpen(false);
+    const baseUrl = "http://localhost";
+    const ports = {
+      provider: 3004,
+      central_admin: 3003,
+      practitioner: 3005,
+      patient: 3006,
+    };
 
-    let url = "http://localhost:3002";
-    if (type === "provider") {
-      url = `http://localhost:3004?vt=${token}&ui=${userId}&ti=${tenantId}`;
-    } else if (type === "central_admin") {
-      url = `http://localhost:3003?vt=${token}&ui=${userId}&ti=${tenantId}`;
-    } else if (type === "practitioner") {
-      url = `http://localhost:3005?vt=${token}&ui=${userId}&ti=${tenantId}`;
-    } else if (type === "patient") {
-      url = `http://localhost:3006?vt=${token}&ui=${userId}&ti=${tenantId}`;
-    }
+    const port = ports[type];
+    const url = port
+      ? `${baseUrl}:${port}?vt=${token}&ui=${userId}&ti=${tenantId}`
+      : `${baseUrl}:3002`;
 
     window.location.href = url;
   };

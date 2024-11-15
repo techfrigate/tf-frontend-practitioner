@@ -21,9 +21,6 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   const thanosRef = useRef();
 
   const [selectedTenant, setSelectedTenant] = useState();
-  // eslint-disable-next-line
-  const [isHospitalOpen, setHospitalOpen] = useState(false);
-  const [isUserType, setUserType] = useState(false);
 
   const pathSegments = [
     "Practitioner",
@@ -35,7 +32,6 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
       setIsNotificationModalOpen(false);
       setIsHelpModalOpen(false);
       setIsProfileModalOpen(false);
-      setHospitalOpen(false);
     }
   };
 
@@ -79,7 +75,6 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
     setIsProfileModalOpen(false);
   };
 
- 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -103,17 +98,9 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   }, []);
 
   const handleHospitalChange = (tenant) => {
-  
     Cookies.set("TenantId", tenant.tenantId);
     setSelectedTenant(tenant);
-    setHospitalOpen(false);
-    window.location.replace(window.location.href);
-  };
 
-  const handleusertypeChange = (tenant) => {
-    Cookies.set("TenantId", tenant.tenantId);
-    setSelectedTenant(tenant);
-    setUserType(false);
     window.location.replace(window.location.href);
   };
 
@@ -170,9 +157,7 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
                 className="w-full h-full object-cover rounded-full border-2 border-[#64C6B0] shadow-lg"
                 onClick={handleProfileClick}
               />
-              {isProfileModalOpen && (
-                <ProfileModal handleusertypeChange={handleusertypeChange} />
-              )}
+              {isProfileModalOpen && <ProfileModal />}
             </div>
           </div>
         </div>

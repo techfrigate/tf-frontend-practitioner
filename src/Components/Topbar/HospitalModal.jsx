@@ -1,7 +1,13 @@
+import { Cookie } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { IoIosArrowDown } from "react-icons/io";
-
-const HospitalModal = ({ selectedTenant, handleHospitalChange,setSelectedTenant }) => {
+import { useSelector } from "react-redux";
+import Cookies from "js-cookie";
+const HospitalModal = ({
+  selectedTenant,
+  handleHospitalChange,
+  setSelectedTenant,
+}) => {
   const [isHospitalOpen, setHospitalOpen] = useState(false);
   const [mergedTenants, setMergedTenants] = useState([]);
 
@@ -10,9 +16,9 @@ const HospitalModal = ({ selectedTenant, handleHospitalChange,setSelectedTenant 
   };
 
   const admin_profile = JSON.parse(localStorage.getItem("admin_profile"));
+  const { profileData } = useSelector((state) => state.profile);
   useEffect(() => {
-
-    if (admin_profile && Array.isArray(admin_profile.tenants)) {
+    if (profileData && admin_profile && Array.isArray(admin_profile.tenants)) {
       const merged = admin_profile.tenants.reduce((acc, curr) => {
         const existingTenant = acc.find(
           (tenant) => tenant.tenantId === curr.tenantId
@@ -21,7 +27,6 @@ const HospitalModal = ({ selectedTenant, handleHospitalChange,setSelectedTenant 
         if (existingTenant) {
           if (!existingTenant.userType.includes(curr.userType)) {
             existingTenant.userType.push(curr.userType);
-          
           }
         } else {
           acc.push({
@@ -34,13 +39,13 @@ const HospitalModal = ({ selectedTenant, handleHospitalChange,setSelectedTenant 
 
         return acc;
       }, []);
-      setSelectedTenant(merged[0])
+      const tenantId = Cookies.get("TenantId");
+      const findTeannt = merged.find((elm) => elm.tenantId == tenantId);
+      setSelectedTenant(findTeannt);
 
       setMergedTenants(merged);
     }
-  }, []);
-   
-
+  }, [profileData]);
 
   return (
     <div className="relative">
@@ -59,16 +64,19 @@ const HospitalModal = ({ selectedTenant, handleHospitalChange,setSelectedTenant 
         </div>
         {isHospitalOpen && (
           <div className="absolute top-full left-0 w-max bg-white border border-gray-300 rounded-md mt-1 z-10">
-            { mergedTenants.length > 0 ? (
-              mergedTenants.map((tenant, index) => (
-                selectedTenant.tenantId !== tenant.tenantId && <div
-                  key={index}
-                  className="p-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleHospitalChange(tenant)}
-                >
-                  {tenant.tenantName}
-                </div>
-              ))
+            {mergedTenants.length > 0 ? (
+              mergedTenants.map(
+                (tenant, index) =>
+                  selectedTenant.tenantId !== tenant.tenantId && (
+                    <div
+                      key={index}
+                      className="p-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => handleHospitalChange(tenant)}
+                    >
+                      {tenant.tenantName}
+                    </div>
+                  )
+              )
             ) : (
               <div className="p-2 text-gray-500">No More tenants available</div>
             )}
