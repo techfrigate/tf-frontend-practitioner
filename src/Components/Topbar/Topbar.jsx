@@ -7,6 +7,8 @@ import NotificationModal from "./NotificationModal";
 import { useLocation } from "react-router-dom";
 import CustomButton from "../Common/CustomButton";
 import CreateNewModal from "./CreateNewModal";
+import HospitalModal from "./HospitalModal";
+import Cookies from "js-cookie";
 
 const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -17,6 +19,8 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   const profileModalRef = useRef(null);
   const createNewModalRef = useRef(null);
   const thanosRef = useRef();
+
+  const [selectedTenant, setSelectedTenant] = useState();
 
   const pathSegments = [
     "Practitioner",
@@ -93,12 +97,22 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
     };
   }, []);
 
+  const handleHospitalChange = (tenant) => {
+    Cookies.set("TenantId", tenant.tenantId);
+    setSelectedTenant(tenant);
+
+    window.location.replace(window.location.href);
+  };
+
   return (
     <div className="w-full p-2  ">
       <div className="bg-white rounded-md px-10 py-2 flex justify-between items-center">
         <div className="flex flex-col justify-center items-start">
-          <h1 className="text-xl font-semibold mb-1 text-gray-800">Hospital</h1>
-
+          <HospitalModal
+            selectedTenant={selectedTenant}
+            handleHospitalChange={handleHospitalChange}
+            setSelectedTenant={setSelectedTenant}
+          />
           <p className="breadcrumb">
             {pathSegments.map((segment, index) => (
               <span key={index}>
@@ -143,9 +157,7 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
                 className="w-full h-full object-cover rounded-full border-2 border-[#64C6B0] shadow-lg"
                 onClick={handleProfileClick}
               />
-              {isProfileModalOpen && (
-                <ProfileModal onClose={() => setIsProfileModalOpen(false)} />
-              )}
+              {isProfileModalOpen && <ProfileModal />}
             </div>
           </div>
         </div>
