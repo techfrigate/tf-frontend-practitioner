@@ -43,6 +43,20 @@ export const fetchUserProfile = createAsyncThunk(
   }
 );
 
+export const updateLastApp =
+  ({ userId, body }) =>
+  async () => {
+    try {
+      const response = await axios.patch(
+        `${ACCOUNTS_URL}/lastapp/${userId}`,
+        body
+      );
+      return response;
+    } catch (error) {
+      return error.response;
+    }
+  };
+
 const profileSlice = createSlice({
   name: 'profile',
   initialState,
