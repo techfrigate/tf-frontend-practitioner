@@ -31,7 +31,7 @@ const Appointment = () => {
   const [showPayment, setShowPayment] = useState(false);
   const {
     slots: { slotsData },
-    patient: { patients, status },
+    patient: { patients, slotsStatus },
   } = useSelector((state) => state);
 
   const dispatch = useDispatch();
@@ -103,6 +103,9 @@ const Appointment = () => {
   const handleDoctorSelect = (doctor) => {
     setSelectedDoctor(doctor);
     setFilteredDoctors([]);
+    const selectedVisitType = doctor.slots[0].visitType === "Both" ? "Online" : doctor.slots[0].visitType;
+console.log(selectedVisitType)
+    setConsultationType(selectedVisitType);
     setSearchDoctor(
       `${doctor.slots[0].practitionerData.firstName} ${doctor.slots[0].practitionerData.lastName} - ${doctor.slots[0].practitionerData.speciality}`
     );
@@ -139,8 +142,12 @@ const Appointment = () => {
   const handleConsultationChange = (type) => {
     setConsultationType(type);
     const findslot = selectedDoctor.slots.find(
-      (elm) => elm.visitType === "both" || elm.visitType === type
+      (elm) => elm.visitType === "Both" || elm.visitType === type
     );
+
+    if (findslot && findslot.visitType === "Both" && type !== "Offline") {
+      setConsultationType("Online");
+    }
     setConsultationDateshow(!!findslot);
   };
 
@@ -212,6 +219,9 @@ const{address:{_id:locationAddressid,  ...resLocationAddress}, ...resLocaData} =
 dispatch(createAppointment({body,slotDetailSlotId,slotId:selectedDate.slotId,setShowPayment}))
 }
 
+if (slotsStatus === "loading") {
+    return <Loading size="12" color="teal-500" />;
+  }
 
   return (
     <div className="px-3 py-3 h-[100%] customScrollbar">

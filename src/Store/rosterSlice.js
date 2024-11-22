@@ -3,7 +3,7 @@ import axios from 'axios';
 import Cookies from "js-cookie"
 // Define the initial state
 const initialState = {
-    rosterStatus:"idel",
+    rosterStatus:"idle",
   rostersData: [],
   error: null,
 };
