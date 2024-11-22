@@ -216,7 +216,7 @@ dispatch(createAppointment({body,slotDetailSlotId,slotId:selectedDate.slotId,set
   return (
     <div className="px-3 py-3 h-[100%] customScrollbar">
       {showPayment ? (
-        <Payment />
+        <Payment setShowPayment={setShowPayment}/>
       ) : (
         <div className="border-2 border-[#ecf7f4] shadow-lg   rounded-lg pb-4 p-4 bg-gray-50 h-[100%]  ">
           <div className="flex flex-col md:flex-row gap-6 w-full max-w-3xl mx-auto">
@@ -241,7 +241,7 @@ dispatch(createAppointment({body,slotDetailSlotId,slotId:selectedDate.slotId,set
                   handleConsultationChange={handleConsultationChange}
                   selectedDoctor={selectedDoctor}
                 />
-                {consultationDateshow && (
+                {consultationDateshow && consultationType&& (
                   <ScheduleSelector
                     selectedDoctor={selectedDoctor}
                     consultationType={consultationType}
@@ -252,7 +252,7 @@ dispatch(createAppointment({body,slotDetailSlotId,slotId:selectedDate.slotId,set
                   />
                 )}
               </div>
-              {consultationDateshow && (
+              {consultationDateshow && selectedDate && (
                 <AvailableSlots
                   morningSlots={morningSlots}
                   afternoonSlots={afternoonSlots}

@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateAppointment } from '../../Store/appointmentSlice';
+import { useNavigate } from 'react-router-dom';
 
-const Payment = () => {
+const Payment = ({setShowPayment}) => {
   const [paymentMethod, setPaymentMethod] = useState('Cash');
 const{appointment} =  useSelector(state=>state.appointment)
-console.log(appointment,"appointment");
+ const navigate =  useNavigate()
 
 const dispatch=   useDispatch();
 
-const handlePayment = ()=>{
+const handlePayment = async()=>{
   const {_id, bookingStatus:{_id:bookId,...rest}} =  appointment
   const paymentStatus =  "completed"
   const transactionId = "done32424kn"
@@ -23,7 +24,9 @@ const handlePayment = ()=>{
     transactionId
   }
 
-  dispatch(updateAppointment({_id,body}))
+ await dispatch(updateAppointment({_id,body}))
+ setShowPayment(false)
+ navigate("/appointment")
 }
 
   return (

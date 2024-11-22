@@ -20,13 +20,13 @@
     background: #555; 
   }
    
-tbody:hover tr:not(:hover) {
+/* tbody:hover tr:not(:hover) {
   filter: blur(1px);
 }
 
 tbody:hover tr:hover {
   transform:  scale(1.01);
-}
+} */
  
 input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button {

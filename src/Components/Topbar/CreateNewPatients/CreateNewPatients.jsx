@@ -117,14 +117,14 @@ function hadnleSavePatient(){
   const { patient, saveStatus } = useSelector((state) => state.patient);
 
 useEffect(()=>{
-  if(patient){
+  if(patientId&&patient){
     const{address:{addressLine1,addressLine2,city,state,country,zipCode}, phoneNumber:{dialCode,value},firstName,lastName,dob,gender,email} =  patient
 
     setPersonalInfo(()=> ({dialCode,phoneNumber:value,firstName,lastName,dob,gender,email}))
       setAddressInfo({
         address1: addressLine1,
         address2: addressLine2,
-      city,state,country,zipCode
+        city,state,country,zipCode
       });
   }else{
       setPersonalInfo({
@@ -140,7 +140,7 @@ useEffect(()=>{
         zipCode: "",
       });
     }
-  }, [patient]);
+  }, [patientId]);
 
   if (saveStatus === "loading") {
     return <Loading size="16" color="teal-500" className="h-screen" />;

@@ -41,10 +41,10 @@ function App() {
   ) :(
     <div className="flex  bg-gray-200 h-[100vh] ">
       <Sidebar />
-      <div className=" flex flex-col w-full h-[100%] pb-10 box-border overflow-hidden ">
+      <div className="flex flex-col w-full h-[100vh] box-border overflow-hidden ">
         <Topbar toggleCreateProviderForm={toggleCreateProviderForm} />
-        <div className="px-2 pb-2 h-[92.5%] w-full box-border  ">
-          <div className={`w-full  h-[100%] box-border  overflow-hidden rounded-md bg-white`}>
+        <div className="px-2 pb-3 h-full w-full  overflow-y-hidden">
+          <div className={`w-full h-full  rounded-md bg-white`}>
  
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>

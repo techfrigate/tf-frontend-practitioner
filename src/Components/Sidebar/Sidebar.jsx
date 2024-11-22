@@ -64,9 +64,10 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="bg-gray-50 pl-[8px] h-[100%] ">
-      <div className="flex flex-col gap-5"></div>
-      <div className="flex items-center gap-2 pt-[10px] pb-[12px] px-[10px] mt-3">
+    <div className="pb-3 pt-[9px] h-full w-[14%] ">
+    <div className="bg-gray-50 pl-[8px]   h-[100%] rounded-md  ">
+     
+      <div className="flex items-center gap-2 pt-[10px] pb-[12px] px-[10px]   ">
         <img
           src="https://dev-central.unify.care/build/_assets/shortLogo-ZSVGBGEP.svg"
           alt=""
@@ -76,7 +77,7 @@ const Sidebar = () => {
         </div>
       </div>
 
-      <div className={` pr-[5px] mt-3 h-[83%] w-max ${styles.customScrollbar}`}>
+      <div className={`pr-[5px] mt-3 h-[83%] w-full ${styles.customScrollbar}`}>
         {sidebarLinks.map((elm, index) => (
           <div
             key={index}
@@ -129,7 +130,7 @@ const Sidebar = () => {
         ))}
       </div>
     </div>
-  );
+    </div>);
 };
 
 export default Sidebar;
