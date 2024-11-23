@@ -17,6 +17,10 @@ const ProfileModal = () => {
   const openEditModal = () => {
     setIsEditOpen(true);
   };
+  const SignIn_URL = process.env.REACT_APP_SIGNIN_URL;
+
+console.log(SignIn_URL)
+
 
   const handleSignOut = () => {
     setIsConfirmOpen(true);
@@ -29,7 +33,7 @@ const ProfileModal = () => {
 
     localStorage.clear();
 
-    window.location.href = "http://localhost:3002";
+    window.location.href = SignIn_URL;
   };
 
   const cancelSignOut = () => {
@@ -81,7 +85,7 @@ const ProfileModal = () => {
     const findTenant = profile.tenants.find((elm) => elm.tenantId === tenantId);
     if (!findTenant) {
       localStorage.clear();
-      return (window.location.href = "http://localhost:3002");
+      return (window.location.href = SignIn_URL);
     }
     const { userTypes } = findTenant;
     setUserTypes(() => userTypes);
