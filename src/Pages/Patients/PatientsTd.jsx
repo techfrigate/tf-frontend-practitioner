@@ -20,8 +20,9 @@ const PatientsTd = () => {
   return (
     <>
       {patients.length > 0 && patients.map((item) => {
-          const maskedPhone = `******${item.phoneNumber.value.slice(-4)}`;
+          const maskedPhone = `${item.phoneNumber.value}`;
           const formattedDob = format(new Date(item.dob), "MMM dd, yyyy");
+          const formattedUpdatedAt = format(new Date(item.updatedAt), "MMM dd, yyyy");
 
           return (
             <tr
@@ -46,8 +47,8 @@ const PatientsTd = () => {
                   Active
                 </span>
               </td>
-              <td className="py-4 px-4 text-nowrap text-xs">25 Jun 2024</td>
               <td className="py-4 px-4 text-nowrap text-xs">{formattedDob}</td>
+              <td className="py-4 px-4 text-nowrap text-xs">{formattedUpdatedAt}</td>
               <td className="py-4 px-4 text-nowrap text-xs">{maskedPhone}</td>
             </tr>
           );

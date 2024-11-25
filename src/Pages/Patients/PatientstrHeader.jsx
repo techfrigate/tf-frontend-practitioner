@@ -11,11 +11,11 @@ const PatientsttrHeader = (
     <th className="py-4 px-6">
       Status
       <IoArrowUpSharp className="inline ml-1" size={16} />
-    </th>
+    </th>   
+    <th className="py-4 px-6">DOB</th>
     <th className="py-4 px-6">
       Last Visit <IoArrowUpSharp className="inline ml-1" size={16} />
     </th>
-    <th className="py-4 px-6">DOB</th>
     <th className="py-4 px-6">Phone</th>
   </tr>
 );

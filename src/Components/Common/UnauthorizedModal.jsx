@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const UnauthorizedModal = () => {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(5);
-
+  const SignIn_URL  = process.env.REACT_APP_SIGNIN_URL
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -12,7 +12,7 @@ const UnauthorizedModal = () => {
     }, 1000);
 
     const timer = setTimeout(() => {
-      window.location.href = "http://localhost:3002";
+      window.location.href = SignIn_URL;
     }, 5000);
 
      

@@ -1,6 +1,16 @@
-import React from "react";
+import React,{useEffect} from "react";
 
 const ConsultationType = ({ consultationType, handleConsultationChange, selectedDoctor }) => {
+
+  useEffect(() => {
+    if (selectedDoctor && selectedDoctor.slots) {
+      const hasBoth = selectedDoctor.slots.some((slot) => slot.visitType === "Both");
+      if (hasBoth && consultationType !== "Offline") {
+        handleConsultationChange("Online");
+      }
+    }
+  }, []);
+
   return (
     <div className="mt-8 w-full max-w-md bg-white rounded-lg p-10 shadow-md">
       <h2 className="text-lg font-semibold text-gray-500 mb-4 text-center">
