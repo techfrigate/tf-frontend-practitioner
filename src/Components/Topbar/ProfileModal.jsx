@@ -4,7 +4,11 @@ import CustomButton from "../Common/CustomButton";
 import EditProfileModal from "./EditProfileModal";
 import ConfirmationModal from "./ConfirmationModal";
 import Cookies from "js-cookie";
-
+const PROVIDER_APP =  process.env.REACT_APP_PROVIDER_URL
+const PATIENT_APP =  process.env.REACT_APP_PATIENT_URL
+const PRACTITIONER_APP =  process.env.REACT_APP_PRACTITIONER_URL
+const CENTRAL_ADMIN_APP =  process.env.REACT_APP_CENTRAL_ADMIN_URL
+const SIGNUP_APP = process.env.REACT_APP_SIGNIN_URL
 const ProfileModal = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState(
@@ -33,7 +37,7 @@ console.log(SignIn_URL)
 
     localStorage.clear();
 
-    window.location.href = SignIn_URL;
+    window.location.href =  SIGNUP_APP;
   };
 
   const cancelSignOut = () => {
@@ -85,7 +89,7 @@ console.log(SignIn_URL)
     const findTenant = profile.tenants.find((elm) => elm.tenantId === tenantId);
     if (!findTenant) {
       localStorage.clear();
-      return (window.location.href = SignIn_URL);
+      return (window.location.href =  SIGNUP_APP);
     }
     const { userTypes } = findTenant;
     setUserTypes(() => userTypes);
@@ -98,18 +102,17 @@ console.log(SignIn_URL)
     const { userId } = profile;
 
     setIsDropdownOpen(false);
-    const baseUrl = "http://localhost";
     const ports = {
-      provider: 3004,
-      central_admin: 3003,
-      practitioner: 3005,
-      patient: 3006,
+      central_admin: CENTRAL_ADMIN_APP,
+      practitioner: PRACTITIONER_APP,
+      patient: PATIENT_APP,
+      provider:PROVIDER_APP
     };
 
     const port = ports[type];
     const url = port
-      ? `${baseUrl}:${port}?vt=${token}&ui=${userId}&ti=${tenantId}`
-      : `${baseUrl}:3002`;
+      ? `${port}?vt=${token}&ui=${userId}&ti=${tenantId}`
+      : `${SIGNUP_APP}`;
 
     window.location.href = url;
   };

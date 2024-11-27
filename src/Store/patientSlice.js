@@ -13,8 +13,7 @@ const initialState = {
  
 const ACCOUNTS_URL  = process.env.REACT_APP_ACCOUNTS_URL
 const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
-const Patient_URL  = process.env.REACT_APP_PATIENT_URL
-
+const PATIENT_APP =  process.env.REACT_APP_PATIENT_URL
 export const fetchPatients = createAsyncThunk(
   'patient/fetchPatients',
   async ({ page, limit }, { rejectWithValue }) => {
@@ -73,7 +72,7 @@ export const addPatient = createAsyncThunk(
         }
       });
       console.log(response.data,"user res")
-      window.location.href=   `${Patient_URL}/patients`
+      window.location.href=   `${PATIENT_APP}/patients`
       return response.data;
     } catch (error) {
       console.log(error, "user error");
@@ -126,7 +125,7 @@ export const patchPatientById = createAsyncThunk(
         }
       });
       console.log(response.data);
-      window.location.href= "http://localhost:3005/patients"
+      window.location.href= `${PATIENT_APP}/patients`
       return response.data;
     } catch (error) {
       console.log(error);
