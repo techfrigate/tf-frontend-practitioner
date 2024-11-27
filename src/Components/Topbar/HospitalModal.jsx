@@ -6,6 +6,12 @@ import toast from "react-hot-toast";
 import HospitalDropDown from "./HospitalDropDown";
 import TenantAppsModal from "./TenantAppsModal";
 
+const PROVIDER_APP =  process.env.REACT_APP_PROVIDER_URL
+const PATIENT_APP =  process.env.REACT_APP_PATIENT_URL
+const PRACTITIONER_APP =  process.env.REACT_APP_PRACTITIONER_URL
+const CENTRAL_ADMIN_APP =  process.env.REACT_APP_CENTRAL_ADMIN_URL
+const SIGNUP_APP = process.env.REACT_APP_SIGNIN_URL
+
 const HospitalModal = ({ selectedTenant, setSelectedTenant }) => {
   const [mergedTenants, setMergedTenants] = useState([]);
   const [nonCentralTenant, setNonCentralTenant] = useState(null);
@@ -81,15 +87,16 @@ const HospitalModal = ({ selectedTenant, setSelectedTenant }) => {
       );
 
       if (response?.status === 200) {
-        const baseUrl = "http://localhost";
         const portMap = {
-          patient: 3006,
-          central_admin: 3003,
-          practitioner: 3005,
+          central_admin: CENTRAL_ADMIN_APP,
+          provider: PROVIDER_APP,
+          patient: PATIENT_APP,
         };
+        
         const url = portMap[userType]
-          ? `${baseUrl}:${portMap[userType]}?vt=${token}&ui=${userId}&ti=${nonCentralTenant.tenantId}`
-          : `${baseUrl}:3002`;
+          ? `${url}:?vt=${token}&ui=${userId}&ti=${nonCentralTenant.tenantId}`
+          : `${SIGNUP_APP}`;
+
 
         window.location.href = url;
       } else {
