@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useSearchParams } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useSearchParams } from "react-router-dom";
 import "./App.css";
 
 import Sidebar from "./Components/Sidebar/Sidebar";
@@ -20,7 +20,7 @@ function App() {
 
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
-
+  const location =  useLocation()
   const accessToken = searchParams.get("vt") ||  Cookies.get("Token");
   const userId = searchParams.get("ui") ||  Cookies.get("UserId");
   const tenantId = searchParams.get("ti") ||  Cookies.get("TenantId");
@@ -34,6 +34,28 @@ function App() {
       setLoading(false);
     }, 1000);
   }, [userId, accessToken, tenantId, dispatch]);
+
+
+  useEffect(()=>{
+    const ports = {
+      '/': 'Home - Practitoner',
+      '/worklist': 'Work List - Practitoner',
+      '/patients': 'Patients - Practitoner',
+      '/calendar': 'Calendar - Practitoner',
+      '/billing': 'Billing - Practitoner',
+      '/newPatients': 'Create New Patients - Practitoner',
+      '/appointment': 'Appointment - Practitoner',
+      '/payment': 'Payment - Practitoner',
+      '/fillDetails': 'Patient Info Categories - Practitoner',
+      '/unauthorized': 'Unauthorized - Practitoner',
+      '*': 'Not Found - Practitoner',
+    };
+    
+    
+    const currentTitle =  ports[location.pathname] || 'Central Admin'
+    document.title = currentTitle
+  },[location])
+  
 
  
   return loading  && !profileData ? (
