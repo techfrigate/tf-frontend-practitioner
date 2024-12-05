@@ -142,12 +142,14 @@ console.log(SignIn_URL)
               <p className="text-gray-600 text-sm">{email}</p>
             </div>
           </div>
-          <div className="flex items-center justify-between space-x-4">
+          <div className="flex items-center justify-end">
+          <div className="w-[37%]">
             <CustomButton
+            width={"w-full"}
               text="Sign out"
-              width="w-full"
               onclick={handleSignOut}
             />
+            </div>
 
             <div className="relative text-black">
               <button
