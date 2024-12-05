@@ -16,7 +16,7 @@ const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
 export const fetchUserProfile = createAsyncThunk(
   'profile/fetchUserProfile',
   async ({ userId, accessToken, tenantId }, {rejectWithValue}) => {
-    console.log(userId, accessToken, tenantId );
+    // console.log(userId, accessToken, tenantId );
     try {
       const response = await axios.get(`${ACCOUNTS_URL}/profiles/user-profile/${userId}`, {
           headers: {
@@ -26,7 +26,7 @@ export const fetchUserProfile = createAsyncThunk(
           tenantId
           },
       });
-      console.log("response of practitoner",response.data);
+      // console.log("response of practitoner",response.data);
       Cookies.set("Token", response.data.access_token);
       Cookies.set("TenantId", tenantId);
       Cookies.set("UserId", userId);

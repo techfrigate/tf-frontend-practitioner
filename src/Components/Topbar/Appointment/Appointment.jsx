@@ -167,7 +167,7 @@ console.log(selectedVisitType)
     setSelectedTimeSlot(time);
   };
 
- 
+ console.log(selectedDoctor,"selected doctores")
 
 const handleBookAppointment =()=>{
  const slotSelctedDoctor =  selectedDoctor.slots.find((elm)=>elm._id === selectedDate.slotId)
