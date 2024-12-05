@@ -21,6 +21,7 @@ export const getSlots = createAsyncThunk(
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`,
           tenantid: Cookies.get("TenantId"),
+         // practitionerid:Cookies.get("UserId")
         },
       });
      console.log(response.data,"get slots data");

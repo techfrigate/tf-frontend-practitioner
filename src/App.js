@@ -1,15 +1,12 @@
 import { Navigate, Route, Routes, useLocation, useSearchParams } from "react-router-dom";
 import "./App.css";
-
-import Sidebar from "./Components/Sidebar/Sidebar";
-import Topbar from "./Components/Topbar/Topbar";
-
 import { Suspense, useEffect, useState } from "react";
 import Cookies from 'js-cookie';
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserProfile } from "./Store/profileSlice";
 import routes from "./routes/routes";
-import Loading from "./Components/Common/Loading";
+import Sidebar from "./components/Sidebar/Sidebar";
+import Topbar from "./components/Topbar/Topbar";
 
 function App() {
   const [showForm, setShowForm] = useState(false);
@@ -25,6 +22,7 @@ function App() {
   const userId = searchParams.get("ui") ||  Cookies.get("UserId");
   const tenantId = searchParams.get("ti") ||  Cookies.get("TenantId");
  const {profileData}  =  useSelector((state)=>state.profile)
+//  console.log(userId,"userId")
   useEffect(() => {
     if (userId && accessToken && tenantId && !profileData) {
       dispatch(fetchUserProfile({ userId, accessToken, tenantId }));
