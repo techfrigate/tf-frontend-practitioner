@@ -38,7 +38,7 @@ const ScheduleSelector = ({ selectedDoctor, consultationType, handleDateSelect, 
         />
         <div className="flex justify-around w-full px-4">
           {selectedDoctor.slots.map((item, index) => (
-            (item.visitType === "both" || item.visitType === consultationType) && (
+            (item.visitType === "Both" || item.visitType === consultationType) && (
               <div
                 key={index}
                 className={`rounded-md px-4 py-2 mb-2 ml-4 cursor-pointer transition-colors duration-200 ${
