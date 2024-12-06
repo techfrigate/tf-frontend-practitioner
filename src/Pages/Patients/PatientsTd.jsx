@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import Loading from "../../components/Common/Loading";
+import Loading from "../../Components/Common/Loading";
 
 const PatientsTd = () => {
   const navigate = useNavigate();
