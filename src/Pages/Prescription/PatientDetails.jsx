@@ -62,7 +62,7 @@ function PatientDetails() {
   const [filteredData, setFilteredData] = useState({});
 
   useEffect(() => {
-    dispatch(getPrescriptions({ practitionerId: profileData._id }));
+    dispatch(getPrescriptions({ practitionerId: profileData?._id }));
   }, [dispatch]);
 
   useEffect(() => {
