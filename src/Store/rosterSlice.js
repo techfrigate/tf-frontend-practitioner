@@ -3,7 +3,7 @@ import axios from 'axios';
 import Cookies from "js-cookie"
 // Define the initial state
 const initialState = {
-    rosterStatus:"idle",
+  rosterStatus:"idle",
   rostersData: [],
   error: null,
 };
@@ -40,7 +40,7 @@ const rosterSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getRosters.pending, (state) => {
-        state.rosterStatus = 'loading';
+        state.rosterStatus = 'loading'; 
       })
       .addCase(getRosters.fulfilled, (state, action) => {
         state.rosterStatus = 'succeeded';

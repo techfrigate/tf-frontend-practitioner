@@ -5,8 +5,8 @@ import Cookies from 'js-cookie';
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserProfile } from "./Store/profileSlice";
 import routes from "./routes/routes";
-import Sidebar from "./components/Sidebar/Sidebar";
-import Topbar from "./components/Topbar/Topbar";
+import Sidebar from "./Components/Sidebar/Sidebar";
+import Topbar from "./Components/Topbar/Topbar";
 
 function App() {
   const [showForm, setShowForm] = useState(false);

@@ -3,14 +3,14 @@ import {
   Avatar,
   AvatarImage,
   AvatarFallback,
-} from "../../components/ui/avatar";
-import { ScrollArea, ScrollBar } from "../../components/ui/scroll-area";
+} from "../../Components/ui/avatar";
+import { ScrollArea, ScrollBar } from "../../Components/ui/scroll-area";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../../components/ui/tabs";
+} from "../../Components/ui/tabs";
 import { StethoscopeIcon, TableIcon } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -20,9 +20,9 @@ import {
 import { format, parseISO } from "date-fns";
 import PatientTableContent from "./PatientTableContent";
 import { useNavigate } from "react-router-dom";
-import { Badge } from "../../components/ui/badge";
+import { Badge } from "../../Components/ui/badge";
 import toast from "react-hot-toast";
-import { showErrorToast } from "../../components/toastUtils";
+import { showErrorToast } from "../../Components/toastUtils";
 
 const initialStatuses = [
   { display: "Scheduled", key: "scheduled" },

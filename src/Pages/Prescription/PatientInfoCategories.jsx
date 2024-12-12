@@ -3,8 +3,8 @@ import categories from "./CategoriesData";
 import FillDetailsSheet from "./FillDetailsSheet";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { ScrollArea } from "../../components/ui/scroll-area";
-import GlobalSheet from "../../components/Common/GlobalSheet";
+import { ScrollArea } from "../../Components/ui/scroll-area";
+import GlobalSheet from "../../Components/Common/GlobalSheet";
 
 const PatientInfoCategories = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
