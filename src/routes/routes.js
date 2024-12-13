@@ -1,5 +1,4 @@
 import { Navigate } from "react-router-dom";
- 
 import ProtectedRoute from "./ProtectedRoute"
 import { lazy } from "react";
 const WorkList  =  lazy(()=>import("../Pages/WorkList/WorkList"))
@@ -9,10 +8,10 @@ const CreateNewPatients  =  lazy(()=>import("../Components/Topbar/CreateNewPatie
 const Appointment  =  lazy(()=>import("../Components/Topbar/Appointment/Appointment"))
 const Payment  =  lazy(()=>import("../Components/Payment/Payment"))
 const Patients  =  lazy(()=>import("../Pages/Patients/Patients"))
-const UnauthorizedModal  =  lazy(()=>import("../Components/Common/CustomButton"))
-const NotFound  =  lazy(()=>import("../Components/Common/NotFound"))
+ const UnauthorizedModal  =  lazy(()=>import("../Components/Common/UnauthorizedModal"))
+ const NotFound  =  lazy(()=>import("../Components/Common/NotFound"))
 const PatientInfoCategories =   lazy(()=>import("../Pages/Prescription/PatientInfoCategories"));
-
+ 
 const routes = [
     { path: "/", component: <Navigate to="worklist"/> },
     { path: "/worklist", component: <ProtectedRoute><WorkList/></ProtectedRoute> },
