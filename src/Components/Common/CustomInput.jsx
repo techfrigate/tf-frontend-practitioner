@@ -16,6 +16,7 @@ const CustomInput = ({
     <input
       type={type}
       id={id}
+      name={id}
       placeholder={placeholder}
       // onChange={onChange}
       onChange={(e) => onChange(e)}

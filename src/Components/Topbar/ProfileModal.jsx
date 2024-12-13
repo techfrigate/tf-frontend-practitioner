@@ -151,7 +151,7 @@ console.log(SignIn_URL)
             />
             </div>
 
-            <div className="relative text-black">
+            {/* <div className="relative text-black">
               <button
                 onClick={toggleUserTypeDropdown}
                 className="py-2 px-4 rounded-lg border border-[#64C6B0] flex items-center"
@@ -183,7 +183,7 @@ console.log(SignIn_URL)
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
           </div>
 
           <div className="mt-4"></div>

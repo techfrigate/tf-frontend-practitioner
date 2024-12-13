@@ -2,8 +2,9 @@ import React from "react";
 import CustomInput from "../../Common/CustomInput";
 import PhoneNumberInput from "../../Common/PhoneNumberInput";
 import CustomSelect from "../../Common/CustomSelect";
+import CustomDatePicker from "../../Common/CustomDatePicker";
 
-const PersonalInfo = ({ personalInfoFormData, personalInfo, handlePersonalInfoChange, handleDialCodeChange,inValidObject }) => {
+const PersonalInfo = ({ personalInfoFormData, personalInfo, handleChange,handlePersonalInfoChange, handleDialCodeChange,inValidObject }) => {
   const genderOptions = [
     { value: "male", label: "Male" },
     { value: "female", label: "Female" }
@@ -31,6 +32,19 @@ const PersonalInfo = ({ personalInfoFormData, personalInfo, handlePersonalInfoCh
                 }
                 onChangeDialCode={handleDialCodeChange}
                 isInvalid={inValidObject['phoneNumber']}
+              />
+            );
+          }
+          if (elem.type === "date") {
+            return (
+              <CustomDatePicker
+                key={elem.id}
+                id={elem.id}
+                label={elem.label}
+                value={personalInfo[elem.id]}
+                isInvalid={inValidObject[elem.id]}
+                errorMessage={inValidObject[elem.id]} 
+                onChange={handleChange}
               />
             );
           }

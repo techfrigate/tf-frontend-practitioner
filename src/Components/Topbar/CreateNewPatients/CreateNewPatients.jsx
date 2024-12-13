@@ -6,7 +6,6 @@ import { personalInfoFormData, addressInfo as addressFormData } from "./Newpatie
 import { useDispatch, useSelector } from "react-redux";
 import { addPatient, fetchPatientById, patchPatientById } from "../../../Store/patientSlice";
 import { useSearchParams } from "react-router-dom";
-import { useSelect } from "@material-tailwind/react";
 import Cookies from "js-cookie";
 import Loading from "../../Common/Loading";
 const CreateNewPatients = () => {
@@ -34,6 +33,7 @@ const CreateNewPatients = () => {
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const patientId = searchParams.get('id');
+  
 
   const handlePersonalInfoChange = (e) => {
     const { id, value } = e.target;
@@ -45,6 +45,15 @@ const CreateNewPatients = () => {
     setInvalidObject((pre)=>({...pre,[id]:""}))
   };
 
+  const handleChange = (name, value) => {
+    setPersonalInfo((prevState)=>({
+      ...prevState,
+      [name]: value,
+    }));
+    setInvalidObject((pre) => ({ ...pre, [name]: "" }));
+    
+  }
+
   const handleDialCodeChange = (code) => {
     setPersonalInfo((prevState) => ({
       ...prevState,
@@ -52,15 +61,29 @@ const CreateNewPatients = () => {
     }));
   };
 
-  const handleAddressInfoChange = (e) => {
-    const { id, value } = e.target;
-    setAddressInfo((prevState) => ({
-      ...prevState,
-      [id]: value
-    }));
-    setInvalidObject((pre)=>({...pre,[id]:""}))
-  };
+  
+  // const handleAddressInfoChange = (e) => {
+  //   const { id, value,selectedOption } = e.target;
+  //   setAddressInfo((prevState) => ({
+  //     ...prevState,
+  //     [id]: value
+  //   }));
+  //   setInvalidObject((pre)=>({...pre,[id]:""}))
 
+  //   if (selectedOption && selectedOption.id) {
+  //     if (id === "country") {
+  //       const updatedStats = State.filter((elm) => elm.country_id === selectedOption.id);
+  //       setStats(updatedStats); 
+  //       setCities([]); 
+  //     } else if (id === "state") {
+  //       const updatedCities = City.filter((elm) => elm.state_id === selectedOption.id);
+  //       setCities(updatedCities);
+  //     }
+  //   }
+  // };
+
+
+; 
 
 
 function hadnleSavePatient(){
@@ -117,7 +140,7 @@ function hadnleSavePatient(){
   const { patient, saveStatus } = useSelector((state) => state.patient);
 
 useEffect(()=>{
-  if(patientId&&patient){
+  if(patientId&&patient.address&&patient){
     const{address:{addressLine1,addressLine2,city,state,country,zipCode}, phoneNumber:{dialCode,value},firstName,lastName,dob,gender,email} =  patient
 
     setPersonalInfo(()=> ({dialCode,phoneNumber:value,firstName,lastName,dob,gender,email}))
@@ -158,12 +181,14 @@ useEffect(()=>{
         handlePersonalInfoChange={handlePersonalInfoChange}
         handleDialCodeChange={handleDialCodeChange}
         inValidObject={inValidObject}
+        handleChange={handleChange}
       />
       <AddressInfo
         addressFormData={addressFormData}
         addressInfo={addressInfo}
-        handleAddressInfoChange={handleAddressInfoChange}
+        setAddressInfo={setAddressInfo}
         inValidObject={inValidObject}
+
       />
       <div className="flex justify-center gap-2 mt-4">
         <button className="px-4 pb-2 pt-1.5 text-[14px] border border-[#1e817e] hover:bg-[#239591] hover:text-white rounded">

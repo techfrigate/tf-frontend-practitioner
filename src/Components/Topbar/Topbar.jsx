@@ -107,7 +107,7 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   return (
     <div className="w-full p-2  ">
       <div className="bg-white rounded-md px-10 py-2 flex justify-between items-center">
-        <div className="flex flex-col justify-center items-start">
+        <div className="flex flex-col justify-center items-start gap-1">
           <HospitalModal
             selectedTenant={selectedTenant}
             handleHospitalChange={handleHospitalChange}
