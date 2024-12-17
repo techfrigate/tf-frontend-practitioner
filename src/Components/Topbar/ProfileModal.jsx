@@ -4,11 +4,11 @@ import CustomButton from "../Common/CustomButton";
 import EditProfileModal from "./EditProfileModal";
 import ConfirmationModal from "./ConfirmationModal";
 import Cookies from "js-cookie";
-const PROVIDER_APP =  process.env.REACT_APP_PROVIDER_URL
-const PATIENT_APP =  process.env.REACT_APP_PATIENT_URL
-const PRACTITIONER_APP =  process.env.REACT_APP_PRACTITIONER_URL
-const CENTRAL_ADMIN_APP =  process.env.REACT_APP_CENTRAL_ADMIN_URL
-const SIGNUP_APP = process.env.REACT_APP_SIGNIN_URL
+const PROVIDER_APP = process.env.REACT_APP_PROVIDER_URL;
+const PATIENT_APP = process.env.REACT_APP_PATIENT_URL;
+const PRACTITIONER_APP = process.env.REACT_APP_PRACTITIONER_URL;
+const CENTRAL_ADMIN_APP = process.env.REACT_APP_CENTRAL_ADMIN_URL;
+const SIGNUP_APP = process.env.REACT_APP_SIGNIN_URL;
 const ProfileModal = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState(
@@ -23,8 +23,7 @@ const ProfileModal = () => {
   };
   const SignIn_URL = process.env.REACT_APP_SIGNIN_URL;
 
-console.log(SignIn_URL)
-
+  console.log(SignIn_URL);
 
   const handleSignOut = () => {
     setIsConfirmOpen(true);
@@ -37,7 +36,7 @@ console.log(SignIn_URL)
 
     localStorage.clear();
 
-    window.location.href =  SIGNUP_APP;
+    window.location.href = SIGNUP_APP;
   };
 
   const cancelSignOut = () => {
@@ -89,7 +88,7 @@ console.log(SignIn_URL)
     const findTenant = profile.tenants.find((elm) => elm.tenantId === tenantId);
     if (!findTenant) {
       localStorage.clear();
-      return (window.location.href =  SIGNUP_APP);
+      return (window.location.href = SIGNUP_APP);
     }
     const { userTypes } = findTenant;
     setUserTypes(() => userTypes);
@@ -106,7 +105,7 @@ console.log(SignIn_URL)
       central_admin: CENTRAL_ADMIN_APP,
       practitioner: PRACTITIONER_APP,
       patient: PATIENT_APP,
-      provider:PROVIDER_APP
+      provider: PROVIDER_APP,
     };
 
     const port = ports[type];
@@ -143,46 +142,12 @@ console.log(SignIn_URL)
             </div>
           </div>
           <div className="flex items-center justify-end">
-          <div className="w-[37%]">
-            <CustomButton
-            width={"w-full"}
-              text="Sign out"
-              onclick={handleSignOut}
-            />
-            </div>
-
-            <div className="relative text-black">
-              <button
-                onClick={toggleUserTypeDropdown}
-                className="py-2 px-4 rounded-lg border border-[#64C6B0] flex items-center"
-              >
-                {selectedUserType}
-                <span className="ml-2">&#9662;</span>
-              </button>
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-lg shadow-lg">
-                  {mergedTenants.map((tenant) => (
-                    <div
-                      key={tenant.tenantId}
-                      className="flex items-center mb-4"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          {tenant.userType.map((type, index) => (
-                            <button
-                              key={index}
-                              className="w-full px-4 py-2 text-left hover:bg-gray-200"
-                              onClick={() => handleUserTypeChange(type)}
-                            >
-                              {type}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div className="w-[37%]">
+              <CustomButton
+                width={"w-full"}
+                text="Sign out"
+                onclick={handleSignOut}
+              />
             </div>
           </div>
 
