@@ -24,7 +24,7 @@ const Patients = () => {
   }, [currentPage, itemsPerPage, dispatch]);
 
   const { totalPages, status } = useSelector((state) => state.patient);
-
+ 
   if (status === "loading") {
     return <Loading size="16" color="teal-500" className="h-screen" />;
   }

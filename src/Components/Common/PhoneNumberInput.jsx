@@ -29,8 +29,10 @@ const PhoneNumberInput = ({
   };
 
   const handleNumberChange = (e) => {
-    setLocalNumber(e.target.value);
-    onChangeNumber(e.target.value);
+    const inputValue = e.target.value.replace(/[^0-9]/g, ""); 
+    if (inputValue.length <= 10) {
+      onChangeNumber(inputValue);
+    }
   };
 
   return (

@@ -1,68 +1,74 @@
-import React from "react";
-import CustomInput from "../../Common/CustomInput";
-import CustomSelect from "../../Common/CustomSelect";
+import React, { useState } from "react";
+import CustomInput from "../../../Components/Common/CustomInput";
+import CustomSelect from "../../../Components/Common/CustomSelect";
+import { Country, State, City } from "../../../util/data";
 
-const AddressInfo = ({ addressFormData, addressInfo, handleAddressInfoChange,inValidObject }) => {
-  const countryOptions = [
-    { value: "india", label: "India" }
-    
-  ];
+const AddressInfo = ({ addressFormData, addressInfo, inValidObject,setAddressInfo }) => {
+  const [stats, setStats] = useState([]);
+  const [cities, setCities] = useState([]); 
 
-  const stateOptions = [
-    { value: "rajasthan", label: "Rajasthan" }
-    
-  ];
+  const [invalidObject, setInvalidObject] = useState(inValidObject);
+console.log(addressInfo,"adresssz")
+  const handleAddressInfoChange = (e) => {
+    let { name, value} = e.target;
+console.log(name,value)
+    if (name === "zipCode") {
+      value = value.replace(/[^0-9]/g, "").slice(0, 6);
+    }
+    setAddressInfo((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+    setInvalidObject((pre) => ({ ...pre, [name]: "" }));
+    if(["country","city","state"].includes(name)){
+      const selectedOption  =  e.target?.selectedOptions[0]
+      if(name==="country"){
+        const updatedStats =  State.filter((elm)=>elm.country_id==selectedOption.id)
 
-  const cityOptions = [
-    { value: "hanumangarh", label: "Hanumangarh" },
-    { value: "churu", label: "Churu" }
-    
-  ];
+        setStats(updatedStats)
+      }else if(name==="state"){
+        const updatedCities =  City.filter((elm)=>elm.state_id==selectedOption.id)
+      setCities(updatedCities)
+      }
+    }
+  };
 
   return (
     <div className="rounded-xl border bg-white text-gray-900 shadow-md mt-3 p-6 hover:shadow-lg transition-shadow duration-300">
       <div className="mb-4 border-b pb-2">
         <h1 className="text-sm font-semibold text-[#1e817e]">ADDRESS INFORMATION</h1>
       </div>
-      <div className="px-4 mt-4 grid grid-cols-3 gap-x-7 gap-y-4">
-        {addressFormData?.map((elem) => (
-          <CustomInput
-            key={elem.id}
-            type={elem.type}
-            label={elem.label}
-            id={elem.id}
-            placeholder={elem.placeholder}
-            value={addressInfo[elem.id]}
-            onChange={handleAddressInfoChange}
-            isInvalid={inValidObject[elem.id]}
-          />
-        ))}
+    <div className="px-4 mt-4 grid grid-cols-3 gap-x-7 gap-y-4">
+  {addressFormData?.map((elem) => {
+    if (["country", "state", "city"].includes(elem.id)){
+      return (
         <CustomSelect
-          id="country"
-          label="Country"
-          value={addressInfo.country}
+          key={elem.id}
+          id={elem.id}
+          label={elem.label}
+          value={addressInfo[elem.id] || ""} 
           onChange={handleAddressInfoChange}
-          options={countryOptions}
-           isInvalid={inValidObject['country']}
+          options={elem.id==="country"?Country:elem.id==='state'?stats:cities || []}
+          isInvalid={invalidObject[elem.id]}
         />
-        <CustomSelect
-          id="state"
-          label="State/Province"
-          value={addressInfo.state}
+      );
+    }else{
+      return (
+        <CustomInput
+          key={elem.id}
+          type={elem.type}
+          label={elem.label}
+          id={elem.id}
+          placeholder={elem.placeholder}
+          value={addressInfo[elem.id]} 
           onChange={handleAddressInfoChange}
-          options={stateOptions}
-          isInvalid={inValidObject['state']}
-
+          isInvalid={invalidObject[elem.id]}
         />
-        <CustomSelect
-          id="city"
-          label="City"
-          value={addressInfo.city}
-          onChange={handleAddressInfoChange}
-          options={cityOptions}
-          isInvalid={inValidObject['city']}
-        />
-      </div>
+      );
+    }
+  
+  })}
+</div>
     </div>
   );
 };

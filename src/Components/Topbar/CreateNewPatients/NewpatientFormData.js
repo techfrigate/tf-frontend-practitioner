@@ -84,4 +84,22 @@ export const addressInfo = [
         id: "zipCode",
         placeholder: "Zipcode",
       },
+      {
+        type: "text",
+        label: "Country *",
+        id: "country",
+        placeholder: "Country",
+      },
+      {
+        type: "text",
+        label: "State *",
+        id: "state",
+        placeholder: "State",
+      },
+      {
+        type: "text",
+        label: "City *",
+        id: "city",
+        placeholder: "City",
+      },
 ]
