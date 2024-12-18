@@ -29,6 +29,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.1",
+    "@radix-ui/react-tooltip": "^1.1.4",
     "@reduxjs/toolkit": "^2.2.6",
     "@syncfusion/ej2-react-schedule": "^26.2.14",
     "@syncfusion/ej2-schedule": "^27.1.57",
@@ -66,7 +67,7 @@
     "zod": "^3.23.8"
   },
   "scripts": {
-    "start": "set PORT=3005 && react-scripts start",
+    "start": "export PORT=3005 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

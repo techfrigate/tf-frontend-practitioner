@@ -1,3 +1,4 @@
+ 
 import React from 'react'
 import ComingSoon from '../../Components/Common/CommonComingSoon'
 
@@ -7,4 +8,4 @@ const Billing = () => {
   )
 }
 
-export default Billing
+export default Billing;
