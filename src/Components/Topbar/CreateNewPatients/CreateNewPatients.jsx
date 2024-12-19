@@ -5,9 +5,9 @@ import AddressInfo from "./AddressInfo";
 import { personalInfoFormData, addressInfo as addressFormData } from "./NewpatientFormData";
 import { useDispatch, useSelector } from "react-redux";
 import { addPatient, fetchPatientById, patchPatientById } from "../../../Store/patientSlice";
-import { useSearchParams } from "react-router-dom";
-import Cookies from "js-cookie";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Loading from "../../Common/Loading";
+import Cookies from "js-cookie";
 const CreateNewPatients = () => {
   const [personalInfo, setPersonalInfo] = useState({
     firstName: "",
@@ -27,13 +27,14 @@ const CreateNewPatients = () => {
     country: "",
     zipCode: ""
   });
-
+const navigate = useNavigate()
   const [inValidObject, setInvalidObject] = useState({});
-  const { profileData, status } = useSelector((state) => state.profile);
+  const { profileData ,status} = useSelector((state) => state.profile);
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const patientId = searchParams.get('id');
   
+  const { patient, saveStatus } = useSelector((state) => state.patient);
 
   const handlePersonalInfoChange = (e) => {
     const { id, value } = e.target;
@@ -61,32 +62,7 @@ const CreateNewPatients = () => {
     }));
   };
 
-  
-  // const handleAddressInfoChange = (e) => {
-  //   const { id, value,selectedOption } = e.target;
-  //   setAddressInfo((prevState) => ({
-  //     ...prevState,
-  //     [id]: value
-  //   }));
-  //   setInvalidObject((pre)=>({...pre,[id]:""}))
-
-  //   if (selectedOption && selectedOption.id) {
-  //     if (id === "country") {
-  //       const updatedStats = State.filter((elm) => elm.country_id === selectedOption.id);
-  //       setStats(updatedStats); 
-  //       setCities([]); 
-  //     } else if (id === "state") {
-  //       const updatedCities = City.filter((elm) => elm.state_id === selectedOption.id);
-  //       setCities(updatedCities);
-  //     }
-  //   }
-  // };
-
-
-; 
-
-
-function hadnleSavePatient(){
+function handleSavePatient(){
   const validCheck =    {...personalInfo,...addressInfo}  
     const invalidObj = {}
     Object.keys(validCheck).map((key)=>{
@@ -106,25 +82,18 @@ function hadnleSavePatient(){
 
   if(!patientId){
     const tenantId =  Cookies.get("TenantId");
-    const tenantObj =  profileData.tenants.find((elm)=>elm.tenantId===tenantId);
+    const tenantObj =  profileData?.tenants.find((elm)=>elm.tenantId===tenantId);
     const{tenantName} = tenantObj
     dispatch(addPatient({...personalInfo,...addressInfo,tenantName}))
   }else{
     const updates={
-      ...personalInfo,...addressInfo
+      ...personalInfo,...addressInfo ,tenants:patient?.tenants
     }
-  
-    dispatch(patchPatientById({id:patientId, userId:patient.userId,updates}))
+    dispatch(patchPatientById({id:patientId, userId:patient.userId,updates,navigate}))
   
   }
   
-
-
 }
-
-
-
- 
 
   const validatePhoneNumber = (phoneNumber) => {
     const phoneRegex = /^[0-9]{10}$/;
@@ -137,10 +106,8 @@ function hadnleSavePatient(){
     }
   }, [patientId, dispatch]);
 
-  const { patient, saveStatus } = useSelector((state) => state.patient);
-
 useEffect(()=>{
-  if(patientId&&patient.address&&patient){
+  if(patientId&&patient?.address&&patient){
     const{address:{addressLine1,addressLine2,city,state,country,zipCode}, phoneNumber:{dialCode,value},firstName,lastName,dob,gender,email} =  patient
 
     setPersonalInfo(()=> ({dialCode,phoneNumber:value,firstName,lastName,dob,gender,email}))
@@ -194,7 +161,7 @@ useEffect(()=>{
         <button className="px-4 pb-2 pt-1.5 text-[14px] border border-[#1e817e] hover:bg-[#239591] hover:text-white rounded">
           Cancel
         </button>
-        <button className="px-4 pb-2 pt-1.5 text-[14px] bg-[#1e817e] text-white hover:bg-[#166866] transition duration-300 ease-in-out rounded" onClick={hadnleSavePatient}>
+        <button className="px-4 pb-2 pt-1.5 text-[14px] bg-[#1e817e] text-white hover:bg-[#166866] transition duration-300 ease-in-out rounded" onClick={handleSavePatient}>
           Save
         </button>
       </div>

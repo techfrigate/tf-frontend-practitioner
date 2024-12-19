@@ -8,10 +8,8 @@ const AddressInfo = ({ addressFormData, addressInfo, inValidObject,setAddressInf
   const [cities, setCities] = useState([]); 
 
   const [invalidObject, setInvalidObject] = useState(inValidObject);
-console.log(addressInfo,"adresssz")
   const handleAddressInfoChange = (e) => {
     let { name, value} = e.target;
-console.log(name,value)
     if (name === "zipCode") {
       value = value.replace(/[^0-9]/g, "").slice(0, 6);
     }

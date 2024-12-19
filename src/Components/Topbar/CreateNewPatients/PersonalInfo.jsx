@@ -26,7 +26,7 @@ const PersonalInfo = ({ personalInfoFormData, personalInfo, handleChange,handleP
                 id={elem.id}
                 placeholder={elem.placeholder}
                 dialCode={personalInfo.dialCode}
-                value={personalInfo[elem.id]}
+                value={personalInfo[elem?.id]}
                 onChangeNumber={(number) =>
                   handlePersonalInfoChange({ target: { id: elem.id, value: number } })
                 }
@@ -55,7 +55,7 @@ const PersonalInfo = ({ personalInfoFormData, personalInfo, handleChange,handleP
               label={elem.label}
               id={elem.id}
               placeholder={elem.placeholder}
-              value={personalInfo[elem.id]}
+              value={personalInfo[elem?.id]}
               onChange={handlePersonalInfoChange}
               isInvalid={inValidObject[elem.id]}
             />

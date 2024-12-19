@@ -13,7 +13,7 @@ const initialState = {
  
 const ACCOUNTS_URL  = process.env.REACT_APP_ACCOUNTS_URL
 const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
-const PATIENT_APP =  process.env.REACT_APP_PATIENT_URL
+const PRACTITIONER_URL =  process.env.REACT_APP_PRACTITIONER_URL
 export const fetchPatients = createAsyncThunk(
   'patient/fetchPatients',
   async ({ page, limit }, { rejectWithValue }) => {
@@ -72,7 +72,7 @@ export const addPatient = createAsyncThunk(
         }
       });
       console.log(response.data,"user res")
-      window.location.href=   `${PATIENT_APP}/patients`
+      window.location.href=   `${PRACTITIONER_URL}/patients`
       return response.data;
     } catch (error) {
       console.log(error, "user error");
@@ -100,12 +100,13 @@ export const fetchPatientById = createAsyncThunk(
 
 export const patchPatientById = createAsyncThunk(
   'patient/patchPatientById',
-  async ({ id, userId, updates }, { rejectWithValue }) => {
-    console.log(updates,"updates");
-    const { phoneNumber, dialCode, address1, address2, city, state, country, zipCode, ...rest } = updates;
+  async ({ id, userId, updates,navigate }, { rejectWithValue }) => {
+    console.log("Updates:", updates); 
+    const { phoneNumber, dialCode, address1, address2, city, state, country, zipCode,tenants ,...rest } = updates;
 
     const body = {
       ...rest,
+      tenants,
       phoneNumber: {
         dialCode,
         value: phoneNumber
@@ -118,6 +119,7 @@ export const patchPatientById = createAsyncThunk(
     };
 
     try {
+      console.log("Request Body:", body);
       const response = await axios.patch(`${ACCOUNTS_URL}/profiles/${id}/${userId}`, body, {
         headers: {
           "Content-Type": "application/json",
@@ -125,7 +127,7 @@ export const patchPatientById = createAsyncThunk(
         }
       });
       console.log(response.data);
-      window.location.href= `${PATIENT_APP}/patients`
+     navigate(`/patients`)
       return response.data;
     } catch (error) {
       console.log(error);
