@@ -1,33 +1,36 @@
-import React, { useState } from "react";
+import React, {  useState ,useEffect} from "react";
 import BillingTd from "./BillingTd";
 import BillingtrHeader from "./BillingtrHeader";
 import ReactPaginate from "react-paginate";
-import { useNavigate } from "react-router-dom";
 import CustomTable from "../../Components/Common/CustomTable";
-import { data } from "./billingdata";
-import CustomButton from "../../Components/Common/CustomButton";
+import { getAllBillings } from "../../Store/billingSlice";
+import { useDispatch,useSelector } from "react-redux";
+
 
 const Billing = () => {
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  const navigate = useNavigate();
+  const dispatch=  useDispatch()
+  const { totalPages} = useSelector((state) => state.billing);
 
-  const pageCount = Math.ceil(data.length / itemsPerPage);
   const offset = currentPage * itemsPerPage;
 
+    useEffect(() => {
+      dispatch(getAllBillings({
+        currentPage: currentPage,
+        itemsPerPage,
+        sortBy: 'updatedAt', 
+        order: 'desc',
+      }));
+    }, [currentPage])
+
+
   const handlePageClick = ({ selected }) => {
-    setCurrentPage(selected);
-  };
-  const handleAddBillClick = () => {
-    navigate("/AddBill");
+    setCurrentPage(selected +1);
   };
 
   return (
     <>
-      <div className="flex relative px-3 py-2 w-full  justify-end">
-        <CustomButton text="+ New Bill" onclick={handleAddBillClick} />
-      </div>
-
       <div className="overflow-y-auto sm:rounded-lg">
         <CustomTable trHeader={BillingtrHeader}>
           <BillingTd offset={offset} itemsPerPage={itemsPerPage} />
@@ -36,7 +39,7 @@ const Billing = () => {
           previousLabel={"«"}
           nextLabel={"»"}
           breakLabel={"..."}
-          pageCount={pageCount}
+          pageCount={totalPages}
           onPageChange={handlePageClick}
           containerClassName={"flex justify-center mt-6 mb-0"}
           pageClassName={"mx-1"}

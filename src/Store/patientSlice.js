@@ -16,7 +16,7 @@ const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
 const PRACTITIONER_URL =  process.env.REACT_APP_PRACTITIONER_URL
 export const fetchPatients = createAsyncThunk(
   'patient/fetchPatients',
-  async ({ page, limit }, { rejectWithValue }) => {
+  async ({ page, limit,order }, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${ACCOUNTS_URL}/profiles`, {
         headers: {
@@ -26,7 +26,8 @@ export const fetchPatients = createAsyncThunk(
         },
         params: {
           page,
-          limit
+          limit,
+          order
         }
       });
       console.log(response.data,"patient data");

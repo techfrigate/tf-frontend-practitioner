@@ -8,7 +8,7 @@ const BillingtrHeader = (
       <IoArrowUpSharp className="inline ml-1" size={16} />
     </th>
     <th className="py-4 px-6 text-left">UHID</th>
-    <th className="py-4 px-6 text-left">Age</th>
+    <th className="py-4 px-6 text-left">Bill ID</th>
     <th className="py-4 px-6 text-left">Status</th>
     <th className="py-4 px-6 text-left">Last Visit</th>
     <th className="py-4 px-6 text-left">Bill</th>

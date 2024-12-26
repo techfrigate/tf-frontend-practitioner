@@ -92,7 +92,7 @@ const BillPDF = ({
     link.click();
   };
   return (
-    <div className="mt-3">
+    <div >
       <CustomButton text="Download Bill PDF" onclick={downloadPDF} />
     </div>
   );

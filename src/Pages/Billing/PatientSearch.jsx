@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, User, Phone, Mail, Calendar } from "lucide-react";
+import { Search, User, Phone, Mail, Calendar, X } from "lucide-react";
 import { Input } from "../../Components/ui/input";
 
 const PatientSearch = ({
@@ -45,7 +45,7 @@ const PatientSearch = ({
     <div className="w-full space-y-4 space-x-2">
       {!selectedPatient ? (
         <>
-          <div className="relative">
+          <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-gray-400" />
             </div>
@@ -54,27 +54,27 @@ const PatientSearch = ({
               placeholder="Search patients by name, phone, or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 w-[22rem] truncate border border-gray-500"
+              className="pl-10 w-full md:w-[25rem] truncate border-2 border-gray-200 rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all duration-200 h-14 text-base shadow-sm"
             />
           </div>
 
           {searchQuery && (
             <div
-              className={`absolute w-[22rem] max-h-[300px] bg-white border border-gray-300 rounded-lg shadow-lg transition-all duration-500 ease-in-out transform ${
+              className={`absolute w-[25rem] max-h-[300px] bg-white border border-gray-300 rounded-lg shadow-lg transition-all duration-700 ease-out transform ${
                 filteredPatients.length > 0
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-4"
               }`}
               style={{
-                overflow: 'auto',
-                scrollbarWidth: 'none', /* Hide scrollbar for Firefox */
-                msOverflowStyle: 'none', /* Hide scrollbar for IE and Edge */
+                overflow: "auto",
+                scrollbarWidth: "none", 
+                msOverflowStyle: "none", 
               }}
             >
               {filteredPatients.map((patient) => (
                 <div
                   key={patient._id}
-                  className="cursor-pointer p-3 border-b border-gray-300 hover:bg-gray-100"
+                  className="cursor-pointer p-4 hover:bg-gray-50 transition-all duration-200 first:rounded-t-xl last:rounded-b-xl border-b border-gray-100 last:border-0"
                   onClick={() => onSelect(patient)}
                 >
                   <div className="flex items-start justify-between">
@@ -85,7 +85,6 @@ const PatientSearch = ({
                           {patient.firstName} {patient.lastName}
                         </h3>
                       </div>
-
                       <div className="grid grid-cols-1 gap-2 text-xs text-gray-600">
                         <div className="flex items-center gap-2">
                           <Phone className="h-4 w-4" />
@@ -120,16 +119,29 @@ const PatientSearch = ({
           )}
         </>
       ) : (
-        <div className="relative flex items-center ">
-          <Input
-            type="text"
-            value={`${selectedPatient.firstName} ${selectedPatient.lastName} - Age: ${calculateAge(
-              selectedPatient.dob
-            )}`}
-            readOnly
+        <div
+          className="flex items-center gap-3 p-1.5 bg-emerald-50 border-2 border-emerald-500 
+            rounded-2xl w-full md:w-[28rem] group cursor-pointer transition-all duration-200
+            hover:bg-emerald-100 shadow-sm"
+        >
+          <div className="bg-emerald-100 p-2 rounded-lg">
+            <User className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="font-medium text-emerald-800 mb-0.5">
+              {selectedPatient.firstName} {selectedPatient.lastName}
+            </div>
+            {/* <div className="text-sm text-emerald-600 truncate">
+              Age: {calculateAge(selectedPatient.dob)}
+            </div> */}
+          </div>
+          <div
+            className="bg-emerald-100 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 
+              transition-all duration-200"
             onClick={() => onSelect(null)}
-            className="w-[21rem] cursor-pointer border truncate border-green-500 bg-green-50 text-green-800 font-semibold"
-          />
+          >
+            <X className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+          </div>
         </div>
       )}
     </div>
