@@ -120,9 +120,6 @@ const LocationSearch = ({
             <div className="font-medium text-emerald-800 mb-0.5">
               {selectedLocation.name}
             </div>
-            {/* <div className="text-sm text-emerald-600 truncate">
-              {formatAddress(selectedLocation.address)}
-            </div> */}
           </div>
           <div
             className="bg-emerald-100 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 

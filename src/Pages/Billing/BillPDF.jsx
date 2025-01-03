@@ -93,7 +93,11 @@ const BillPDF = ({
   };
   return (
     <div >
-      <CustomButton text="Download Bill PDF" onclick={downloadPDF} />
+      <button
+      onClick={downloadPDF}
+       className="inline-flex items-center px-6 py-3 bg-[#00A182] text-white rounded-md hover:bg-[#008a6c]">
+      Download Bill PDF
+      </button>
     </div>
   );
 };

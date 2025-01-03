@@ -109,7 +109,6 @@ const PatientSearch = ({
                   </div>
                 </div>
               ))}
-
               {filteredPatients.length === 0 && (
                 <div className="text-center py-8 text-gray-500 text-sm">
                   No patients found matching your search
@@ -131,9 +130,6 @@ const PatientSearch = ({
             <div className="font-medium text-emerald-800 mb-0.5">
               {selectedPatient.firstName} {selectedPatient.lastName}
             </div>
-            {/* <div className="text-sm text-emerald-600 truncate">
-              Age: {calculateAge(selectedPatient.dob)}
-            </div> */}
           </div>
           <div
             className="bg-emerald-100 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 
