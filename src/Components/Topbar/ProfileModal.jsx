@@ -21,9 +21,11 @@ const ProfileModal = () => {
   const openEditModal = () => {
     setIsEditOpen(true);
   };
+ 
   const SignIn_URL = process.env.REACT_APP_SIGNIN_URL;
 
   console.log(SignIn_URL);
+ 
 
   const handleSignOut = () => {
     setIsConfirmOpen(true);
@@ -60,7 +62,6 @@ const ProfileModal = () => {
 
   const profile = JSON.parse(localStorage.getItem("admin_profile"));
 
-  // console.log(profile);
 
   const { firstName = "", lastName = "", email = "" } = profile;
 

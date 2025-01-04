@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 
 const initialState = {
   profileData: null,
+  locationProfiles: null,
   loading: false,
   error: null,
   }
@@ -16,7 +17,6 @@ const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
 export const fetchUserProfile = createAsyncThunk(
   'profile/fetchUserProfile',
   async ({ userId, accessToken, tenantId }, {rejectWithValue}) => {
-    // console.log(userId, accessToken, tenantId );
     try {
       const response = await axios.get(`${ACCOUNTS_URL}/profiles/user-profile/${userId}`, {
           headers: {
@@ -26,7 +26,6 @@ export const fetchUserProfile = createAsyncThunk(
           tenantId
           },
       });
-      // console.log("response of practitoner",response.data);
       Cookies.set("Token", response.data.access_token);
       Cookies.set("TenantId", tenantId);
       Cookies.set("UserId", userId);
@@ -39,6 +38,39 @@ export const fetchUserProfile = createAsyncThunk(
     } catch (error) {
       console.log("practitioner error", error);
       return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+
+export const fetchLocationProfiles = createAsyncThunk(
+  'profile/fetchLocationProfiles',
+  async ({ tenantId, locationId, userType, accessToken }, { rejectWithValue }) => {
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+        tenantid: tenantId,
+        locationid: locationId,
+      };
+
+      if (userType) {
+        headers.usertype = userType;
+      }
+
+      const response = await axios.get(`${ACCOUNTS_URL}/profiles/location-profile`, { headers });
+
+      Cookies.set('TenantId', tenantId);
+      Cookies.set('LocationId', locationId);
+      if (userType) {
+        Cookies.set('UserType', userType);
+      }
+
+      localStorage.setItem('location_profiles', JSON.stringify(response.data));
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching location profiles:', error);
+      return rejectWithValue(error.response?.data || 'An error occurred');
     }
   }
 );
@@ -72,6 +104,18 @@ const profileSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchLocationProfiles.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchLocationProfiles.fulfilled, (state, action) => {
+        state.locationProfiles = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchLocationProfiles.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
