@@ -50,7 +50,7 @@ function App() {
     };
     
     
-    const currentTitle =  ports[location.pathname] || 'Central Admin'
+    const currentTitle =  ports[location.pathname] || 'Practitioner App'
     document.title = currentTitle
   },[location])
   

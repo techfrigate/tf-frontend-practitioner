@@ -2,8 +2,9 @@ import React from "react";
 import CustomInput from "../../Common/CustomInput";
 import PhoneNumberInput from "../../Common/PhoneNumberInput";
 import CustomSelect from "../../Common/CustomSelect";
+import CustomDatePicker from "../../Common/CustomDatePicker";
 
-const PersonalInfo = ({ personalInfoFormData, personalInfo, handlePersonalInfoChange, handleDialCodeChange,inValidObject }) => {
+const PersonalInfo = ({ personalInfoFormData, personalInfo, handleChange,handlePersonalInfoChange, handleDialCodeChange,inValidObject }) => {
   const genderOptions = [
     { value: "male", label: "Male" },
     { value: "female", label: "Female" }
@@ -25,12 +26,25 @@ const PersonalInfo = ({ personalInfoFormData, personalInfo, handlePersonalInfoCh
                 id={elem.id}
                 placeholder={elem.placeholder}
                 dialCode={personalInfo.dialCode}
-                value={personalInfo[elem.id]}
+                value={personalInfo[elem?.id]}
                 onChangeNumber={(number) =>
                   handlePersonalInfoChange({ target: { id: elem.id, value: number } })
                 }
                 onChangeDialCode={handleDialCodeChange}
                 isInvalid={inValidObject['phoneNumber']}
+              />
+            );
+          }
+          if (elem.type === "date") {
+            return (
+              <CustomDatePicker
+                key={elem.id}
+                id={elem.id}
+                label={elem.label}
+                value={personalInfo[elem.id]}
+                isInvalid={inValidObject[elem.id]}
+                errorMessage={inValidObject[elem.id]} 
+                onChange={handleChange}
               />
             );
           }
@@ -41,7 +55,7 @@ const PersonalInfo = ({ personalInfoFormData, personalInfo, handlePersonalInfoCh
               label={elem.label}
               id={elem.id}
               placeholder={elem.placeholder}
-              value={personalInfo[elem.id]}
+              value={personalInfo[elem?.id]}
               onChange={handlePersonalInfoChange}
               isInvalid={inValidObject[elem.id]}
             />

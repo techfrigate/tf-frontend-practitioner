@@ -4,7 +4,7 @@ import styles from "../../Css/Topbar/Topbar.module.css";
 import ProfileModal from "./ProfileModal";
 import HelpModal from "./HelpModal";
 import NotificationModal from "./NotificationModal";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import CustomButton from "../Common/CustomButton";
 import CreateNewModal from "./CreateNewModal";
 import HospitalModal from "./HospitalModal";
@@ -19,6 +19,8 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   const profileModalRef = useRef(null);
   const createNewModalRef = useRef(null);
   const thanosRef = useRef();
+
+  const navigate =useNavigate()
 
   const [selectedTenant, setSelectedTenant] = useState();
 
@@ -97,6 +99,13 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
     };
   }, []);
 
+  const handleAddBillClick = () => {
+    navigate("/AddBill");
+    toggleCreateProviderForm();
+
+  };
+;
+
   const handleHospitalChange = (tenant) => {
     Cookies.set("TenantId", tenant.tenantId);
     setSelectedTenant(tenant);
@@ -107,7 +116,7 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   return (
     <div className="w-full p-2  ">
       <div className="bg-white rounded-md px-10 py-2 flex justify-between items-center">
-        <div className="flex flex-col justify-center items-start">
+        <div className="flex flex-col justify-center items-start gap-1">
           <HospitalModal
             selectedTenant={selectedTenant}
             handleHospitalChange={handleHospitalChange}
@@ -127,6 +136,12 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
 
         <div className="flex gap-10 justify-between  items-center ">
           <div className="flex items-center gap-6 text-[#64C6B0] relative">
+            <div>{ window.location.href.includes("billing") &&!showForm && (
+            <CustomButton
+              text= "+ Add Bill" 
+              onclick={handleAddBillClick}/>
+          )}
+           </div>
             <div className="relative cursor-pointer" ref={createNewModalRef}>
               <CustomButton text="+ New" onclick={handleCreateNewClick} />
               {isCreateNewModalOpen && (

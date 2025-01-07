@@ -31,6 +31,8 @@ const Appointment = () => {
 
   const dispatch = useDispatch();
 
+  console.log(slotsData)
+
   useEffect(() => {
     dispatch(getSlots());
     dispatch(fetchPatients({ page: null, limit: null }));

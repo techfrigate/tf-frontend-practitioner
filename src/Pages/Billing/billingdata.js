@@ -1,0 +1,44 @@
+export const serviceData = {
+  Services: [
+    { id: 1, name: "Room Charges", price: 5000 },
+    { id: 2, name: "Day Care", price: 10000 },
+    { id: 3, name: "ICU Charges", price: 15000 },
+    { id: 4, name: "Nursing Services", price: 3000 },
+    { id: 5, name: "Doctor Consultation", price: 2000 },
+  ],
+  Pharmacy: [
+    { id: 1, name: "Medicines", price: 2000 },
+    { id: 2, name: "Health Supplements", price: 1500 },
+    { id: 3, name: "First Aid Supplies", price: 500 },
+    { id: 4, name: "Vaccines", price: 3000 },
+    { id: 5, name: "Surgical Items", price: 4000 },
+  ],
+  Diagnostic: [
+    { id: 1, name: "Blood Test", price: 800 },
+    { id: 2, name: "X-Ray", price: 1200 },
+    { id: 3, name: "MRI Scan", price: 6000 },
+    { id: 4, name: "CT Scan", price: 5000 },
+    { id: 5, name: "Ultrasound", price: 2500 },
+  ],
+  Surgery: [
+    { id: 1, name: "Appendectomy", price: 50000 },
+    { id: 2, name: "Gallbladder Removal", price: 60000 },
+    { id: 3, name: "Knee Replacement", price: 120000 },
+    { id: 4, name: "Cataract Surgery", price: 40000 },
+    { id: 5, name: "Hernia Repair", price: 35000 },
+  ],
+  Rehabilitation: [
+    { id: 1, name: "Physiotherapy", price: 1500 },
+    { id: 2, name: "Occupational Therapy", price: 2000 },
+    { id: 3, name: "Speech Therapy", price: 1800 },
+    { id: 4, name: "Chiropractic Sessions", price: 2500 },
+    { id: 5, name: "Post-Surgery Rehabilitation", price: 4000 },
+  ],
+  Miscellaneous: [
+    { id: 1, name: "Ambulance Services", price: 2000 },
+    { id: 2, name: "Oxygen Supply", price: 1000 },
+    { id: 3, name: "Bedside Attendant", price: 1200 },
+    { id: 4, name: "Cafeteria Services", price: 800 },
+    { id: 5, name: "Laundry Services", price: 500 },
+  ],
+};
