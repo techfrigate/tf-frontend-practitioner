@@ -3,9 +3,9 @@ import Slot from "./Slot";
 
 const SlotGroup = ({ title, slots, selectedTimeSlot, handleTimeSlotSelect }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md p-4">
-      <h1 className="text-xl font-semibold text-gray-700 mb-4">{title}</h1>
-      <div className="flex flex-wrap gap-2">
+    <div className="mb-6">
+      <h1 className="text-md font-semibold text-gray-600 mb-3">{title}</h1>
+      <div className="flex flex-wrap gap-3">
         {slots.map((time, index) => (
           <Slot
             key={index}

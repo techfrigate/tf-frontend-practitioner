@@ -2,8 +2,11 @@ import React from "react";
 import { ArrowLeft } from "lucide-react";
 import GlobalForm from "../../Components/Common/GlobalForm";
 import { useDispatch } from "react-redux";
-import { addFormData, setFormData } from "../../../src/Store/prescriptionformDataSlice";
-
+import {
+  addFormData,
+  setFormData,
+} from "../../../src/Store/prescriptionformDataSlice";
+import GlobalSheet from "../../Components/Common/GlobalSheet";
 
 const FillDetailsSheet = ({
   isDialogOpen,
@@ -605,8 +608,6 @@ const FillDetailsSheet = ({
     ],
   };
 
-  
-
   const handleSubmit = (formData) => {
     dispatch(addFormData({ category: selectedCategory.name, data: formData }));
     closeSheet();
@@ -616,33 +617,13 @@ const FillDetailsSheet = ({
   const formFields = categoryFormFields[selectedCategory.name] || [];
 
   return (
-    <div className="fixed inset-0 z-50 flex">
-      <div
-        className="fixed inset-0 bg-black bg-opacity-10"
-        onClick={closeSheet}
-      ></div>
-
-      {/* Sliding Sheet from the Right */}
-      <div className="bg-white w-[45%] h-full p-6 shadow-lg transform transition-transform translate-x-0 ease-in-out duration-300 fixed top-0 right-0">
-        {/* Header */}
-        <div className="flex justify-between items-center border-b pb-4 mb-4">
-          <div className="flex items-center gap-3">
-            <ArrowLeft
-              size={20}
-              className="text-gray-500 cursor-pointer"
-              onClick={closeSheet}
-            />
-            <h2 className="text-lg font-semibold">{`Fill Details for ${selectedCategory?.name}`}</h2>
-          </div>
-          <button
-            onClick={closeSheet}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <span className="text-2xl">&times;</span>
-          </button>
-        </div>
-
-        {/* Form for filling details */}
+    <GlobalSheet
+      isDialogOpen={isDialogOpen}
+      setIsDialogOpen={setIsDialogOpen}
+      buttonClassName={`hidden`}
+    >
+      <div>
+        <h2 className="text-lg font-semibold">{`Fill Details for ${selectedCategory?.name}`}</h2>
         <GlobalForm
           formFields={formFields}
           onSubmit={handleSubmit}
@@ -650,7 +631,7 @@ const FillDetailsSheet = ({
           className="space-y-4"
         />
       </div>
-    </div>
+    </GlobalSheet>
   );
 };
 

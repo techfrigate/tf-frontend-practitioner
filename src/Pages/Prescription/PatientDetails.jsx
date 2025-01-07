@@ -50,10 +50,9 @@ const formatDateRange = (startDateTime, endDateTime) => {
 
 function PatientDetails() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { profileData } = useSelector((state) => state.profile);
   const { prescriptionData } = useSelector((state) => state.appointment);
-  const dispatch = useDispatch();
-
   const [filteredData, setFilteredData] = useState({});
 
   useEffect(() => {
@@ -89,13 +88,20 @@ function PatientDetails() {
 
   const handleTaskClick = (patient) => {
     const { bookingStatus } = patient;
-  
-    let status = "Scheduled"; // Default status
-  
-    // Determine the status based on the bookingStatus flags
-    if (bookingStatus.booked && bookingStatus.checkIn && bookingStatus.checkOut && bookingStatus.closed) {
+
+    let status = "Scheduled"; 
+    if (
+      bookingStatus.booked &&
+      bookingStatus.checkIn &&
+      bookingStatus.checkOut &&
+      bookingStatus.closed
+    ) {
       status = "Closed";
-    } else if (bookingStatus.booked && bookingStatus.checkIn && bookingStatus.checkOut) {
+    } else if (
+      bookingStatus.booked &&
+      bookingStatus.checkIn &&
+      bookingStatus.checkOut
+    ) {
       status = "Checked Out";
     } else if (bookingStatus.booked && bookingStatus.checkIn) {
       status = "Checked In";
@@ -104,7 +110,7 @@ function PatientDetails() {
     }
     navigate("/fillDetails", { state: { status } });
   };
-  
+
   const statusColors = {
     Scheduled: "bg-purple-100 text-purple-800",
     "Checked In": "bg-green-100 text-green-800",
@@ -264,12 +270,11 @@ function PatientDetails() {
                           <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg shadow-sm">
                             <Badge variant="forestLight">Appointment</Badge>
                             <CustomTooltip content={`Video call`}>
-                            <Video
-                              className="text-green-500 hover:text-green-600 transition-colors cursor-pointer"
-                              size={20}
-                            />
+                              <Video
+                                className="text-green-500 hover:text-green-600 transition-colors cursor-pointer"
+                                size={20}
+                              />
                             </CustomTooltip>
-                            
                           </div>
                         </div>
                       );
