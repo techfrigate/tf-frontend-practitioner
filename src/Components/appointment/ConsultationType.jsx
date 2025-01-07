@@ -1,10 +1,16 @@
-import React,{useEffect} from "react";
+import React, { useEffect } from "react";
+import { FaUserMd, FaVideo } from "react-icons/fa";
 
-const ConsultationType = ({ consultationType, handleConsultationChange, selectedDoctor }) => {
-
+const ConsultationType = ({
+  consultationType,
+  handleConsultationChange,
+  selectedDoctor,
+}) => {
   useEffect(() => {
     if (selectedDoctor && selectedDoctor.slots) {
-      const hasBoth = selectedDoctor.slots.some((slot) => slot.visitType === "Both");
+      const hasBoth = selectedDoctor.slots.some(
+        (slot) => slot.visitType === "Both"
+      );
       if (hasBoth && consultationType !== "Offline") {
         handleConsultationChange("Online");
       }
@@ -12,39 +18,46 @@ const ConsultationType = ({ consultationType, handleConsultationChange, selected
   }, []);
 
   return (
-    <div className="mt-8 w-full max-w-md bg-white rounded-lg p-10 shadow-md">
-      <h2 className="text-lg font-semibold text-gray-500 mb-4 text-center">
+    <div className="mt-5 w-full">
+      <h2 className="text-base font-semibold text-gray-800 mb-4">
         Consultation Type
       </h2>
-      <div className="flex justify-center mb-4 space-x-4">
-        <button
+      <div className="grid grid-cols-2 gap-4">
+        {/* In-person Consultation */}
+        <div
           onClick={() => handleConsultationChange("Offline")}
-          className={`px-4 py-2 border rounded-lg transition-colors duration-300 ${
+          className={`flex items-center justify-between p-3 border-2 rounded-lg cursor-pointer transition-colors duration-300 ${
             consultationType === "Offline"
-              ? "bg-[#00A182] text-white border-[#00A182]"
-              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+              ? "bg-gray-200 border-gray-700"
+              : "bg-white border-gray-300"
           }`}
         >
-          In-person
-        </button>
-        <button
+          <div className="flex items-center space-x-2">
+            <FaUserMd className="text-sm text-gray-700" />
+            <p className="text-gray-800 font-medium">In-person Consultation</p>
+          </div>
+          <p className="text-gray-800 font-medium">
+            ₹{selectedDoctor.slots[0]?.practitionerData?.inPersonFees || "0"}
+          </p>
+        </div>
+
+        {/* Online Consultation */}
+        <div
           onClick={() => handleConsultationChange("Online")}
-          className={`px-4 py-2 border rounded-lg transition-colors duration-300 ${
+          className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors duration-300 ${
             consultationType === "Online"
-              ? "bg-[#00A182] text-white border-[#00A182]"
-              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+              ? "bg-gray-200 border-gray-700"
+              : "bg-white border-gray-300"
           }`}
         >
-          Online
-        </button>
-      </div>
-      <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg shadow-inner">
-        <p className="text-gray-600 text-base font-medium">
-          Price: ₹
-          {consultationType === "Offline"
-            ? selectedDoctor.slots[0]?.practitionerData?.inPersonFees
-            : selectedDoctor.slots[0]?.practitionerData?.onlineFees}
-        </p>
+          <div className="flex items-center space-x-2">
+            <FaVideo className="text-sm text-gray-700" />
+            <p className="text-gray-800 font-medium">Online Consultation</p>
+          </div>
+          <p className="text-gray-800 font-medium">
+            ₹{selectedDoctor.slots[0]?.practitionerData?.onlineFees || "0"}
+          </p>
+        </div>
       </div>
     </div>
   );
