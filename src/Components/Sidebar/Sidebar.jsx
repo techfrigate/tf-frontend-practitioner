@@ -5,6 +5,7 @@ import {
   FaListAlt,
   FaFileInvoiceDollar,
 } from "react-icons/fa";
+import { FaSuitcaseMedical } from "react-icons/fa6";
 import styles from "../../Css/Sidebar/Sidebar.module.css";
 
 import { useNavigate } from "react-router-dom";
@@ -26,11 +27,11 @@ const sidebarLinks = [
     icon: <FaCalendarAlt size={21} />,
     route: "/calendar",
   },
-  // {
-  //   name: "Worklist 2",
-  //   icon: <FaListAlt size={21} />,
-  //   route: "/workitem",
-  // },
+  {
+    name: "Medicines",
+    icon: <FaSuitcaseMedical size={21} />,
+    route: "/medicines",
+  },
   {
     name: "Billing",
     icon: <FaFileInvoiceDollar size={21} />,

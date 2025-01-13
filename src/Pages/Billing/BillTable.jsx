@@ -1,7 +1,7 @@
 import React from "react";
 import { Receipt, Trash2 } from "lucide-react";
 
-const BillingTable = ({ bills, onDelete,totalAmount }) => {
+const BillingTable = ({ bills, onDelete, totalAmount, billIdFromUrl }) => {
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
@@ -27,15 +27,18 @@ const BillingTable = ({ bills, onDelete,totalAmount }) => {
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900 text-right">{bill.quantity}</td> 
                   <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                    ₹{bill.price*bill.quantity}
+                    ₹{bill.price * bill.quantity}
                   </td>
-                  
                   <td className="px-6 py-4">
                     <div className="flex justify-center">
                       <button
                         onClick={() => onDelete(index)}
-                        className="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg
-                          transition-all duration-200 group"
+                        disabled={Boolean(billIdFromUrl)}
+                        className={`p-2 rounded-lg transition-all duration-200 group
+                          ${billIdFromUrl 
+                            ? 'text-gray-300 cursor-not-allowed' 
+                            : 'text-red-500 hover:text-red-600 hover:bg-red-50'
+                          }`}
                       >
                         <Trash2 className="w-5 h-5 transform group-hover:scale-110 transition-transform" />
                       </button>
@@ -59,7 +62,7 @@ const BillingTable = ({ bills, onDelete,totalAmount }) => {
           </tbody>
         </table>
       </div>
-      {bills &&  bills.length > 0 && (
+      {bills && bills.length > 0 && (
         <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
           <div className="flex justify-end items-center space-x-4">
             <span className="text-sm text-gray-600">Total Amount:</span>

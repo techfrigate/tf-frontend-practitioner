@@ -14,25 +14,27 @@ import DoctorSearch from "./DoctorSearch";
 import PatientSearch from "./PatientSearch";
 import LocationSearch from "./LocationSearch";
 import { createBilling, getBillingById, updateBilling } from "../../Store/billingSlice";
+import { updateMedicine ,getAllMedicines} from "../../Store/MedicinesSlice";
 
 const AddBill = () => {
   const { patients } = useSelector((state) => state.patient);
   const { profileData, locationProfiles } = useSelector((state) => state.profile);
   const { billing } = useSelector((state) => state.billing);
   const [searchParams] = useSearchParams();
+  const { medicines } = useSelector((state) => state.Medicines);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [doctorSearchQuery, setDoctorSearchQuery] = useState("");
   const [locationSearchQuery, setLocationSearchQuery] = useState("");
+  const [patientSearchQuery, setPatientSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [bills, setBills] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [doctorFees, setDoctorFees] = useState(500);
   const [paidAmount, setPaidAmount] = useState(0);
   const [dueAmount, setDueAmount] = useState(0);
-  const [patientSearchQuery, setPatientSearchQuery] = useState("");
-  const [selectedPatient, setSelectedPatient] = useState(null);
-  const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [billId, setBillId] = useState("");
 
   const { locations } = useSelector((state) => state.locations);
@@ -46,6 +48,12 @@ const AddBill = () => {
       sortBy: null,
       order: null,
     }));
+    dispatch(getAllMedicines({
+      currentPage: null,
+      itemsPerPage:null,
+      sortBy: null, 
+      order: null,
+    }));
 
     const tenantId = Cookies.get("TenantId");
     const locationId = profileData?.locations?.[0];
@@ -55,6 +63,7 @@ const AddBill = () => {
     if (tenantId && locationId && userType && accessToken) {
       dispatch(fetchLocationProfiles({ tenantId, locationId, userType, accessToken }));
     }
+    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
@@ -63,6 +72,7 @@ const AddBill = () => {
       const generatedBillId = `${randomLetters}${Date.now()}`;
       setBillId(generatedBillId);
     }
+    // eslint-disable-next-line
   }, []);
 
   const billIdFromUrl = searchParams.get("id");
@@ -70,12 +80,8 @@ const AddBill = () => {
     if (billIdFromUrl) {
       dispatch(getBillingById(billIdFromUrl))
         .then((billingData) => {
-          const { 
-            patientName, doctorName, phoneNumber, locationName, 
-            services, gst, doctorFees, dueAmount, billId, 
-            patientId, doctorId, locationId 
-          } = billingData.payload;
-
+          // eslint-disable-next-line
+          const { patientName, doctorName, phoneNumber, locationName, services, gst, doctorFees, dueAmount, billId, patientId, doctorId, locationId } = billingData.payload;
           setSelectedPatient({
             _id: patientId,
             firstName: patientName.split(" ")[0],
@@ -101,6 +107,7 @@ const AddBill = () => {
           toast.error(`Error fetching billing data: ${error.message}`);
         });
     }
+    // eslint-disable-next-line
   }, [billIdFromUrl, locations]);
 
   const handleAddService = (newService) => {
@@ -128,49 +135,104 @@ const AddBill = () => {
     const randomNumber = Math.floor(Math.random() * 1000000);
     return `UH${randomNumber.toString().padStart(6, '0')}`;
   };
-
   const handleCreateBilling = () => {
     if (!selectedPatient || !selectedDoctor || !selectedLocation) {
       toast.error("Please select patient, doctor, and location!");
       return;
     }
-
+  
     const uhid = generateUHID();
     const status = dueAmount === 0;
-
-    const commonData = {
-      patientId: selectedPatient._id,
-      patientName: `${selectedPatient.firstName} ${selectedPatient.lastName}`,
-      doctorName: `${selectedDoctor.firstName} ${selectedDoctor.lastName}`,
-      doctorId: selectedDoctor._id,
-      locationName: selectedLocation.name,
-      locationId: selectedLocation._id,
-      uhid,
-      billId,
-      phoneNumber: selectedPatient.phoneNumber,
-    };
-
-    const billingData = {
-      services: bills,
-      dueAmount,
-      gst: gstAmount,
-      doctorFees,
-      totalAmount,
-      createdBy: Cookies.get("UserId"),
-      updatedBy: Cookies.get("UserId"),
-      status,
-      paidAmount
-    };
-
-    const dispatchPromise = billIdFromUrl
-      ? dispatch(updateBilling({ billId: billIdFromUrl, body: { ...billingData, phoneNumber: billing.phoneNumber } }))
-      : dispatch(createBilling({ ...billingData, ...commonData }));
-
-    dispatchPromise
+  
+    const medicineUpdates = bills
+      .filter(bill => bill.category === "Medicine" && bill.medicineId)
+      .map(bill => {
+        if (!bill.medicineId || !bill.quantity || !bill.currentStock) {
+          console.error("Invalid medicine data:", bill);
+          return null;
+        }
+  
+        const purchaseQuantity = parseInt(bill.quantity);
+        const currentStock = parseInt(bill.currentStock);
+        const maxQuantity = parseInt(bill.maxQuantity || 0);
+  
+        if (isNaN(purchaseQuantity) || isNaN(currentStock)) {
+          console.error("Invalid quantity values:", {
+            purchaseQuantity,
+            currentStock,
+            maxQuantity
+          });
+          return null;
+        }
+  
+        const remainingStock = currentStock - purchaseQuantity;
+  
+        if (remainingStock < 0) {
+          toast.error(`Insufficient stock for medicine: ${bill.name}`);
+          return null;
+        }
+  
+        const isOutOfStock = remainingStock <= 0;
+  
+        return {
+          medId: bill.medicineId,
+          body: {
+            unit: remainingStock.toString(),
+            noOfUnit: remainingStock.toString(),
+            maxQuantity: maxQuantity.toString(),
+            sale: isOutOfStock ? "yes" : "no"
+          }
+        };
+      })
+      .filter(update => update !== null);
+  
+    Promise.all(
+      medicineUpdates.map(update => dispatch(updateMedicine(update)))
+    )
+      .then(() => {
+        const commonData = {
+          patientId: selectedPatient._id,
+          patientName: `${selectedPatient.firstName} ${selectedPatient.lastName}`,
+          doctorName: `${selectedDoctor.firstName} ${selectedDoctor.lastName}`,
+          doctorId: selectedDoctor._id,
+          locationName: selectedLocation.name,
+          locationId: selectedLocation._id,
+          uhid,
+          billId,
+          phoneNumber: selectedPatient.phoneNumber,
+        };
+  
+        const billingData = {
+          services: bills.map(bill => ({
+            ...bill,
+            ...(bill.category === "Medicine" && {
+              medicineId: bill.medicineId,
+              maxQuantity: bill.maxQuantity
+            })
+          })),
+          dueAmount,
+          gst: gstAmount,
+          doctorFees,
+          totalAmount,
+          createdBy: Cookies.get("UserId"),
+          updatedBy: Cookies.get("UserId"),
+          status,
+          paidAmount
+        };
+  
+        const dispatchPromise = billIdFromUrl
+          ? dispatch(updateBilling({
+              billId: billIdFromUrl,
+              body: { ...billingData, phoneNumber: billing.phoneNumber }
+            }))
+          : dispatch(createBilling({ ...billingData, ...commonData }));
+  
+        return dispatchPromise;
+      })
       .then((response) => {
         toast.success(`Billing record ${billIdFromUrl ? 'updated' : 'created'} successfully!`);
         navigate('/paymentconfirmation', {
-          state: { 
+          state: {
             billing: {
               ...response.payload,
               gst: gstAmount,
@@ -184,6 +246,7 @@ const AddBill = () => {
       })
       .catch((error) => {
         toast.error(`Error ${billIdFromUrl ? 'updating' : 'creating'} billing: ${error.message}`);
+        console.error("Detailed error:", error);
       });
   };
 
@@ -221,6 +284,7 @@ const AddBill = () => {
                 billId={billId} 
                 selectedLocation={selectedLocation} 
                 billIdFromUrl={billIdFromUrl}
+                medicines={medicines}
               />
               <div className="border-b border-gray-100">
                 <div className="flex items-center space-x-2">
@@ -229,6 +293,7 @@ const AddBill = () => {
                 </div>
                 <BillTable 
                   bills={bills} 
+                  billIdFromUrl={billIdFromUrl}
                   onDelete={handleDeleteService} 
                   totalAmount={totalAmount} 
                 />
