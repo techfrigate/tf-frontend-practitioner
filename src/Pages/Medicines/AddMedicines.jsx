@@ -18,8 +18,6 @@ const INITIAL_FORM_STATE = {
   pharmacyName: null,
   medicineName: "",
   genericName: "",
-  category: "",
-  marketedBy: "",
   manufacturedBy: "",
   unit: "",
   rackName: "",
@@ -27,13 +25,11 @@ const INITIAL_FORM_STATE = {
   snowmedCtCode: "",
   gstPercentage: "",
   minQuantity: "",
-  maxQuantity: "",
-  noOfUnit: "",
   sale: "",
   mrpPerUnit: "",
   expiryDate: null,
-  prescriptionRequired: false,
-  enable: false,
+  // prescriptionRequired: false,
+  // enable: false,
 };
 
 const REQUIRED_FIELDS = [
@@ -42,7 +38,6 @@ const REQUIRED_FIELDS = [
   "medicineName",
   "unit",
   "gstPercentage",
-  "noOfUnit",
   "mrpPerUnit",
   "expiryDate"
 ];
