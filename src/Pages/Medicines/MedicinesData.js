@@ -12,12 +12,6 @@ export const formFields = [
     placeholder: "Generic Name",
   },
   {
-    id: "marketedBy",
-    label: "Marketed By",
-    type: "text",
-    placeholder: "Marketed By",
-  },
-  {
     id: "manufacturedBy",
     label: "Manufactured By",
     type: "text",
@@ -58,18 +52,6 @@ export const formFields = [
     label: "Min Quantity",
     type: "text",
     placeholder: "Min Quantity",
-  },
-  {
-    id: "maxQuantity",
-    label: "Max Quantity",
-    type: "text",
-    placeholder: "Max Quantity",
-  },
-  {
-    id: "noOfUnit",
-    label: "No. of Unit*",
-    type: "text",
-    placeholder: "No. of Unit",
   },
   {
     id: "sale",
