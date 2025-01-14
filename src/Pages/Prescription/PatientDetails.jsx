@@ -4,14 +4,14 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "../../Components/ui/avatar";
-import { ScrollArea, ScrollBar } from "../../Components/ui/scroll-area";
+import { ScrollArea } from "../../Components/ui/scroll-area";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "../../Components/ui/tabs";
-import { StethoscopeIcon, TableIcon } from "lucide-react";
+import { StethoscopeIcon, TableIcon, Video } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getPrescriptions,
@@ -21,8 +21,8 @@ import { format, parseISO } from "date-fns";
 import PatientTableContent from "./PatientTableContent";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "../../Components/ui/badge";
-import toast from "react-hot-toast";
 import { showErrorToast } from "../../Components/toastUtils";
+import { CustomTooltip } from "../../Components/Common/CustomTooltip";
 
 const initialStatuses = [
   { display: "Scheduled", key: "scheduled" },
@@ -32,12 +32,13 @@ const initialStatuses = [
 ];
 const formatTime = (dateString) => {
   const utcDate = parseISO(dateString);
-  const localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
+  const localDate = new Date(
+    utcDate.getTime() + utcDate.getTimezoneOffset() * 60000
+  );
   return format(localDate, "hh:mm a");
-  }
+};
 const formatDateRange = (startDateTime, endDateTime) => {
   const startDate = new Date(startDateTime);
-  const endDate = new Date(endDateTime);
   const formattedDate = format(startDate, "MMMM dd, yyyy");
   const startTime = formatTime(startDateTime);
   const endTime = formatTime(endDateTime);
@@ -47,18 +48,11 @@ const formatDateRange = (startDateTime, endDateTime) => {
   };
 };
 
-// const formatDate = (date) => {
-//   return format(new Date(date), "MMM dd, yyyy");
-// };
-
-
-
 function PatientDetails() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { profileData } = useSelector((state) => state.profile);
   const { prescriptionData } = useSelector((state) => state.appointment);
-  const dispatch = useDispatch();
-
   const [filteredData, setFilteredData] = useState({});
 
   useEffect(() => {
@@ -90,10 +84,31 @@ function PatientDetails() {
     setFilteredData(filtered);
   }, [prescriptionData]);
 
-  console.log(prescriptionData)
+  console.log(prescriptionData);
 
   const handleTaskClick = (patient) => {
-    navigate("/fillDetails", { state: { status: patient.status } });
+    const { bookingStatus } = patient;
+
+    let status = "Scheduled"; 
+    if (
+      bookingStatus.booked &&
+      bookingStatus.checkIn &&
+      bookingStatus.checkOut &&
+      bookingStatus.closed
+    ) {
+      status = "Closed";
+    } else if (
+      bookingStatus.booked &&
+      bookingStatus.checkIn &&
+      bookingStatus.checkOut
+    ) {
+      status = "Checked Out";
+    } else if (bookingStatus.booked && bookingStatus.checkIn) {
+      status = "Checked In";
+    } else if (bookingStatus.booked) {
+      status = "Scheduled";
+    }
+    navigate("/fillDetails", { state: { status } });
   };
 
   const statusColors = {
@@ -111,7 +126,7 @@ function PatientDetails() {
     Scheduled: ["Checked In"],
     "Checked In": ["Checked Out"],
     "Checked Out": ["Closed"],
-    Closed: [], // No transitions allowed from Closed
+    Closed: [],
   };
 
   const onTaskDrop = (event, newStatus) => {
@@ -121,8 +136,6 @@ function PatientDetails() {
 
     if (patient) {
       const { bookingStatus } = patient;
-
-      // Determine the current status of the patient
       let currentStatusKey;
       if (bookingStatus.closed) {
         currentStatusKey = "Closed";
@@ -134,16 +147,25 @@ function PatientDetails() {
         currentStatusKey = "Scheduled";
       }
 
-      // Check if the transition is allowed
       if (!allowedTransitions[currentStatusKey]?.includes(newStatus)) {
         showErrorToast(
           `Can't change status from ${currentStatusKey} to ${newStatus} for Swetarani Patel.`
         );
-
         return;
       }
 
-      // Define the status key for update
+      // Validation: Check for duplicate IDs in the target section
+      const isDuplicate = filteredData[newStatus]?.some(
+        (p) => p._id === patientId
+      );
+
+      if (isDuplicate) {
+        showErrorToast(
+          `Patient with ID ${patientId} already exists in the ${newStatus} section.`
+        );
+        return;
+      }
+
       let updatedStatusKey;
       if (newStatus === "Scheduled") {
         updatedStatusKey = "booked";
@@ -165,13 +187,11 @@ function PatientDetails() {
 
       setFilteredData((prev) => {
         const updatedData = { ...prev };
-
-        // Remove the patient from the current status
+        // Remove from current section
         updatedData[currentStatusKey] = updatedData[currentStatusKey].filter(
           (p) => p._id !== patientId
         );
-
-        // Add the patient to the new status
+        // Add to new section
         updatedData[newStatus] = [...(updatedData[newStatus] || []), patient];
 
         return updatedData;
@@ -182,7 +202,7 @@ function PatientDetails() {
   };
 
   return (
-    <div className="p-1">
+    <div className={`h-full overflow-y-auto custom-scrollbar p-1`}>
       <Tabs defaultValue="Patient Details">
         <TabsList>
           <TabsTrigger value="Patient Details">
@@ -196,79 +216,74 @@ function PatientDetails() {
         </TabsList>
 
         <TabsContent value="Patient Details">
-          <ScrollArea>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-2">
-              {initialStatuses.map((status) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-2">
+            {initialStatuses.map((status) => (
+              <div
+                key={status.display}
+                className="bg-white p-5 pb-20 rounded-xl shadow-lg border border-gray-200 h-[570px] overflow-hidden custom-scrollbar"
+              >
                 <div
-                  key={status.display}
-                  className="bg-white p-5 rounded-xl shadow-lg border border-gray-200 h-[500px]"
+                  className={`flex justify-between items-center mb-4 p-2 rounded-lg ${
+                    statusColors[status.display]
+                  }`}
                 >
-                  <div
-                    className={`flex justify-between items-center mb-4 p-2 rounded-lg ${
-                      statusColors[status.display]
-                    }`}
-                  >
-                    <h2 className="text-sm font-semibold">{status.display}</h2>
-                  </div>
-                  <ScrollArea className="h-[400px]">
-                    <div
-                      onDragOver={(event) => event.preventDefault()}
-                      onDrop={(event) => onTaskDrop(event, status.display)}
-                      className="min-h-[150px] p-2 bg-gray-50 rounded-lg shadow-inner"
-                    >
-                      {filteredData[status.display]?.map((patient) => {
-                        const { date, timeRange } = formatDateRange(
-                          patient.startDateTime,
-                          patient.endDateTime
-                        );
-
-                        return (
-                          <div
-                            key={patient._id}
-                            className="bg-white p-4 mb-1 rounded-lg cursor-pointer shadow-md border border-gray-200 hover:bg-gray-50 transition-all"
-                            draggable
-                            onDragStart={(event) =>
-                              onTaskDragStart(event, patient._id)
-                            }
-                            onClick={() => handleTaskClick(patient)}
-                          >
-                            <div className="flex items-center space-x-4 mb-3">
-                              <Avatar className="w-10 h-10">
-                                <AvatarImage src={patient.profileImage} />
-                                <AvatarFallback>PV</AvatarFallback>
-                              </Avatar>
-                              <div className="flex flex-col">
-                                {/* <p className="text-sm">
-                                  {patient._id.slice(-4)}
-                                </p> */}
-                                <h3 className="text-sm font-semibold text-gray-600">
-                                  {`${patient.practitionerData.firstName} ${patient.practitionerData.lastName}`}
-                                </h3>
-                                <p className="text-xs text-gray-500">34Y | F</p>
-                              </div>
-                            </div>
-                            <div>
-                              <p className="text-xs text-gray-400">{date}</p>{" "}
-                              <p className="text-xs text-gray-400">
-                                {timeRange}
-                              </p>{" "}
-                            </div>
-                            <Badge
-                              className="mt-2 text-xs font-normal"
-                              variant="forestLight"
-                            >
-                              Appointment
-                            </Badge>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </ScrollArea>
+                  <h2 className="text-sm font-semibold">{status.display}</h2>
                 </div>
-              ))}
-            </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
+                <ScrollArea className={`h-full`}>
+                  <div
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={(event) => onTaskDrop(event, status.display)}
+                    className="p-2 bg-gray-50 rounded-lg shadow-inner h-[570px]"
+                  >
+                    {filteredData[status.display]?.map((patient) => {
+                      const { date, timeRange } = formatDateRange(
+                        patient.startDateTime,
+                        patient.endDateTime
+                      );
+
+                      return (
+                        <div
+                          key={patient._id}
+                          className="bg-white p-4 mb-1 rounded-lg cursor-pointer shadow-md border border-gray-200 hover:bg-gray-50 transition-all"
+                          draggable
+                          onDragStart={(event) =>
+                            onTaskDragStart(event, patient._id)
+                          }
+                          onClick={() => handleTaskClick(patient)}
+                        >
+                          <div className="flex items-center space-x-4 mb-3">
+                            <Avatar className="w-10 h-10">
+                              <AvatarImage src={patient.profileImage} />
+                              <AvatarFallback>PV</AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                              <h3 className="text-sm font-semibold text-gray-600">
+                                {`${patient.practitionerData.firstName} ${patient.practitionerData.lastName}`}
+                              </h3>
+                              <p className="text-xs text-gray-500">34Y | F</p>
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-400">{date}</p>{" "}
+                            <p className="text-xs text-gray-400">{timeRange}</p>{" "}
+                          </div>
+                          <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg shadow-sm">
+                            <Badge variant="forestLight">Appointment</Badge>
+                            <CustomTooltip content={`Video call`}>
+                              <Video
+                                className="text-green-500 hover:text-green-600 transition-colors cursor-pointer"
+                                size={20}
+                              />
+                            </CustomTooltip>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              </div>
+            ))}
+          </div>
         </TabsContent>
 
         <TabsContent value="Table">

@@ -65,7 +65,7 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="pb-3 pt-[9px] h-full w-[14%] ">
+    <div className="pb-3 pt-[9px] h-full w-[16%] ">
     <div className="bg-gray-50 pl-[8px]   h-[100%] rounded-md  ">
      
       <div className="flex items-center gap-2 pt-[10px] pb-[12px] px-[10px]   ">

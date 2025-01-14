@@ -3,19 +3,210 @@ import categories from "./CategoriesData";
 import FillDetailsSheet from "./FillDetailsSheet";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { ScrollArea } from "../../Components/ui/scroll-area";
-import GlobalSheet from "../../Components/Common/GlobalSheet";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+} from "@mui/material";
+import { Edit, Close, Add } from "@mui/icons-material";
 
 const PatientInfoCategories = () => {
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isFormSheetOpen, setIsFormSheetOpen] = useState(false);
   const location = useLocation();
   const status = location.state?.status;
   const allergies = useSelector((state) => state.formData.Allergies);
-  console.log("allergies", allergies)
+
+  const categoryData = {
+    Allergies: {
+      columns: [
+        "Allergen",
+        "Reaction",
+        "Onset Date",
+        "Criticality",
+        "Status",
+        "Action",
+      ],
+      data: [
+        {
+          allergen: "Skin flap",
+          reaction: "Itching and redness",
+          onsetDate: "25-Sep-2024 08:35 AM",
+          criticality: "High",
+          status: "Active",
+          action: "Review",
+        },
+      ],
+    },
+    Vitals: {
+      columns: [
+        "Date",
+        "Blood Pressure",
+        "Heart Rate",
+        "Temperature",
+        "Respiratory Rate",
+        "Action",
+      ],
+      data: [
+        {
+          date: "25-Sep-2024 09:00 AM",
+          bloodPressure: "120/80",
+          heartRate: "72",
+          temperature: "98.6",
+          respiratoryRate: "16",
+          action: "Monitor",
+        },
+      ],
+    },
+    "Chief Complaints": {
+      columns: ["Date", "Complaint", "Severity", "Duration", "Notes", "Action"],
+      data: [
+        {
+          date: "25-Sep-2024",
+          complaint: "Headache",
+          severity: "Moderate",
+          duration: "2 days",
+          notes: "Ongoing pain.",
+          action: "Prescribe meds",
+        },
+      ],
+    },
+    Procedures: {
+      columns: [
+        "Procedure Name",
+        "Date",
+        "Performed By",
+        "Location",
+        "Notes",
+        "Action",
+      ],
+      data: [
+        {
+          procedureName: "Appendectomy",
+          date: "20-Aug-2023",
+          performedBy: "Dr. Smith",
+          location: "City Hospital",
+          notes: "No issues.",
+          action: "Follow-up",
+        },
+      ],
+    },
+    Diagnosis: {
+      columns: [
+        "Diagnosis Name",
+        "Date Diagnosed",
+        "Severity",
+        "Diagnosed By",
+        "Status",
+        "Notes",
+        "Action",
+      ],
+      data: [
+        {
+          diagnosisName: "Hypertension",
+          dateDiagnosed: "10-Jan-2020",
+          severity: "Moderate",
+          diagnosedBy: "Dr. Adams",
+          status: "Active",
+          notes: "Lifestyle changes needed.",
+          action: "Review meds",
+        },
+      ],
+    },
+    Medications: {
+      columns: [
+        "Medication Name",
+        "Dosage",
+        "Frequency",
+        "Start Date",
+        "End Date",
+        "Prescribed By",
+        "Notes",
+        "Action",
+      ],
+      data: [
+        {
+          medicationName: "Lisinopril",
+          dosage: "10 mg",
+          frequency: "Once daily",
+          startDate: "15-Jan-2020",
+          endDate: "Ongoing",
+          prescribedBy: "Dr. Adams",
+          notes: "Effective BP control.",
+          action: "Monitor",
+        },
+      ],
+    },
+    "Surgical History": {
+      columns: [
+        "Surgery Name",
+        "Date",
+        "Surgeon",
+        "Location",
+        "Outcome",
+        "Notes",
+        "Action",
+      ],
+      data: [
+        {
+          surgeryName: "Knee Replacement",
+          date: "12-Sep-2018",
+          surgeon: "Dr. Brown",
+          location: "Orthopedic Center",
+          outcome: "Recovered well.",
+          notes: "Physiotherapy advised.",
+          action: "Schedule follow-up",
+        },
+      ],
+    },
+    "Medical History": {
+      columns: ["Condition", "Date Diagnosed", "Status", "Notes", "Action"],
+      data: [
+        {
+          condition: "Diabetes Type 2",
+          dateDiagnosed: "01-Mar-2015",
+          status: "Managed",
+          notes: "Diet critical.",
+          action: "Periodic check-ups",
+        },
+      ],
+    },
+    "Family History": {
+      columns: [
+        "Condition",
+        "Family Member",
+        "Onset Age",
+        "Severity",
+        "Notes",
+        "Action",
+      ],
+      data: [
+        {
+          condition: "Heart Disease",
+          familyMember: "Father",
+          onsetAge: "50",
+          severity: "Severe",
+          notes: "Genetic risk.",
+          action: "Counseling",
+        },
+      ],
+    },
+  };
+
   useEffect(() => {
-    setIsSheetOpen(true);
+    const defaultCategory = categories.find((cat) => cat.name === "Allergies");
+    if (defaultCategory) {
+      setSelectedCategory(defaultCategory);
+    }
   }, []);
 
   const handleButtonClick = (category) => {
@@ -27,106 +218,245 @@ const PatientInfoCategories = () => {
     setIsFormSheetOpen(false);
   };
 
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+  };
+
   return (
-    <div>
-      <div className="p-5">
-        <h2 className="text-lg font-semibold mb-4">Table Content</h2>
-        <p>This is the main page table content displayed outside the sheet.</p>
-      </div>
-
-      <GlobalSheet
-        isDialogOpen={isSheetOpen}
-        setIsDialogOpen={setIsSheetOpen}
-        label={`Patient Information Categories`}
-        triggerText=""
-        buttonClassName="hidden"
-      >
-        <div>
-          <div
-            className={`bg-${
-              status === "Checked In"
-                ? "green-100"
-                : status === "Closed"
-                ? "red-100"
-                : "blue-100"
-            } text-${
-              status === "Checked In"
-                ? "green-800"
-                : status === "Closed"
-                ? "red-800"
-                : "blue-800"
-            } px-4 py-3 rounded-lg shadow-sm mb-4`}
+    <Box
+      sx={{
+        display: "flex",
+        height: "86vh",
+        p: 2,
+        backgroundColor: "#f5f5f5",
+      }}
+    >
+      {status === "Checked In" && (
+        <Box sx={{ display: "flex", width: "100%", height: "100%" }}>
+          {/* Left Side: Categories */}
+          <Box
+            sx={{
+              width: "300px",
+              height: "100%",
+              overflowY: "auto",
+              pr: 2,
+              "&::-webkit-scrollbar": {
+                width: "0.4em",
+              },
+              "&::-webkit-scrollbar-track": {
+                background: "#f1f1f1",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#888",
+                borderRadius: "4px",
+              },
+            }}
           >
-            <p className="text-base font-semibold">
-              <strong>Patient Status:</strong> {status || "Not Available"}
-            </p>
-            <p className="text-sm mt-1">
-              {status ? (
-                <>
-                  <span>
-                    The patient is currently <strong>"{status}"</strong>.{" "}
-                    {status === "Scheduled" &&
-                      "The appointment is upcoming. Once the patient is checked in, you’ll be able to access and fill in the relevant forms."}
-                    {status === "Checked In" &&
-                      "You may now proceed to fill out the necessary forms in the categories below."}
-                    {status === "Checked Out" &&
-                      "The patient has completed their visit. Forms are locked for updates; please review notes or final documentation as needed."}
-                    {status === "Closed" &&
-                      "All actions are completed for this patient. Forms are locked; please review final notes or archive the record as appropriate."}
-                  </span>
-                  <p className="text-xs text-gray-600 mt-2">
-                    {status === "Checked In"
-                      ? "Please select a category below to access and complete the patient's intake forms."
-                      : "Form access is restricted to the 'Checked In' status."}
-                  </p>
-                </>
-              ) : (
-                "No status set. Please check the patient's record for more information or set an appropriate status to proceed."
-              )}
-            </p>
-          </div>
-
-          {status === "Checked In" && (
-            <ScrollArea className={`h-[470px]`}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-xl mx-auto p-5">
-                {categories.map((category, index) => (
-                  <div
-                    key={index}
-                    className={`relative bg-gradient-to-r ${category.gradient} shadow-md rounded-xl p-3 hover:shadow-lg transition-transform transform hover:scale-105 group cursor-pointer`}
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              {categories.map((category, index) => (
+                <Card
+                  key={index}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    p: 0,
+                    cursor: "pointer",
+                    boxShadow: "none",
+                    border: "1px solid #e0e0e0",
+                    transition: "all 0.2s ease",
+                    backgroundColor:
+                      selectedCategory?.name === category.name
+                        ? "#e8f4fd"
+                        : "white",
+                    "&:hover": {
+                      backgroundColor: "#f0f7ff",
+                      transform: "translateX(2px)",
+                    },
+                  }}
+                  onClick={() => handleCategorySelect(category)}
+                >
+                  <CardContent
+                    sx={{
+                      p: "12px !important",
+                      display: "flex",
+                      flexDirection: "column",
+                      flex: 1,
+                    }}
                   >
-                    <div className="flex items-center space-x-4 mb-3">
-                      <div>{category.icon}</div>
-                      <h3 className="text-sm font-semibold text-gray-700">
-                        {category.name}
-                      </h3>
-                    </div>
-                    <p className="text-xs text-gray-600 mb-4">
-                      {category.description}
-                    </p>
-
-                    <button
-                      onClick={() => handleButtonClick(category)}
-                      className="hidden group-hover:inline-block px-3 py-2 text-xs font-semibold text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-100 transition"
+                    <Typography
+                      sx={{
+                        fontWeight: 500,
+                        fontSize: "0.9rem",
+                        color: "rgba(0, 0, 0, 0.87)",
+                      }}
                     >
-                      Fill Details
-                    </button>
-                  </div>
-                ))}
+                      {category.name}(1)
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: "0.8rem",
+                        color: "rgba(0, 0, 0, 0.6)",
+                      }}
+                    >
+                      {category.description}
+                    </Typography>
+                  </CardContent>
+                  <Box sx={{ pr: 2 }}>{category.icon}</Box>
+                </Card>
+              ))}
+            </Box>
+          </Box>
 
-                {selectedCategory && (
-                  <FillDetailsSheet
-                    isDialogOpen={isFormSheetOpen}
-                    setIsDialogOpen={setIsFormSheetOpen}
-                    selectedCategory={selectedCategory}
-                    closeSheet={closeSheet}
-                  />
-                )}
-              </div>
-            </ScrollArea>
-          )}
-        </div>
-      </GlobalSheet>
-    </div>
+          {/* Right Side: Dynamic Table */}
+          <Box sx={{ flex: 1, ml: 2 }}>
+            <TableContainer
+              component={Paper}
+              sx={{
+                height: "100%",
+                borderRadius: 1,
+                boxShadow: 1,
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              {selectedCategory && (
+                <>
+                  <Box
+                    sx={{
+                      p: 2,
+                      borderBottom: "1px solid #e0e0e0",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+
+                      color: "#2c3e50",
+                    }}
+                  >
+                    <Typography variant="h6" sx={{ fontWeight: 500 }}>
+                      {selectedCategory.name}
+                    </Typography>
+                    <IconButton
+                      //  onClick={() => handleButtonClick(category)}
+                      size="small"
+                      sx={{
+                        backgroundColor: "#4caf50",
+                        color: "white",
+                        "&:hover": {
+                          backgroundColor: "#45a049",
+                        },
+                        width: 32,
+                        height: 32,
+                      }}
+                      onClick={() => handleButtonClick(selectedCategory)}
+                    >
+                      <Add />
+                    </IconButton>
+                  </Box>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        {categoryData[selectedCategory.name]?.columns.map(
+                          (column, index) => (
+                            <TableCell
+                              key={index}
+                              sx={{
+                                color: "#2c3e50",
+                                fontWeight: 600,
+                                backgroundColor: "#e8f4fd",
+                                borderBottom: "2px solid teal-100",
+                              }}
+                            >
+                              {column}
+                            </TableCell>
+                          )
+                        )}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {categoryData[selectedCategory.name]?.data.map(
+                        (row, index) => (
+                          <TableRow
+                            key={index}
+                            sx={{
+                              backgroundColor:
+                                index % 2 === 0 ? "#f8fafc" : "white",
+                              "&:hover": {
+                                backgroundColor: "#f0f7ff",
+                              },
+                            }}
+                          >
+                            {categoryData[selectedCategory.name].columns.map(
+                              (column, colIndex) => (
+                                <TableCell key={colIndex}>
+                                  {column === "Action" ? (
+                                    <Box>
+                                      <IconButton
+                                        size="small"
+                                        sx={{
+                                          color: "teal",
+                                          mr: 1,
+                                        }}
+                                      >
+                                        <Edit fontSize="small" />
+                                      </IconButton>
+                                      <IconButton
+                                        size="small"
+                                        sx={{
+                                          color: "#e74c3c",
+                                        }}
+                                      >
+                                        <Close fontSize="small" />
+                                      </IconButton>
+                                    </Box>
+                                  ) : (
+                                    row[
+                                      Object.keys(row).find(
+                                        (key) =>
+                                          key.toLowerCase() ===
+                                          column.toLowerCase().replace(/ /g, "")
+                                      )
+                                    ]
+                                  )}
+                                </TableCell>
+                              )
+                            )}
+                          </TableRow>
+                        )
+                      )}
+                    </TableBody>
+                  </Table>
+                </>
+              )}
+              {!selectedCategory && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100%",
+                    color: "#666",
+                  }}
+                >
+                  <Typography>Select a category to view details</Typography>
+                </Box>
+              )}
+            </TableContainer>
+          </Box>
+        </Box>
+      )}
+
+      {/* FillDetailsSheet Component */}
+      {selectedCategory && (
+        <FillDetailsSheet
+          isDialogOpen={isFormSheetOpen}
+          setIsDialogOpen={setIsFormSheetOpen}
+          selectedCategory={selectedCategory}
+          closeSheet={closeSheet}
+        />
+      )}
+    </Box>
   );
 };
 
