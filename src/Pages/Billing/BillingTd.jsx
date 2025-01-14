@@ -47,7 +47,7 @@ const BillingTd = () => {
                   : "bg-green-100 text-green-900"
               }`}
             >
-              {item.status === false ? "Due" : "Complete"}
+              {item.status === false ? "Due" : "Paid"}
             </span>
           </td>
           <td className="py-4 px-6 text-[13px] font-medium">

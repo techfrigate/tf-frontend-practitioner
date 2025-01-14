@@ -10,7 +10,7 @@ const BillingtrHeader = (
     <th className="py-4 px-6 text-left">UHID</th>
     <th className="py-4 px-6 text-left">Bill ID</th>
     <th className="py-4 px-6 text-left">Status</th>
-    <th className="py-4 px-6 text-left">Last Visit</th>
+    <th className="py-4 px-6 text-left">Updated At</th>
     <th className="py-4 px-6 text-left">Bill</th>
     <th></th>
   </tr>

@@ -102,9 +102,12 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   const handleAddBillClick = () => {
     navigate("/AddBill");
     toggleCreateProviderForm();
-
   };
-;
+
+  const handleMedicinesClick = () => {
+    navigate("/AddMedicine");
+    toggleCreateProviderForm();
+  };
 
   const handleHospitalChange = (tenant) => {
     Cookies.set("TenantId", tenant.tenantId);
@@ -140,6 +143,12 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
             <CustomButton
               text= "+ Add Bill" 
               onclick={handleAddBillClick}/>
+          )}
+           </div>
+            <div>{window.location.href.includes("medicines") && !showForm  && (
+            <CustomButton
+              text= "+ Add Medicines" 
+              onclick={handleMedicinesClick}/>
           )}
            </div>
             <div className="relative cursor-pointer" ref={createNewModalRef}>
