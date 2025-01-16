@@ -13,7 +13,7 @@ const LocationSearch = ({
 
   const filteredLocations =
     searchQuery.trim() === ""
-      ? locations
+      ? locations.filter(location => location.status !== false)  
       : locations.filter((location) => {
           const searchLower = searchQuery.toLowerCase();
           const name = location.name?.toLowerCase() || "";
@@ -21,9 +21,10 @@ const LocationSearch = ({
           const state = location.address?.state?.toLowerCase() || "";
 
           return (
-            name.includes(searchLower) ||
+            location.status !== false && 
+            (name.includes(searchLower) ||
             city.includes(searchLower) ||
-            state.includes(searchLower)
+            state.includes(searchLower))
           );
         });
 

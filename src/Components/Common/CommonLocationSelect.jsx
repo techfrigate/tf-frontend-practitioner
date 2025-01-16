@@ -5,10 +5,12 @@ const CommonLocationSelect = ({ locations, value, onChange ,onClear }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showLocationList, setShowLocationList] = useState(false);
 
-  const filteredLocations = locations.filter(({ name, address }) =>
-    [name, address.city, address.state].some((field) =>
-      field?.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+  const filteredLocations = locations.filter(
+    ({ name, address, status }) =>
+      status === true &&
+      [name, address.city, address.state].some((field) =>
+        field?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
   );
 
   const handleLocationSelect = (location) => {
@@ -26,7 +28,7 @@ const CommonLocationSelect = ({ locations, value, onChange ,onClear }) => {
   };
 
   return (
-    <div className="mb-4">
+    <div className="">
       <label className="block text-sm font-medium mb-1">Location*</label>
       {value ? (
         <div className="flex items-center w-[25.8rem] space-x-2 p-2 border border-gray-300 rounded-lg">

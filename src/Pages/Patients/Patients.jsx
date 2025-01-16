@@ -8,18 +8,16 @@ import Loading from "../../Components/Common/Loading";
 import PatientsttrHeader from "./PatientstrHeader";
 
 const Patients = () => {
-  const [currentPage, setCurrentPage] = useState(1); // Starts at 1 for user interface
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
   const dispatch = useDispatch();
 
-  // Handle page change and ensure API expects 0-indexed pages
   const handlePageClick = ({ selected }) => {
-    setCurrentPage(selected + 1); // ReactPaginate is 0-indexed but we are using 1-indexed
+    setCurrentPage(selected + 1);
   };
 
   useEffect(() => {
-    // Dispatch fetch with the correct page and itemsPerPage
     dispatch(fetchPatients({ page: currentPage, limit: itemsPerPage }));
   }, [currentPage, itemsPerPage, dispatch]);
 
@@ -39,7 +37,7 @@ const Patients = () => {
         previousLabel={"«"}
         nextLabel={"»"}
         breakLabel={"..."}
-        pageCount={totalPages} // Ensure that `totalPages` is correctly set
+        pageCount={totalPages} 
         onPageChange={handlePageClick}
         containerClassName={"flex justify-center mt-6 mb-0"}
         pageClassName={"mx-1"}
@@ -54,9 +52,10 @@ const Patients = () => {
         nextLinkClassName={
           "block px-3 py-2 rounded bg-slate-100 hover:bg-[#4cb59c] hover:text-white"
         }
-        activeClassName={"bg-[#64c6b0] text-white rounded"} // Make sure this is active
-        activeLinkClassName={"border-none"} // Optional: for styling the active page link
-        forcePage={currentPage - 1} // Ensure the active page is controlled
+        activeClassName={"bg-[#64c6b0] text-white rounded"}
+        activeLinkClassName={"border-none"} 
+        // eslint-disable-next-line
+        forcePage={currentPage - 1}
       />
     </div>
   );
