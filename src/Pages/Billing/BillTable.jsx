@@ -3,7 +3,7 @@ import { Receipt, Trash2 } from "lucide-react";
 
 const BillingTable = ({ bills, onDelete, totalAmount, billIdFromUrl }) => {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mt-2">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>

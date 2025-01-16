@@ -15,8 +15,10 @@ const ProfileModal = () => {
     "https://t4.ftcdn.net/jpg/03/24/22/77/360_F_324227760_73JhXgDh5OFsYuymiMzn6s7FHHzf3Ef0.jpg"
   );
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  // eslint-disable-next-line
   const [userTypes, setUserTypes] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // eslint-disable-next-line
   const [selectedUserType, setSelectedUserType] = useState("practitioner");
   const openEditModal = () => {
     setIsEditOpen(true);
@@ -53,7 +55,7 @@ const ProfileModal = () => {
     setProfileImageUrl(newImageUrl);
     closeEditModal();
   };
-
+// eslint-disable-next-line
   const toggleUserTypeDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -64,7 +66,7 @@ const ProfileModal = () => {
 
 
   const { firstName = "", lastName = "", email = "" } = profile;
-
+// eslint-disable-next-line
   const mergedTenants = profile?.tenants?.reduce((acc, curr) => {
     const existingTenant = acc.find(
       (tenant) => tenant.tenantId === curr.tenantId
@@ -93,8 +95,9 @@ const ProfileModal = () => {
     }
     const { userTypes } = findTenant;
     setUserTypes(() => userTypes);
+    // eslint-disable-next-line
   }, []);
-
+// eslint-disable-next-line
   const handleUserTypeChange = (type) => {
     setSelectedUserType(type);
     console.log(`User type for tenant ${tenantId} changed to ${type}`);
@@ -149,14 +152,6 @@ const ProfileModal = () => {
                 text="Sign out"
                 onclick={handleSignOut}
               />
-            </div>
- 
-          <div className="w-[37%]">
-            <CustomButton
-            width={"w-full"}
-              text="Sign out"
-              onclick={handleSignOut}
-            />
             </div>
 
             {/* <div className="relative text-black">

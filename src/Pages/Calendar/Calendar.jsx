@@ -57,7 +57,7 @@ const Calendar = () => {
   const { profileData } = useSelector((state) => state.profile);
   const { rostersData, rosterStatus, error } = useSelector(
     (state) => state.rosters
-  ); // Access rosterStatus
+  );
 
   useEffect(() => {
     if (profileData) {
@@ -74,7 +74,7 @@ const Calendar = () => {
         const color = colors[index % colors.length];
         return {
           id: roster._id,
-          title: `Appointment with ${roster.practitionerData.firstName} ${roster.practitionerData.lastName}`,
+          title: `Appointment with Dr. ${roster.practitionerData.firstName} ${roster.practitionerData.lastName}`,
           start: startTime,
           end: endTime,
           backgroundColor: color,
@@ -126,6 +126,7 @@ const Calendar = () => {
             minute: "2-digit",
             meridiem: "short",
             hour12: true,
+             // eslint-disable-next-line
             meridiem: (date) => date.toUpperCase(),
           }}
           events={rosterData}

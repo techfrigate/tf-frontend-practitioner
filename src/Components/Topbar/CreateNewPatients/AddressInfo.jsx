@@ -4,9 +4,8 @@ import CustomSelect from "../../../Components/Common/CustomSelect";
 import { Country, State, City } from "../../../util/data";
 
 const AddressInfo = ({ addressFormData, addressInfo, inValidObject,setAddressInfo }) => {
-  const [stats, setStats] = useState([]);
-  const [cities, setCities] = useState([]); 
-
+  const [stats, setStats] = useState(State);
+  const [cities, setCities] = useState(City); 
   const [invalidObject, setInvalidObject] = useState(inValidObject);
   const handleAddressInfoChange = (e) => {
     let { name, value} = e.target;
@@ -21,10 +20,11 @@ const AddressInfo = ({ addressFormData, addressInfo, inValidObject,setAddressInf
     if(["country","city","state"].includes(name)){
       const selectedOption  =  e.target?.selectedOptions[0]
       if(name==="country"){
+        // eslint-disable-next-line
         const updatedStats =  State.filter((elm)=>elm.country_id==selectedOption.id)
-
         setStats(updatedStats)
       }else if(name==="state"){
+        // eslint-disable-next-line
         const updatedCities =  City.filter((elm)=>elm.state_id==selectedOption.id)
       setCities(updatedCities)
       }

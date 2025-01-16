@@ -6,12 +6,7 @@ import toast from 'react-hot-toast';
 import CommonLocationSelect from '../../Components/Common/CommonLocationSelect';
 import CustomSelect from '../../Components/Common/CustomSelect';
 import { fetchLocations } from "../../Store/locationSlice";
-import { 
-  getMedicineById, 
-  updateMedicine, 
-  deleteMedicine,
-  getAllMedicines 
-} from "../../Store/MedicinesSlice";
+import {  getMedicineById,  updateMedicine,  deleteMedicine,getAllMedicines } from "../../Store/MedicinesSlice";
 
 const STATUS_CONFIG = {
   full: { color: 'bg-green-500', label: 'Full (100+ units)' },
@@ -22,7 +17,6 @@ const STATUS_CONFIG = {
 const INITIAL_FORM_STATE = {
   medicineName: '',
   type: 'rack',
-  noOfUnit: 0,
   unit: 0,
   status: 'empty',
   enable: true
@@ -73,6 +67,7 @@ const MedicalRackApp = () => {
 
   useEffect(() => {
     selectedPharmacy ? fetchRacks() : dispatch({ type: 'Medicines/clearMedicines' });
+     // eslint-disable-next-line
   }, [selectedLocation, selectedPharmacy]);
 
   useEffect(() => {
@@ -132,8 +127,7 @@ const MedicalRackApp = () => {
       locationName: selectedLocation.name,
       pharmacyId: selectedPharmacy._id,
       pharmacyName: selectedPharmacy.name,
-      type: 'rack',
-      unit: formData.noOfUnit
+      type: 'rack'
     };
     
     try {
@@ -168,11 +162,11 @@ const MedicalRackApp = () => {
           </button>
         </div>
       </div>
-      <div className="text-sm text-gray-600">Rack No.  {rack.rackName}</div>
+      <div className="text-sm text-gray-600">Rack No. {rack.rackName}</div>
       <div className="flex justify-between items-center">
         <span className="text-sm text-gray-600">Units Available</span>
-        <span className={`text-xs px-2 py-1 rounded-full ${STATUS_CONFIG[determineStatus(rack.noOfUnit)].color} text-white`}>
-          {rack.noOfUnit} Units
+        <span className={`text-xs px-2 py-1 rounded-full ${STATUS_CONFIG[determineStatus(rack.unit)].color} text-white`}>
+          {rack.unit} Units
         </span>
       </div>
     </div>
@@ -201,7 +195,6 @@ const MedicalRackApp = () => {
             />
           </div>
         </div>
-
         {selectedLocation && selectedPharmacy ? (
           <>
             <div className="flex justify-between items-center mb-6">
@@ -214,7 +207,6 @@ const MedicalRackApp = () => {
                 ))}
               </div>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {medicines?.filter(rack => rack.pharmacyId === selectedPharmacy._id)
                 .map(rack => <RackCard key={rack._id} rack={rack} />)}
@@ -225,7 +217,6 @@ const MedicalRackApp = () => {
             Please select a location and pharmacy to manage racks
           </div>
         )}
-
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
@@ -255,12 +246,11 @@ const MedicalRackApp = () => {
                     </label>
                     <input
                       type="number"
-                      value={formData.noOfUnit}
+                      value={formData.unit}
                       onChange={(e) => {
                         const units = parseInt(e.target.value) || 0;
                         setFormData(prev => ({
                           ...prev,
-                          noOfUnit: units,
                           unit: units,
                           status: determineStatus(units)
                         }));

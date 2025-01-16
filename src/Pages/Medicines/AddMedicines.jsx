@@ -244,7 +244,7 @@ const AddMedicines = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-2">
       <div className="mx-auto bg-white rounded-lg shadow-sm p-2">
         <form className="space-y-4">
           <div className="grid grid-cols-3 gap-3">
@@ -256,7 +256,7 @@ const AddMedicines = () => {
                 onClear={() => handleLocationSelect(null)}
               />
             </div>
-            <div className="flex flex-col mb-1">
+            <div className="flex flex-col  -mt-1">
               <CustomSelect
                 id="pharmacyName"
                 label="Pharmacy"

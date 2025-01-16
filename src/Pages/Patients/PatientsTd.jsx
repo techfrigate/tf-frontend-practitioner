@@ -41,7 +41,7 @@ const PatientsTd = () => {
                   </div>
                 </div>
               </td>
-              <td className="py-4 px-4 text-nowrap text-xs">9999999999</td>
+              <td className="py-4 px-4 text-nowrap text-xs">{item.uhid}</td>
               <td className="py-4 px-4 text-nowrap text-xs">
                 <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-900">
                   Active
