@@ -47,6 +47,7 @@ export const getAllMedicines = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`,
+          tenantId: Cookies.get("TenantId"),
         },
       });
       return response.data; 

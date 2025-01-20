@@ -12,6 +12,7 @@ import CommonLocationSelect from "../../Components/Common/CommonLocationSelect";
 import { formFields } from "./MedicinesData";
 import { fetchLocations } from "../../Store/locationSlice";
 import { createMedicine, getMedicineById, updateMedicine } from "../../Store/MedicinesSlice";
+import Cookies from "js-cookie";
 
 const INITIAL_FORM_STATE = {
   locationName: null,
@@ -174,6 +175,7 @@ const AddMedicines = () => {
     const medicineData = {
       locationName: formData.locationName.name,
       locationId: formData.locationName._id,
+      tenantId: Cookies.get("TenantId"),
       pharmacyName: formData.pharmacyName.name,
       pharmacyId: formData.pharmacyName._id,
       ...Object.fromEntries(
