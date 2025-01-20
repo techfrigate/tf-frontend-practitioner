@@ -127,6 +127,7 @@ const AddBill = () => {
       toast.error("Please select patient, doctor, and location!");
       return;
     }
+    const tenantId = Cookies.get("TenantId");
     const status = dueAmount === 0;
     const medicineUpdates = bills
       .filter(bill => bill.category === "Medicine" && bill.medicineId)
@@ -176,6 +177,7 @@ const AddBill = () => {
           uhid: selectedPatient.uhid, 
           billId,
           phoneNumber: selectedPatient.phoneNumber,
+          tenantId
         };
         const billingData = {
           services: bills.map(bill => ({
@@ -192,6 +194,7 @@ const AddBill = () => {
           createdBy: Cookies.get("UserId"),
           updatedBy: Cookies.get("UserId"),
           status,
+          tenantId,
           paidAmount
         };
 
