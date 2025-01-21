@@ -1,17 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { MapPin, Search, X } from 'lucide-react';
 
-const CommonLocationSelect = ({ locations, value, onChange ,onClear }) => {
+const CommonLocationSelect = ({ locations, value, onChange, onClear }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showLocationList, setShowLocationList] = useState(false);
 
-  const filteredLocations = locations.filter(
-    ({ name, address, status }) =>
-      status === true &&
-      [name, address.city, address.state].some((field) =>
-        field?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-  );
+  const suggestedLocations = useMemo(() => {
+    return locations
+      .filter(location => location.status === true)
+      .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0))
+      .slice(0, 5);
+  }, [locations]);
+
+  const filteredLocations = useMemo(() => {
+    if (!searchQuery) return suggestedLocations;
+    
+    return locations.filter(
+      ({displayName, name, address, status }) =>
+        status === true &&
+        [displayName,name, address.city, address.state].some((field) =>
+          field?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    );
+  }, [locations, searchQuery, suggestedLocations]);
 
   const handleLocationSelect = (location) => {
     onChange(location);
@@ -21,20 +32,23 @@ const CommonLocationSelect = ({ locations, value, onChange ,onClear }) => {
 
   const handleClearSelection = () => {
     if (onClear) {
-      onClear(); 
+      onClear();
     }
     setSearchQuery('');
     setShowLocationList(false);
   };
 
   return (
-    <div className="">
+    <div>
       <label className="block text-sm font-medium mb-1">Location*</label>
       {value ? (
-        <div className="flex items-center w-[25.8rem] space-x-2 p-2 border border-gray-300 rounded-lg">
+        <div className="flex items-center max-w-sm space-x-2 p-2 border border-gray-300 rounded-lg">
           <MapPin className="h-5 w-5 text-gray-500" />
           <span className="flex-1">{value.name}</span>
-          <X className="h-5 w-5 text-gray-500 cursor-pointer hover:text-gray-700" onClick={handleClearSelection} />
+          <X 
+            className="h-5 w-5 text-gray-500 cursor-pointer hover:text-gray-700" 
+            onClick={handleClearSelection}
+          />
         </div>
       ) : (
         <div className="relative max-w-sm">
@@ -44,26 +58,53 @@ const CommonLocationSelect = ({ locations, value, onChange ,onClear }) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setShowLocationList(true)}
-            className="pl-10 pr-4 w-[25.8rem] border border-gray-300 rounded-lg py-2 focus:outline-none"
+            className="pl-10 pr-4 w-full border border-gray-300 rounded-lg py-2 focus:outline-none"
             placeholder="Search locations by name, city, or state..."
           />
         </div>
       )}
-      {showLocationList && !value && searchQuery && (
-        <div className="absolute w-[25.8rem] overflow-auto  bg-white border border-gray-300 rounded-lg shadow-lg mt-2 z-50" style={{ maxHeight: '300px' }}>
-          {filteredLocations.length ? (
-            filteredLocations.map((location) => (
-              <div key={location._id} className="flex items-center p-4 cursor-pointer hover:bg-gray-50" 
-              onClick={() => handleLocationSelect(location)}>
-                <MapPin className="h-5 w-5 text-indigo-500 mr-3" />
-                <div>
-                  <h3 className="font-medium text-gray-900">{location.name}</h3>
-                  <p className="text-sm text-gray-500">{location.address.city}, {location.address.state}</p>
-                </div>
+      {showLocationList && !value && (
+        <div className="absolute w-[24rem] overflow-auto bg-white border border-gray-300 rounded-lg shadow-lg mt-2 z-50" style={{ maxHeight: '300px' }}>
+          {searchQuery ? (
+            filteredLocations.length > 0 ? (
+              <div>
+                {filteredLocations.map((location) => (
+                  <div
+                    key={location._id}
+                    className="flex items-center p-4 cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleLocationSelect(location)}
+                  >
+                    <MapPin className="h-5 w-5 text-indigo-500 mr-3" />
+                    <div>
+                      <h3 className="font-medium text-gray-900">{location.displayName}</h3>
+                      <p className="text-sm text-gray-500">
+                        {location.address.city}, {location.address.state}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))
+            ) : (
+              <div className="text-center py-4 text-gray-500">No locations found</div>
+            )
           ) : (
-            <div className="text-center py-4 text-gray-500">No locations found</div>
+            <div>
+              {suggestedLocations.map((location) => (
+                <div
+                  key={location._id}
+                  className="flex items-center p-4 cursor-pointer hover:bg-gray-50"
+                  onClick={() => handleLocationSelect(location)}
+                >
+                  <MapPin className="h-5 w-5 text-indigo-500 mr-3" />
+                  <div>
+                    <h3 className="font-medium text-gray-900">{location.displayName}</h3>
+                    <p className="text-sm text-gray-500">
+                      {location.address.city}, {location.address.state}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}
