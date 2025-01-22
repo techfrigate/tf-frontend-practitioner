@@ -180,7 +180,7 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
                   className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
                   value={quantity}
                   onChange={(e) => {
-                    const newQuantity = parseInt(e.target.value) || 0;
+                    const newQuantity = parseInt(e.target.value) ;
                     setQuantity(category === "Medicine" 
                       ? Math.min(maxAvailableQuantity, newQuantity)
                       : newQuantity
@@ -188,7 +188,6 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
                   }}
                   min="0"
                   max={category === "Medicine" ? maxAvailableQuantity : undefined}
-                  step="1"
                 />
                 {category === "Medicine" && maxAvailableQuantity > 0 && (
                   <p className="absolute -bottom-6 left-0 text-sm text-gray-500">
