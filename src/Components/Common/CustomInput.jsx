@@ -1,22 +1,18 @@
 import React from "react";
 
-const CustomInput = ({
-  type,
-  label,
-  id,
-  placeholder,
-  onChange,
-  value,
-  isInvalid,
-}) => (
+const CustomInput = ({type,label,id,placeholder,onChange,value,required,isInvalid,onFocus}) => {
+   
+  return(
   <div>
     <label htmlFor={id} className="text-gray-800 text-sm font-medium mb-1">
       {label}
+      {required && <span className="text-red-500"> *</span>}
     </label>
     <input
       type={type}
       id={id}
       name={id}
+      onFocus={onFocus}
       placeholder={placeholder}
       // onChange={onChange}
       onChange={(e) => onChange(e)}
@@ -27,7 +23,7 @@ const CustomInput = ({
     />
     {isInvalid && <p className="text-[12px] text-red-700 mt-1">{isInvalid}</p>}
   </div>
-);
+)}
 
 export default CustomInput;
 

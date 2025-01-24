@@ -1,6 +1,6 @@
 import React from "react";
 
-const CustomSelect = ({ id, label, value, onChange, options, isInvalid }) =>{ 
+const CustomSelect = ({ id, label, value, onChange, options, isInvalid,required }) =>{ 
   const locationTypes = ["country", "state", "city"];
  
 
@@ -11,6 +11,7 @@ const CustomSelect = ({ id, label, value, onChange, options, isInvalid }) =>{
     className="text-gray-800 text-sm font-medium mb-1"
   >
     {label}
+    {required && <span className="text-red-500"> *</span>}
   </label>
   <select
     id={id}

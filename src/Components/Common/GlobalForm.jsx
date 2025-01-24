@@ -11,16 +11,14 @@ import {
   SelectValue,
 } from "../ui/select";
 import { ScrollArea } from "../ui/scroll-area";
+import { useDispatch } from "react-redux";
+import{searchIllness}  from "../../../src/Store/fhirSlice";
+ 
 
-const GlobalForm = ({
-  formFields,
-  onSubmit,
-  className,
-  buttonText,
-  editId,
-}) => {
+const GlobalForm = ({formFields,onSubmit,className,buttonText,editId}) => {
   const [formData, setFormData] = useState({});
   const [filteredSuggestions, setFilteredSuggestions] = useState({});
+  
   useEffect(() => {
     const updatedData = formFields.reduce((acc, field) => {
       acc[field.name] = field.value || "";
@@ -37,7 +35,10 @@ const GlobalForm = ({
     setFilteredSuggestions(initialSuggestions);
   }, [formFields]);
 
+
+  const dispatch =  useDispatch();
   const handleChange = (e, field) => {
+   dispatch(searchIllness("Redness"))
     const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,

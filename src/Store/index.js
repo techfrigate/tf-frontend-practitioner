@@ -7,6 +7,7 @@ import appointmentReducers from "./appointmentSlice"
 import profileReducer from "./profileSlice"
 import billingReducer from "./billingSlice"
 import formDataReducer from "./prescriptionformDataSlice"
+import fhirReducer from "./fhirSlice"
 export const store = configureStore({
   reducer: {
     patient: patientReducer ,
@@ -16,7 +17,8 @@ export const store = configureStore({
     slots:slotsReducer,
     appointment:appointmentReducers,
     profile:profileReducer,
-  formData: formDataReducer
+    formData: formDataReducer,
+    fhir:fhirReducer
    },
 });
 

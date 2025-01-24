@@ -8,11 +8,12 @@ const initialState = {
   error: null,
   appointmentStatus: "idle",
   prescriptionData: [],
+ 
 };
 
 const ACCOUNTS_URL = process.env.REACT_APP_ACCOUNTS_URL;
 const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
-
+const FHIR_URL = process.env.REACT_APP_FHIR_URL; 
 // Create Appointment
 export const createAppointment = createAsyncThunk(
   "appointment/createAppointment",
@@ -88,6 +89,9 @@ export const updateAppointment = createAsyncThunk(
   }
 );
 
+
+
+
 const appointmentSlice = createSlice({
   name: "appointment",
   initialState,
@@ -134,7 +138,9 @@ const appointmentSlice = createSlice({
       .addCase(updateAppointment.rejected, (state, action) => {
         state.appointmentStatus = "failed";
         state.error = action.payload;
-      });
+      })
+
+    
   },
 });
 

@@ -1,61 +1,31 @@
 import React, { useEffect, useState } from "react";
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from "../../Components/ui/avatar";
 import { ScrollArea } from "../../Components/ui/scroll-area";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../../Components/ui/tabs";
+import {Tabs,TabsContent,TabsList,TabsTrigger,} from "../../Components/ui/tabs";
 import { StethoscopeIcon, TableIcon, Video } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  getPrescriptions,
-  updateAppointment,
-} from "../../../src/Store/appointmentSlice";
-import { format, parseISO } from "date-fns";
+import {getPrescriptions,updateAppointment} from "../../../src/Store/appointmentSlice";
 import PatientTableContent from "./PatientTableContent";
-import { useNavigate } from "react-router-dom";
-import { Badge } from "../../Components/ui/badge";
 import { showErrorToast } from "../../Components/toastUtils";
-import { CustomTooltip } from "../../Components/Common/CustomTooltip";
+import VideoConsultation from "./VideoConsultation";
+import GlobalSheet from "../../Components/Common/GlobalSheet";
+import categories from "./CategoriesData";
+import FillDetailsSheet from "./FillDetailsSheet";
+import PatientColumn from "../../Components/Prescription/PatientColumn";
+import { allowedTransitions, initialStatuses, statusColors } from "../../util/patientUtil";
 
-const initialStatuses = [
-  { display: "Scheduled", key: "scheduled" },
-  { display: "Checked In", key: "checkedIn" },
-  { display: "Checked Out", key: "checkedOut" },
-  { display: "Closed", key: "closed" },
-];
-const formatTime = (dateString) => {
-  const utcDate = parseISO(dateString);
-  const localDate = new Date(
-    utcDate.getTime() + utcDate.getTimezoneOffset() * 60000
-  );
-  return format(localDate, "hh:mm a");
-};
-const formatDateRange = (startDateTime, endDateTime) => {
-  const startDate = new Date(startDateTime);
-  const formattedDate = format(startDate, "MMMM dd, yyyy");
-  const startTime = formatTime(startDateTime);
-  const endTime = formatTime(endDateTime);
-  return {
-    date: formattedDate,
-    timeRange: `${startTime}–${endTime}`,
-  };
-};
-
+ 
 function PatientDetails() {
-  const navigate = useNavigate();
-  const { profileData } = useSelector((state) => state.profile);
-  const { prescriptionData } = useSelector((state) => state.appointment);
-  const dispatch = useDispatch();
-
+ 
+  const [channelName, setChannelName] = useState("");
   const [filteredData, setFilteredData] = useState({});
-
+  const [status, setStatus] = useState("");
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isFormSheetOpen, setIsFormSheetOpen] = useState(false);
+  const dispatch = useDispatch();
+  
+  const { prescriptionData } = useSelector((state) => state.appointment);
+  const { profileData } = useSelector((state) => state.profile);
   useEffect(() => {
     dispatch(getPrescriptions({ practitionerId: profileData?._id }));
   }, [dispatch]);
@@ -67,6 +37,7 @@ function PatientDetails() {
       "Checked Out": [],
       Closed: [],
     };
+
 
     prescriptionData.forEach((patient) => {
       const { bookingStatus } = patient;
@@ -85,43 +56,7 @@ function PatientDetails() {
     setFilteredData(filtered);
   }, [prescriptionData]);
 
-  console.log(prescriptionData);
 
-  const handleTaskClick = (patient) => {
-    const { bookingStatus } = patient;
-  
-    let status = "Scheduled"; // Default status
-  
-    // Determine the status based on the bookingStatus flags
-    if (bookingStatus.booked && bookingStatus.checkIn && bookingStatus.checkOut && bookingStatus.closed) {
-      status = "Closed";
-    } else if (bookingStatus.booked && bookingStatus.checkIn && bookingStatus.checkOut) {
-      status = "Checked Out";
-    } else if (bookingStatus.booked && bookingStatus.checkIn) {
-      status = "Checked In";
-    } else if (bookingStatus.booked) {
-      status = "Scheduled";
-    }
-    navigate("/fillDetails", { state: { status } });
-  };
-  
-  const statusColors = {
-    Scheduled: "bg-purple-100 text-purple-800",
-    "Checked In": "bg-green-100 text-green-800",
-    "Checked Out": "bg-yellow-100 text-yellow-800",
-    Closed: "bg-red-100 text-red-800",
-  };
-
-  const onTaskDragStart = (event, patientId) => {
-    event.dataTransfer.setData("text/plain", patientId.toString());
-  };
-
-  const allowedTransitions = {
-    Scheduled: ["Checked In"],
-    "Checked In": ["Checked Out"],
-    "Checked Out": ["Closed"],
-    Closed: [],
-  };
 
   const onTaskDrop = (event, newStatus) => {
     event.preventDefault();
@@ -148,7 +83,6 @@ function PatientDetails() {
         return;
       }
 
-      // Validation: Check for duplicate IDs in the target section
       const isDuplicate = filteredData[newStatus]?.some(
         (p) => p._id === patientId
       );
@@ -181,11 +115,9 @@ function PatientDetails() {
 
       setFilteredData((prev) => {
         const updatedData = { ...prev };
-        // Remove from current section
         updatedData[currentStatusKey] = updatedData[currentStatusKey].filter(
           (p) => p._id !== patientId
         );
-        // Add to new section
         updatedData[newStatus] = [...(updatedData[newStatus] || []), patient];
 
         return updatedData;
@@ -195,9 +127,20 @@ function PatientDetails() {
     }
   };
 
+
+  const handleButtonClick = (category) => {
+    setSelectedCategory(category);
+    setIsFormSheetOpen(true);
+  };
+
+  const closeSheet = () => {
+    setIsFormSheetOpen(false);
+  };
+
   return (
-    <div className={`h-full overflow-y-auto custom-scrollbar p-1`}>
-      <Tabs defaultValue="Patient Details">
+    <div className={`h-full w-full overflow-y-auto custom-scrollbar p-1 relative`}>
+    <div>
+    <Tabs defaultValue="Patient Details">
         <TabsList>
           <TabsTrigger value="Patient Details">
             <StethoscopeIcon className="w-5 h-5" />
@@ -229,54 +172,13 @@ function PatientDetails() {
                     onDrop={(event) => onTaskDrop(event, status.display)}
                     className="p-2 bg-gray-50 rounded-lg shadow-inner h-[570px]"
                   >
-                    {filteredData[status.display]?.map((patient) => {
-                      const { date, timeRange } = formatDateRange(
-                        patient.startDateTime,
-                        patient.endDateTime
-                      );
-
-                      return (
-                        <div
-                          key={patient._id}
-                          className="bg-white p-4 mb-1 rounded-lg cursor-pointer shadow-md border border-gray-200 hover:bg-gray-50 transition-all"
-                          draggable
-                          onDragStart={(event) =>
-                            onTaskDragStart(event, patient._id)
-                          }
-                          onClick={() => handleTaskClick(patient)}
-                        >
-                          <div className="flex items-center space-x-4 mb-3">
-                            <Avatar className="w-10 h-10">
-                              <AvatarImage src={patient.profileImage} />
-                              <AvatarFallback>PV</AvatarFallback>
-                            </Avatar>
-                            <div className="flex flex-col">
-                              <h3 className="text-sm font-semibold text-gray-600">
-                                {`${patient.practitionerData.firstName} ${patient.practitionerData.lastName}`}
-                              </h3>
-                              <p className="text-xs text-gray-500">34Y | F</p>
-                            </div>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-400">{date}</p>{" "}
-                            <p className="text-xs text-gray-400">{timeRange}</p>{" "}
-                          </div>
-                          <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg shadow-sm">
-                            <Badge variant="forestLight">Appointment</Badge>
-                            <CustomTooltip content={`Video call`}>
-                            <Video
-                              className="text-green-500 hover:text-green-600 transition-colors cursor-pointer"
-                              size={20}
-                            />
-                            </CustomTooltip>
-                            
-                          </div>
-                        </div>
-                      );
-                    })}
+                    {filteredData[status.display]?.map((patient) => 
+                     <PatientColumn patient={patient} setChannelName={setChannelName} setStatus={setStatus}/>
+                     )}
                   </div>
                 </ScrollArea>
               </div>
+              
             ))}
           </div>
         </TabsContent>
@@ -285,6 +187,78 @@ function PatientDetails() {
           <PatientTableContent patients={prescriptionData} />
         </TabsContent>
       </Tabs>
+    </div>
+    
+
+       
+       {channelName && 
+        <VideoConsultation channelName={channelName} setChannelName={setChannelName} isSheetOpen={isSheetOpen} setIsSheetOpen={setIsSheetOpen}/>
+        }
+       <GlobalSheet
+        isDialogOpen={isSheetOpen}
+        setIsDialogOpen={setIsSheetOpen}
+        label={`Patient Status: ${status || "Not Available"}`}
+        triggerText=""
+        buttonClassName="hidden"
+      >
+        <div>
+          {status === "Checked In" && (
+            <ScrollArea className={`h-screen`}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-xl mx-auto px-5">
+                {categories.map((category, index) => (
+                  <div
+                    key={index}
+                    className="relative rounded-lg shadow-lg overflow-hidden bg-gray-800"
+                  >
+                  
+                    <div
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{
+                        backgroundImage: `url(${category.backgroundImage})`,
+                      }}
+                    ></div>
+
+                    
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1E3A8A]/90 to-[#3B82F6]/70 rounded-md"></div>
+
+                  
+                    <div className="relative p-4 text-white z-10 flex flex-col justify-between h-full">
+                      <div className="flex items-center space-x-2">
+                        <div>{category.icon}</div>
+                        <h3 className="text-sm font-semibold ">
+                          {" "}
+                          {category.name}
+                        </h3>
+                      </div>
+                      <p className="text-xs mt-2">{category.description}</p>
+                      <div className="flex justify-between">
+                        <div></div>
+                        <button
+                          onClick={() => handleButtonClick(category)}
+                          className="mt-1 bg-slate-300 text-blue-600 rounded-full shadow-lg flex items-center justify-center w-7 h-7"
+                          aria-label={`Fill details for ${category.name}`}
+                        >
+                          &rarr;
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {selectedCategory && (
+                  <FillDetailsSheet
+                    isDialogOpen={isFormSheetOpen}
+                    setIsDialogOpen={setIsFormSheetOpen}
+                    selectedCategory={selectedCategory}
+                    closeSheet={closeSheet}
+                  />
+                )}
+              </div>
+            </ScrollArea>
+          )}
+        </div>
+      </GlobalSheet>  
+    
     </div>
   );
 }
