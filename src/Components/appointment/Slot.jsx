@@ -5,19 +5,29 @@ const Slot = ({ time, selectedTimeSlot, handleTimeSlotSelect }) => {
   const formatTime = (dateString) => {
     const utcDate = parseISO(dateString);
     const localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
-    return format(localDate, 'hh:mm a');
+    return format(localDate, "hh:mm a");
   };
+
+  const isBooked = time.status === "booked";
 
   return (
     <div
-      className={`rounded-md px-4 py-2 mb-2 cursor-pointer transition-colors duration-200 ${
-        selectedTimeSlot?.startDateTime === time.startDateTime
-          ? "bg-[#00A182] text-white"
+      className={`rounded-sm px-6 py-1 mb-2 cursor-pointer transition-colors duration-200 border-2 ${
+        isBooked
+          ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+          : selectedTimeSlot?.startDateTime === time.startDateTime
+          ? "bg-gray-200 border-gray-700"
           : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
       }`}
-      onClick={() => handleTimeSlotSelect(time)}
+      onClick={!isBooked ? () => handleTimeSlotSelect(time) : null}
     >
-      <p className="text-center">{`${formatTime(time.startDateTime)} - ${formatTime(time.endDateTime)}`}</p>
+      <p
+        className={`text-center ${
+          isBooked ? "text-gray-400" : "text-gray-700"
+        }`}
+      >
+        {`${formatTime(time.startDateTime)} - ${formatTime(time.endDateTime)}`}
+      </p>
     </div>
   );
 };

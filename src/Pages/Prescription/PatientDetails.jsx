@@ -15,7 +15,6 @@ import { allowedTransitions, initialStatuses, statusColors } from "../../util/pa
 
  
 function PatientDetails() {
- 
   const [channelName, setChannelName] = useState("");
   const [filteredData, setFilteredData] = useState({});
   const [status, setStatus] = useState("");
@@ -55,9 +54,7 @@ function PatientDetails() {
 
     setFilteredData(filtered);
   }, [prescriptionData]);
-
-
-
+ 
   const onTaskDrop = (event, newStatus) => {
     event.preventDefault();
     const patientId = event.dataTransfer.getData("text/plain");
@@ -172,9 +169,11 @@ function PatientDetails() {
                     onDrop={(event) => onTaskDrop(event, status.display)}
                     className="p-2 bg-gray-50 rounded-lg shadow-inner h-[570px]"
                   >
+ 
                     {filteredData[status.display]?.map((patient) => 
                      <PatientColumn patient={patient} setChannelName={setChannelName} setStatus={setStatus}/>
                      )}
+ 
                   </div>
                 </ScrollArea>
               </div>

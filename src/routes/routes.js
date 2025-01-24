@@ -13,6 +13,10 @@ const Patients  =  lazy(()=>import("../Pages/Patients/Patients"))
  const NotFound  =  lazy(()=>import("../Components/Common/NotFound"))
 const PatientInfoCategories =   lazy(()=>import("../Pages/Prescription/PatientInfoCategories"));
 const BillPage = lazy(() => import("../Pages/Billing/PaymentConfirmation"));
+const HumanBody = lazy(() => import("../Pages/WorkList/HumanBody"));
+const Medicines = lazy(() => import("../Pages/Medicines/Medicines"));
+const AddMedicines = lazy(() => import("../Pages/Medicines/AddMedicines"));
+const MedicalRackApp = lazy(() => import("../Pages/Medicines/MedicalShopRack"));
 
 const routes = [
     { path: "/", component: <Navigate to="worklist"/> },
@@ -22,6 +26,10 @@ const routes = [
     { path: "/billing", component: <ProtectedRoute><Billing/></ProtectedRoute> },
     { path: "/newPatients", component: <ProtectedRoute><CreateNewPatients/></ProtectedRoute> },
     { path: "/AddBill", component: <ProtectedRoute><CreateBill/></ProtectedRoute> },
+    { path: "/HumanBody", component: <ProtectedRoute><HumanBody/></ProtectedRoute> },
+    { path: "/medicines", component: <ProtectedRoute><Medicines/></ProtectedRoute> },
+    { path: "/AddMedicine", component: <ProtectedRoute><AddMedicines/></ProtectedRoute> },
+    { path: "/MedicalRackApp", component: <ProtectedRoute><MedicalRackApp/></ProtectedRoute> },
     { path: "/paymentconfirmation", component: <ProtectedRoute><BillPage/></ProtectedRoute> },
     { path: "/appointment", component: <ProtectedRoute><Appointment/></ProtectedRoute> },
     { path: "/payment", component: <ProtectedRoute><Payment/></ProtectedRoute> },

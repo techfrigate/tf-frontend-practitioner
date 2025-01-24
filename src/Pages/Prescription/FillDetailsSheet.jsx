@@ -32,7 +32,6 @@ const FillDetailsSheet = ({isDialogOpen,selectedCategory,closeSheet}) => {
      "Surgical History":<SurgicalHistory closeSheet={closeSheet}/>,
     "Medical History":<MedicalHistory closeSheet={closeSheet}/>
   }
-
   return (
     <div className="fixed h-screen  inset-0 z-50 flex justify-end  ">
     
@@ -64,6 +63,7 @@ const FillDetailsSheet = ({isDialogOpen,selectedCategory,closeSheet}) => {
         {renderResourceForm[selectedCategory.name]}
       </div> 
     </div>
+ 
   );
 };
 

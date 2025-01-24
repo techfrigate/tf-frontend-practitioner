@@ -98,5 +98,3 @@ const PatientInfoCategories = () => {
 };
 
 export default PatientInfoCategories;
-
-   

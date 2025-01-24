@@ -9,6 +9,7 @@ import CustomButton from "../Common/CustomButton";
 import CreateNewModal from "./CreateNewModal";
 import HospitalModal from "./HospitalModal";
 import Cookies from "js-cookie";
+import Swal from 'sweetalert2';
 
 const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -102,9 +103,41 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   const handleAddBillClick = () => {
     navigate("/AddBill");
     toggleCreateProviderForm();
-
   };
-;
+
+  const handleModalClick = () => {
+    Swal.fire({
+      title: 'Select Option',
+      html: `
+        <div class="flex flex-col gap-4">
+          <button id="addMedicine" class="px-4 py-2 bg-[#64C6B0] text-white rounded hover:bg-[#4fa693]">
+            Add Medicine
+          </button>
+          <button id="medicalRack" class="px-4 py-2 bg-[#64C6B0] text-white rounded hover:bg-[#4fa693]">
+            Medical Rack App
+          </button>
+        </div>`,
+      showConfirmButton: false,
+      showCancelButton: true,
+      cancelButtonColor: '#d33',
+      customClass: {
+        popup: 'custom-popup-class',
+      },
+      didOpen: () => {
+        document.getElementById('addMedicine').addEventListener('click', () => {
+          Swal.close();
+          navigate("/AddMedicine");
+          toggleCreateProviderForm();
+        });
+
+        document.getElementById('medicalRack').addEventListener('click', () => {
+          Swal.close();
+          navigate("/MedicalRackApp");
+        });
+      }
+    });
+  };
+
 
   const handleHospitalChange = (tenant) => {
     Cookies.set("TenantId", tenant.tenantId);
@@ -133,13 +166,18 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
             ))}
           </p>
         </div>
-
         <div className="flex gap-10 justify-between  items-center ">
           <div className="flex items-center gap-6 text-[#64C6B0] relative">
             <div>{ window.location.href.includes("billing") &&!showForm && (
             <CustomButton
               text= "+ Add Bill" 
               onclick={handleAddBillClick}/>
+          )}
+           </div>
+            <div>{window.location.href.includes("medicines") && !showForm  && (
+            <CustomButton
+              text= "+ Medicines" 
+              onclick={handleModalClick}/>
           )}
            </div>
             <div className="relative cursor-pointer" ref={createNewModalRef}>

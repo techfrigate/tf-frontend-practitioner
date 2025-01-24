@@ -23,6 +23,7 @@ export const createBilling = createAsyncThunk(
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${Cookies.get("Token")}`,
+            tenantId: Cookies.get("TenantId"),
           },
         }
       );
@@ -66,6 +67,7 @@ export const getAllBillings = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`,
+          tenantid: Cookies.get("TenantId"),
         },
       });
       console.log("Received billings:", response.data);  

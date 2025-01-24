@@ -1,54 +1,68 @@
-import React from "react";
-import { FaSearch } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
+import Avatar from "@mui/material/Avatar";
 
-const DoctorSearch = ({ searchDoctor, handleDoctorSearch, filteredDoctors, handleDoctorSelect }) => {
+const DoctorSearch = ({ slotsData, handleDoctorSelect }) => {
+  const [doctorOptions, setDoctorOptions] = useState([]);
+
   const convertExperience = (value) => {
     const rem = value % 12;
     const num = Math.floor(value / 12);
     return `${num}.${rem}`;
   };
 
+  useEffect(() => {
+    const doctors = slotsData
+      .filter((doc) => doc.slots?.[0]?.practitionerData)
+      .map((doc) => ({
+        name: `${doc.slots[0].practitionerData.firstName} ${doc.slots[0].practitionerData.lastName}`,
+        speciality:
+          doc.slots[0].practitionerData.speciality ||
+          "Speciality not available",
+        experience: convertExperience(
+          doc.slots[0].practitionerData.experience || 0
+        ),
+        data: doc,
+      }));
+    setDoctorOptions(doctors);
+  }, [slotsData]);
+
   return (
-    <div className="relative w-full">
-      <FaSearch className="absolute top-1/2 transform -translate-y-1/2 left-3 text-[#00A182]" />
-      <input
-        type="text"
-        placeholder="Search Doctor.."
-        value={searchDoctor}
-        onChange={handleDoctorSearch}
-        className="pl-10 pr-4 py-2 w-full rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00A182] transition duration-300 ease-in-out"
-      />
-      {filteredDoctors.length > 0 && (
-        <ul className="absolute left-0 right-0 bg-white border border-gray-300 mt-2 rounded-lg shadow-lg z-10">
-          {filteredDoctors.map((doctor) => (
-            <li
-              key={doctor.slots[0].id}
-              className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-200"
-              onClick={() => handleDoctorSelect(doctor)}
-            >
-              <div>
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-ECZ28iBTpFlNtSadX7LKKBAcliGr1TXOiw&s"
-                  alt={doctor.slots[0].practitionerData.firstName}
-                  className="w-[50px] h-[50px] rounded-full mr-3"
-                />
-              </div>
-              <div>
-                <p className="text-gray-800 font-semibold">
-                  {doctor.slots[0].practitionerData.firstName} {doctor.slots[0].practitionerData.lastName}
-                </p>
-                <p className="text-gray-500 text-sm">
-                  {doctor.slots[0].practitionerData.speciality}
-                </p>
-                <p className="text-gray-400 text-xs">
-                  {convertExperience(doctor.slots[0].practitionerData.experience)} year experience
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+    <Autocomplete
+      sx={{ width: "100%" }}
+      disablePortal
+      options={doctorOptions}
+      getOptionLabel={(option) => option.name || ""}
+      onChange={(event, value) => {
+        if (!value?.data) {
+          console.warn("No doctor selected");
+          handleDoctorSelect(null);
+        } else {
+          console.log("Selected Doctor:", value);
+          handleDoctorSelect(value.data);
+        }
+      }}
+      renderInput={(params) => <TextField {...params} label="Select Doctor" />}
+      renderOption={(props, option) => (
+        <li {...props} key={option.name}>
+          <div className="flex items-center">
+            <Avatar
+              sx={{ mr: 2 }}
+              alt={option.name}
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-ECZ28iBTpFlNtSadX7LKKBAcliGr1TXOiw&s"
+            />
+            <div>
+              <p className="text-gray-800 font-semibold">{option.name}</p>
+              <p className="text-gray-500 text-sm">{option.speciality}</p>
+              <p className="text-gray-400 text-xs">
+                {option.experience} years experience
+              </p>
+            </div>
+          </div>
+        </li>
       )}
-    </div>
+    />
   );
 };
 

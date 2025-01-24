@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { FaSearch } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import { editSlotStatus, getSlots } from "../../../Store/slotsSlice";
+import { getSlots } from "../../../Store/slotsSlice";
 import { fetchPatients } from "../../../Store/patientSlice";
 import DoctorSearch from "../../appointment/DoctorSearch";
 import PatientSearch from "../../appointment/PatientSearch";
@@ -16,8 +14,6 @@ import Loading from "../../Common/Loading";
 const Appointment = () => {
   const [searchDoctor, setSearchDoctor] = useState("");
   const [searchPatient, setSearchPatient] = useState("");
-  const [filteredDoctors, setFilteredDoctors] = useState([]);
-  const [filteredPatients, setFilteredPatients] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [consultationType, setConsultationType] = useState("Offline");
@@ -27,7 +23,6 @@ const Appointment = () => {
   const [morningSlots, setMorningSlots] = useState([]);
   const [afternoonSlots, setAfternoonSlots] = useState([]);
   const [eveningSlots, setEveningSlots] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [showPayment, setShowPayment] = useState(false);
   const {
     slots: { slotsData },
@@ -81,44 +76,45 @@ const Appointment = () => {
     }
   }, [selectedDate, selectedDoctor]);
 
-  const handleDoctorSearch = (e) => {
-    setSearchDoctor(e.target.value);
-    const results = slotsData.filter((doc) => {
-      const name = `${doc.slots[0].practitionerData.firstName.toLowerCase()} ${doc.slots[0].practitionerData.lastName.toLowerCase()}`;
-      return name.includes(e.target.value.toLowerCase());
-    });
-    setFilteredDoctors(results);
-  };
-
-  const handlePatientSearch = (e) => {
-    setSearchPatient(e.target.value);
-    const results = patients.filter((pat) => {
-      const name = `${pat.firstName.toLowerCase()} ${pat.lastName.toLowerCase()}`;
-      return (
-        name.includes(e.target.value.toLowerCase()) ||
-        pat.email.toLowerCase().includes(e.target.value.toLowerCase())
-      );
-    });
-    setFilteredPatients(results);
-  };
-
   const handleDoctorSelect = (doctor) => {
+    if (!doctor || !doctor.slots || doctor.slots.length === 0) {
+      console.error("Invalid doctor object selected:", doctor);
+      setSelectedDoctor(null);
+      setConsultationDateshow(false);
+      return;
+    }
+
     setSelectedDoctor(doctor);
-    setFilteredDoctors([]);
-    const selectedVisitType = doctor.slots[0].visitType === "Both" ? "Online" : doctor.slots[0].visitType;
-console.log(selectedVisitType)
+
+    const selectedVisitType =
+      doctor.slots[0]?.visitType === "Both"
+        ? "Online"
+        : doctor.slots[0]?.visitType;
+    console.log(selectedVisitType);
+
     setConsultationType(selectedVisitType);
+
     setSearchDoctor(
-      `${doctor.slots[0].practitionerData.firstName} ${doctor.slots[0].practitionerData.lastName} - ${doctor.slots[0].practitionerData.speciality}`
+      `${doctor.slots[0]?.practitionerData.firstName} ${doctor.slots[0]?.practitionerData.lastName} - ${doctor.slots[0]?.practitionerData.speciality}`
     );
-    setConsultationType(doctor.slots[0].visitType);
-    setSelectedDate({ startDate: doctor.slots[0].startDate, slotId: doctor.slots[0]._id });
+
+    setSelectedDate({
+      startDate: doctor.slots[0]?.startDate,
+      slotId: doctor.slots[0]?._id,
+    });
+
     setConsultationDateshow(true);
   };
 
   const handlePatientSelect = (patient) => {
+    if (!patient) {
+      console.warn("No patient selected");
+
+      setSearchPatient("");
+      return;
+    }
+    console.log(patient, "patient");
     setSelectedPatient(patient);
-    setFilteredPatients([]);
     setSearchPatient(`${patient.firstName} ${patient.lastName}`);
   };
 
@@ -153,13 +149,7 @@ console.log(selectedVisitType)
     setConsultationDateshow(!!findslot);
   };
 
-  const handleArrowClick = (direction) => {
-    if (direction === "left" && currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    } else if (direction === "right" && currentIndex < selectedDoctor.slots.length - 5) {
-      setCurrentIndex(currentIndex + 1);
-    }
-  };
+
 
   const handleDateSelect = (slotData) => {
     setSelectedDate(slotData);
@@ -169,30 +159,50 @@ console.log(selectedVisitType)
     setSelectedTimeSlot(time);
   };
 
- console.log(selectedDoctor,"selected doctores")
-
-const handleBookAppointment =()=>{
- const slotSelctedDoctor =  selectedDoctor.slots.find((elm)=>elm._id === selectedDate.slotId)
-const patientId =  selectedPatient._id
-const amount =  consultationType==='Online'?selectedDoctor.slots[0].practitionerData.onlineFees:selectedDoctor.slots[0].practitionerData.inPersonFees
+  const handleBookAppointment = () => {
+    const slotSelctedDoctor = selectedDoctor.slots.find(
+      (elm) => elm._id === selectedDate.slotId
+    );
+    const patientId = selectedPatient._id;
+    const amount =
+      consultationType === "Online"
+        ? selectedDoctor.slots[0].practitionerData.onlineFees
+        : selectedDoctor.slots[0].practitionerData.inPersonFees;
     const amountDetails = {
       amount,
-  gst:18,
-  discount:0,
-  netAmount:amount*82/100
-}
+      gst: 18,
+      discount: 0,
+      netAmount: (amount * 82) / 100,
+    };
 
-const{_id:slotDetailSlotId,endDateTime,startDateTime}=selectedTimeSlot
-const{locationId,practitionerId,practitionerData:{_id:precMoongid, ...resPractitionerData},locationData:{_id,...resLocationData},visitType,duration} = slotSelctedDoctor
+    const {
+      _id: slotDetailSlotId,
+      endDateTime,
+      startDateTime,
+    } = selectedTimeSlot;
+    const {
+      locationId,
+      practitionerId,
+      practitionerData: { _id: precMoongid, ...resPractitionerData },
+      locationData: { _id, ...resLocationData },
+      visitType,
+      duration,
+    } = slotSelctedDoctor;
 
-const{phoneNumber:{dialCode,value}, ...resPracData} =  resPractitionerData
-const{address:{_id:locationAddressid,  ...resLocationAddress}, ...resLocaData} = resLocationData
+    const {
+      phoneNumber: { dialCode, value },
+      ...resPracData
+    } = resPractitionerData;
+    const {
+      address: { _id: locationAddressid, ...resLocationAddress },
+      ...resLocaData
+    } = resLocationData;
     const body = {
       slotId: selectedDate.slotId,
       patientId,
       locationId,
       practitionerId,
-  channelName:patientId+practitionerId+selectedDate.slotId,
+      channelName: patientId + practitionerId + selectedDate.slotId,
       amountDetails,
       paymentMethod: "online",
       paymentStatus: "pending",
@@ -203,64 +213,68 @@ const{address:{_id:locationAddressid,  ...resLocationAddress}, ...resLocaData} =
       endDateTime,
       visitType,
       duration,
-  practitionerData:{
+      practitionerData: {
         ...resPracData,
-    phoneNumber:{
-      dialCode,value
-    }
+        phoneNumber: {
+          dialCode,
+          value,
+        },
       },
-  locationData:{
+      locationData: {
         ...resLocaData,
-    address:{
-      ...resLocationAddress
-    }
+        address: {
+          ...resLocationAddress,
+        },
+      },
+    };
 
-  }
-}
+    dispatch(
+      createAppointment({
+        body,
+        slotDetailSlotId,
+        slotId: selectedDate.slotId,
+        setShowPayment,
+      })
+    );
+  };
 
-dispatch(createAppointment({body,slotDetailSlotId,slotId:selectedDate.slotId,setShowPayment}))
-}
-
-if (slotsStatus === "loading") {
+  if (slotsStatus === "loading") {
     return <Loading size="12" color="teal-500" />;
   }
 
   return (
     <div className="px-3 py-3 h-[100%] customScrollbar">
       {showPayment ? (
-        <Payment setShowPayment={setShowPayment}/>
+        <Payment setShowPayment={setShowPayment} />
       ) : (
-        <div className="border-2 border-[#ecf7f4] shadow-lg   rounded-lg pb-4 p-4 bg-gray-50 h-[100%]  ">
-          <div className="flex flex-col md:flex-row gap-6 w-full max-w-3xl mx-auto">
+        <div className="pb-4 p-4 h-[100%]">
+          <div className="flex flex-col md:flex-row gap-6 w-full">
             <DoctorSearch
               searchDoctor={searchDoctor}
-              handleDoctorSearch={handleDoctorSearch}
-              filteredDoctors={filteredDoctors}
               handleDoctorSelect={handleDoctorSelect}
+              slotsData={slotsData}
             />
             <PatientSearch
               searchPatient={searchPatient}
-              handlePatientSearch={handlePatientSearch}
-              filteredPatients={filteredPatients}
+              patientsData={patients}
               handlePatientSelect={handlePatientSelect}
             />
           </div>
           {selectedDoctor && selectedPatient && (
             <div>
-              <div className="flex flex-col lg:flex-row items-center justify-center gap-5">
+              <div className="flex flex-col gap-5">
                 <ConsultationType
                   consultationType={consultationType}
                   handleConsultationChange={handleConsultationChange}
                   selectedDoctor={selectedDoctor}
                 />
-                {consultationDateshow && consultationType&& (
+                {consultationDateshow && consultationType && (
                   <ScheduleSelector
                     selectedDoctor={selectedDoctor}
                     consultationType={consultationType}
                     handleDateSelect={handleDateSelect}
                     selectedDate={selectedDate}
-                    currentIndex={currentIndex}
-                    handleArrowClick={handleArrowClick}
+                  
                   />
                 )}
               </div>
@@ -273,7 +287,7 @@ if (slotsStatus === "loading") {
                   handleTimeSlotSelect={handleTimeSlotSelect}
                 />
               )}
-              <div className="flex gap-4 justify-end mt-3">
+              <div className="flex gap-4 justify-end pb-5">
                 <button className="border border-slate-300 py-2 px-6 rounded-md transition transform hover:scale-110 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#008a6c]">
                   Cancel
                 </button>

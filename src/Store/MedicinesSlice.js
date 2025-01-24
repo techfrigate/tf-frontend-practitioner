@@ -1,0 +1,188 @@
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import Cookies from "js-cookie";
+
+const initialState = {
+  medicine: {},        
+  medicines: [],       
+  totalPages: 1,       
+  error: null,         
+  medicineStatus: "idle",
+};
+
+const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
+
+export const createMedicine = createAsyncThunk(
+  "medicines/createMedicine",
+  async (body, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${ADMIN_URL}/medicines`,
+        body,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("Token")}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "An error occurred");
+    }
+  }
+);
+
+export const getAllMedicines = createAsyncThunk(
+  "medicines/getAllMedicines",
+  async ({ currentPage, itemsPerPage, sortBy, order }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${ADMIN_URL}/medicines`, {
+        params: {
+          page: currentPage,
+          limit: itemsPerPage,
+          sortBy,
+          order,
+        },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("Token")}`,
+          tenantId: Cookies.get("TenantId"),
+        },
+      });
+      return response.data; 
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "An error occurred");
+    }
+  }
+);
+
+export const getMedicineById = createAsyncThunk(
+  "medicines/getMedicineById",
+  async (medId, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${ADMIN_URL}/medicines/${medId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("Token")}`,
+        },
+      });
+      return response.data; 
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "An error occurred");
+    }
+  }
+);
+
+export const updateMedicine = createAsyncThunk(
+  "medicines/updateMedicine",
+  async ({ medId, body }, { rejectWithValue }) => {
+    try {
+      const response = await axios.patch(
+        `${ADMIN_URL}/medicines/${medId}`,
+        body,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("Token")}`,
+          },
+        }
+      );
+      return response.data;  
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "An error occurred");
+    }
+  }
+);
+
+export const deleteMedicine = createAsyncThunk(
+  "medicines/deleteMedicine",
+  async (medId, { rejectWithValue }) => {
+    try {
+      // eslint-disable-next-line
+      const response = await axios.delete(`${ADMIN_URL}/medicines/${medId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("Token")}`,
+        },
+      });
+      return medId;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "An error occurred");
+    }
+  }
+);
+
+const medicinesSlice = createSlice({
+  name: "medicines",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(createMedicine.pending, (state) => {
+        state.medicineStatus = "loading";
+        state.error = null;
+      })
+      .addCase(createMedicine.fulfilled, (state, action) => {
+        state.medicineStatus = "succeeded";
+        state.medicine = action.payload;
+      })
+      .addCase(createMedicine.rejected, (state, action) => {
+        state.medicineStatus = "failed";
+        state.error = action.payload;
+      })
+      .addCase(getAllMedicines.pending, (state) => {
+        state.medicineStatus = "loading";
+        state.error = null;
+      })
+      .addCase(getAllMedicines.fulfilled, (state, action) => {
+        state.medicineStatus = "succeeded";
+        state.medicines = action.payload.data;
+        state.totalPages = action.payload.totalPages;
+      })
+      .addCase(getAllMedicines.rejected, (state, action) => {
+        state.medicineStatus = "failed";
+        state.error = action.payload;
+      })
+      .addCase(getMedicineById.pending, (state) => {
+        state.medicineStatus = "loading";
+        state.error = null;
+      })
+      .addCase(getMedicineById.fulfilled, (state, action) => {
+        state.medicineStatus = "succeeded";
+        state.medicine = action.payload;
+      })
+      .addCase(getMedicineById.rejected, (state, action) => {
+        state.medicineStatus = "failed";
+        state.error = action.payload;
+      })
+      .addCase(updateMedicine.pending, (state) => {
+        state.medicineStatus = "loading";
+        state.error = null;
+      })
+      .addCase(updateMedicine.fulfilled, (state, action) => {
+        state.medicineStatus = "succeeded";
+        state.medicine = action.payload;
+      })
+      .addCase(updateMedicine.rejected, (state, action) => {
+        state.medicineStatus = "failed";
+        state.error = action.payload;
+      })
+      .addCase(deleteMedicine.pending, (state) => {
+        state.medicineStatus = "loading";
+        state.error = null;
+      })
+      .addCase(deleteMedicine.fulfilled, (state, action) => {
+        state.medicineStatus = "succeeded";
+        state.medicines = state.medicines.filter(
+          (medicine) => medicine.id !== action.payload
+        );
+      })
+      .addCase(deleteMedicine.rejected, (state, action) => {
+        state.medicineStatus = "failed";
+        state.error = action.payload;
+      });
+  },
+});
+
+export default medicinesSlice.reducer;
