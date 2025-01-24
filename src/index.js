@@ -7,16 +7,19 @@ import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { MeetingProvider } from "./Context/MeetingContext";
 
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
     <BrowserRouter>
+    <MeetingProvider>
       <React.StrictMode>
         <App />
         <Toaster position="top-right"/>
       </React.StrictMode>
+    </MeetingProvider>
     </BrowserRouter>
   </Provider>
 );
