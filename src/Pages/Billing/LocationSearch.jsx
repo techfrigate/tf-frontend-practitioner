@@ -1,32 +1,35 @@
 import React, { useState, useEffect } from "react";
-import { Search, X,MapPin } from "lucide-react";
+import { Search, X, Hospital } from "lucide-react";
 import { Input } from "../../Components/ui/input";
+import { useSelector } from "react-redux";
 
-const LocationSearch = ({
-  searchQuery,
-  setSearchQuery,
-  locations,
-  onSelect,
-  selectedLocation,
-}) => {
+const LocationSearch = ({searchQuery,setSearchQuery,locations,onSelect,selectedLocation}) => {
   const [isVisible, setIsVisible] = useState(false);
+  const { profileData } = useSelector((state) => state.profile);
 
   const filteredLocations =
     searchQuery.trim() === ""
-      ? locations.filter(location => location.status !== false)  
-      : locations.filter((location) => {
-          const searchLower = searchQuery.toLowerCase();
-          const name = location.name?.toLowerCase() || "";
-          const city = location.address?.city?.toLowerCase() || "";
-          const state = location.address?.state?.toLowerCase() || "";
-
-          return (
-            location.status !== false && 
-            (name.includes(searchLower) ||
-            city.includes(searchLower) ||
-            state.includes(searchLower))
-          );
-        });
+      ? locations
+          .filter(location => location.status !== false)
+          .filter(location => 
+            profileData?.locations?.includes(location.id) || 
+            profileData?.locations?.includes(location._id)
+          )
+      : locations
+          .filter((location) => {
+            const searchLower = searchQuery.toLowerCase();
+            const name = location.name?.toLowerCase() || "";
+            const city = location.address?.city?.toLowerCase() || "";
+            const state = location.address?.state?.toLowerCase() || "";
+            return (
+              location.status !== false && 
+              (profileData?.locations?.includes(location.id) || 
+               profileData?.locations?.includes(location._id)) &&
+              (name.includes(searchLower) ||
+               city.includes(searchLower) ||
+               state.includes(searchLower))
+            );
+          });
 
   const formatAddress = (address) => {
     if (!address) return "Address not available";
@@ -66,7 +69,6 @@ const LocationSearch = ({
                 h-14 text-base shadow-sm"
             />
           </div>
-
           {searchQuery && (
             <div
               className={`absolute w-[24rem] max-h-[300px] bg-white border border-gray-300 rounded-lg shadow-lg transition-all duration-700 ease-out transform ${
@@ -82,24 +84,23 @@ const LocationSearch = ({
             >
               {filteredLocations.map((location) => (
                 <div
-    className="cursor-pointer p-4 hover:bg-gray-50 transition-all duration-200 first:rounded-t-xl 
-      last:rounded-b-xl border-b border-gray-100 last:border-0"
-    onClick={() => onSelect(location)}
-  >
-    <div className="flex items-start gap-3">
-      <div className="mt-1 bg-indigo-50 p-2 rounded-lg">
-        <MapPin className="h-5 w-5 text-indigo-500" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <h3 className="font-medium text-gray-900 mb-1">{location.name}</h3>
-        <p className="text-sm text-gray-500 leading-snug line-clamp-2">
-          {formatAddress(location.address)}
-        </p>
-      </div>
-    </div>
-  </div>
+                  className="cursor-pointer p-4 hover:bg-gray-50 transition-all duration-200 first:rounded-t-xl 
+                    last:rounded-b-xl border-b border-gray-100 last:border-0"
+                  onClick={() => onSelect(location)}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 bg-indigo-50 p-2 rounded-lg">
+                      <Hospital className="h-5 w-5 text-indigo-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 mb-1">{location.name}</h3>
+                      <p className="text-sm text-gray-500 leading-snug line-clamp-2">
+                        {formatAddress(location.address)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               ))}
-
               {filteredLocations.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   No locations found matching your search
@@ -115,7 +116,7 @@ const LocationSearch = ({
             hover:bg-emerald-100 shadow-sm"
         >
           <div className="bg-emerald-100 p-2 rounded-lg">
-            <MapPin className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+            <Hospital className="h-5 w-5 text-emerald-600 flex-shrink-0" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="font-medium text-emerald-800 mb-0.5">
@@ -123,11 +124,11 @@ const LocationSearch = ({
             </div>
           </div>
           <div
-            className="bg-emerald-100 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 
+            className="bg-emerald-100 p-1.5 rounded-full opacity-0 group-hover:opacity-100 
               transition-all duration-200"
             onClick={() => onSelect(null)}
           >
-            <X className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+            <X className="h-4 w-4 text-emerald-600 flex-shrink-0 group-hover:rotate-180 transition-transform" />
           </div>
         </div>
       )}

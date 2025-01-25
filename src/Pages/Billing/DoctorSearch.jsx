@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Search, X, User } from "lucide-react";
+import { Search, X, Stethoscope } from "lucide-react";
 import { Input } from "../../Components/ui/input";
+import { useSelector } from "react-redux";
 
 const DoctorSearch = ({
   searchQuery,
   setSearchQuery,
-  doctors,
   onSelect,
   selectedDoctor,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
-
+  const { profileData } = useSelector((state) => state.profile);
+  const doctors = profileData ? [profileData] : [];
   const filteredDoctors =
     searchQuery.trim() === ""
       ? doctors
@@ -42,7 +43,7 @@ const DoctorSearch = ({
             </div>
             <Input
               type="text"
-              placeholder="Search doctors by name or speciality..."
+              placeholder="Search doctor by name or speciality..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 w-full md:w-[25rem] truncate border-2 border-gray-200 rounded-2xl focus:border-gray-300 focus:ring-2 focus:ring-indigo-100 transition-all duration-200 h-14 text-base shadow-sm"
@@ -70,7 +71,7 @@ const DoctorSearch = ({
                 >
                   <div className="flex items-start gap-3">
                     <div className="mt-1 bg-indigo-50 p-2 rounded-lg">
-                      <User className="h-5 w-5 text-indigo-500" />
+                      <Stethoscope className="h-5 w-5 text-indigo-500" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-gray-900 mb-1">
@@ -99,22 +100,19 @@ const DoctorSearch = ({
             hover:bg-emerald-100 shadow-sm"
         >
           <div className="bg-emerald-100 p-2 rounded-lg">
-            <User className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+            <Stethoscope className="h-5 w-5 text-emerald-600 flex-shrink-0" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="font-medium text-emerald-800 mb-0.5">
               Dr. {selectedDoctor.firstName} {selectedDoctor.lastName}
             </div>
-            {/* <div className="text-sm text-emerald-600 truncate">
-              {selectedDoctor.work?.speciality || "General Practitioner"}
-            </div> */}
           </div>
           <div
-            className="bg-emerald-100 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 
+            className="bg-merald-100 p-1.5 rounded-full opacity-0 group-hover:opacity-100 
               transition-all duration-200"
             onClick={() => onSelect(null)}
           >
-            <X className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+            <X className="h-4 w-4 text-emerald-600 flex-shrink-0 group-hover:rotate-180 transition-transform"  />
           </div>
         </div>
       )}

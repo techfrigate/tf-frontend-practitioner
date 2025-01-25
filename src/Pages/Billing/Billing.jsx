@@ -6,13 +6,12 @@ import CustomTable from "../../Components/Common/CustomTable";
 import { getAllBillings } from "../../Store/billingSlice";
 import { useDispatch,useSelector } from "react-redux";
 
- 
-
 const Billing = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const dispatch=  useDispatch()
   const { totalPages} = useSelector((state) => state.billing);
+  const { profileData } = useSelector((state) => state.profile);
 
   const offset = currentPage * itemsPerPage;
 
@@ -22,7 +21,9 @@ const Billing = () => {
         itemsPerPage,
         sortBy: 'updatedAt', 
         order: 'desc',
+        doctorId:profileData._id
       }));
+      // eslint-disable-next-line
     }, [currentPage])
 
 

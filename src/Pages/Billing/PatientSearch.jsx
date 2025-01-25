@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, User, Phone, Mail, Calendar, X } from "lucide-react";
+import { Search, UserSearch, Phone, Mail, Calendar, X } from "lucide-react";
 import { Input } from "../../Components/ui/input";
 
 const PatientSearch = ({
@@ -80,7 +80,7 @@ const PatientSearch = ({
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <User className="h-4 w-4 text-gray-500" />
+                        <UserSearch className="h-4 w-4 text-gray-500" />
                         <h3 className="font-semibold text-sm">
                           {patient.firstName} {patient.lastName}
                         </h3>
@@ -124,7 +124,7 @@ const PatientSearch = ({
             hover:bg-emerald-100 shadow-sm"
         >
           <div className="bg-emerald-100 p-2 rounded-lg">
-            <User className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+            <UserSearch className="h-5 w-5 text-emerald-600 flex-shrink-0" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="font-medium text-emerald-800 mb-0.5">
@@ -132,11 +132,11 @@ const PatientSearch = ({
             </div>
           </div>
           <div
-            className="bg-emerald-100 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 
+            className="bg-emerald-100 p-1.5 rounded-full opacity-0 group-hover:opacity-100 
               transition-all duration-200"
             onClick={() => onSelect(null)}
           >
-            <X className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+            <X className="h-4 w-4 text-emerald-600 flex-shrink-0 group-hover:rotate-180 transition-transform" />
           </div>
         </div>
       )}

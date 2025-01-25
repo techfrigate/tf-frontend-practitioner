@@ -14,6 +14,7 @@ const Medicines = () => {
   const { totalPages} = useSelector((state) => state.Medicines);
 
   const offset = currentPage * itemsPerPage;
+  const { profileData } = useSelector((state) => state.profile);
 
     useEffect(() => {
       dispatch(getAllMedicines({
@@ -21,6 +22,7 @@ const Medicines = () => {
         itemsPerPage,
         sortBy: 'updatedAt', 
         order: 'desc',
+        doctorId:profileData._id
       }));
       // eslint-disable-next-line
     }, [currentPage])

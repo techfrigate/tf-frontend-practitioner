@@ -16,8 +16,6 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
     Medicine: <Pill className="w-5 h-5" />
   };
 
-  console.log(billIdFromUrl)
-
   const getServices = (category) => {
     if (!selectedLocation) return [];
     
