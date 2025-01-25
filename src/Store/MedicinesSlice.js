@@ -35,7 +35,7 @@ export const createMedicine = createAsyncThunk(
 
 export const getAllMedicines = createAsyncThunk(
   "medicines/getAllMedicines",
-  async ({ currentPage, itemsPerPage, sortBy, order }, { rejectWithValue }) => {
+  async ({ currentPage, itemsPerPage, sortBy, order,doctorId }, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${ADMIN_URL}/medicines`, {
         params: {
@@ -48,6 +48,7 @@ export const getAllMedicines = createAsyncThunk(
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`,
           tenantId: Cookies.get("TenantId"),
+          doctorId:doctorId,
         },
       });
       return response.data; 

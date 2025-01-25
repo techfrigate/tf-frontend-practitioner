@@ -48,7 +48,6 @@ const AddMedicines = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [invalidFields, setInvalidFields] = useState({});
   const [availablePharmacies, setAvailablePharmacies] = useState([]);
@@ -65,6 +64,7 @@ const AddMedicines = () => {
       dispatch(fetchLocations({ currentPage: null, itemsPerPage: null, sortBy: 'name', order: 'desc' }));
     }
   }, [dispatch, locations]);
+  const { profileData } = useSelector((state) => state.profile);
 
   useEffect(() => {
     const fetchMedicineData = async () => {
@@ -176,6 +176,7 @@ const AddMedicines = () => {
       locationName: formData.locationName.name,
       locationId: formData.locationName._id,
       tenantId: Cookies.get("TenantId"),
+      doctorId:profileData._id,
       pharmacyName: formData.pharmacyName.name,
       pharmacyId: formData.pharmacyName._id,
       ...Object.fromEntries(

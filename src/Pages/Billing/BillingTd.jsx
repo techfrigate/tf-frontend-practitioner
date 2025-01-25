@@ -4,10 +4,8 @@ import { useSelector } from "react-redux";
 
 
 const BillingTd = () => {
-
   const navigate = useNavigate();
   const {billings } = useSelector((state) => state.billing);
-
   const navigateToBill = (id) => {
     navigate(`/AddBill?id=${id}`);
   };
@@ -37,7 +35,6 @@ const BillingTd = () => {
           <td className="py-4 px-6 ">
             {item.uhid}
           </td>
-
           <td className="py-4 px-6">{item.billId}</td>
           <td className="py-4 px-6">
             <span
@@ -58,7 +55,6 @@ const BillingTd = () => {
             tr:hover {
               z-index: 10;
             }
-
             tr:hover ~ tr {
               filter: blur(1.5px);
               transition: filter 0.3s ease-in-out;

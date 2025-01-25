@@ -28,13 +28,13 @@ const MedicalRackApp = () => {
   const [searchParams] = useSearchParams();
   const { locations } = useSelector(state => state.locations);
   const { medicines, error } = useSelector(state => state.Medicines);
-  
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedPharmacy, setSelectedPharmacy] = useState(null);
   const [availablePharmacies, setAvailablePharmacies] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentRack, setCurrentRack] = useState(null);
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
+  const { profileData } = useSelector((state) => state.profile);
 
   const determineStatus = units => {
     if (units === 0) return 'empty';
@@ -58,6 +58,7 @@ const MedicalRackApp = () => {
       await dispatch(getAllMedicines({
         locationId: selectedLocation._id,
         pharmacyId: selectedPharmacy._id,
+        doctorId:profileData._id,
         type: 'rack'
       })).unwrap();
     } catch {

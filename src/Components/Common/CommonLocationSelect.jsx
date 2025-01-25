@@ -1,28 +1,35 @@
 import React, { useState, useMemo } from 'react';
 import { MapPin, Search, X } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 const CommonLocationSelect = ({ locations, value, onChange, onClear }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showLocationList, setShowLocationList] = useState(false);
-
-  const suggestedLocations = useMemo(() => {
-    return locations
-      .filter(location => location.status === true)
-      .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0))
-      .slice(0, 5);
-  }, [locations]);
+  const { profileData } = useSelector((state) => state.profile);
 
   const filteredLocations = useMemo(() => {
-    if (!searchQuery) return suggestedLocations;
-    
-    return locations.filter(
-      ({displayName, name, address, status }) =>
-        status === true &&
-        [displayName,name, address.city, address.state].some((field) =>
-          field?.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-    );
-  }, [locations, searchQuery, suggestedLocations]);
+    const baseFilter = locations
+      .filter(location => location.status !== false)
+      .filter(location => 
+        profileData?.locations?.includes(location.id) || 
+        profileData?.locations?.includes(location._id)
+      );
+
+    if (searchQuery.trim() === "") return baseFilter;
+
+    return baseFilter.filter((location) => {
+      const searchLower = searchQuery.toLowerCase();
+      const name = location.name?.toLowerCase() || "";
+      const city = location.address?.city?.toLowerCase() || "";
+      const state = location.address?.state?.toLowerCase() || "";
+      
+      return (
+        name.includes(searchLower) ||
+        city.includes(searchLower) ||
+        state.includes(searchLower)
+      );
+    });
+  }, [locations, searchQuery, profileData]);
 
   const handleLocationSelect = (location) => {
     onChange(location);
@@ -65,31 +72,9 @@ const CommonLocationSelect = ({ locations, value, onChange, onClear }) => {
       )}
       {showLocationList && !value && (
         <div className="absolute w-[24rem] overflow-auto bg-white border border-gray-300 rounded-lg shadow-lg mt-2 z-50" style={{ maxHeight: '300px' }}>
-          {searchQuery ? (
-            filteredLocations.length > 0 ? (
-              <div>
-                {filteredLocations.map((location) => (
-                  <div
-                    key={location._id}
-                    className="flex items-center p-4 cursor-pointer hover:bg-gray-50"
-                    onClick={() => handleLocationSelect(location)}
-                  >
-                    <MapPin className="h-5 w-5 text-indigo-500 mr-3" />
-                    <div>
-                      <h3 className="font-medium text-gray-900">{location.displayName}</h3>
-                      <p className="text-sm text-gray-500">
-                        {location.address.city}, {location.address.state}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-4 text-gray-500">No locations found</div>
-            )
-          ) : (
+          {filteredLocations.length > 0 ? (
             <div>
-              {suggestedLocations.map((location) => (
+              {filteredLocations.map((location) => (
                 <div
                   key={location._id}
                   className="flex items-center p-4 cursor-pointer hover:bg-gray-50"
@@ -97,7 +82,7 @@ const CommonLocationSelect = ({ locations, value, onChange, onClear }) => {
                 >
                   <MapPin className="h-5 w-5 text-indigo-500 mr-3" />
                   <div>
-                    <h3 className="font-medium text-gray-900">{location.displayName}</h3>
+                    <h3 className="font-medium text-gray-900">{location.name}</h3>
                     <p className="text-sm text-gray-500">
                       {location.address.city}, {location.address.state}
                     </p>
@@ -105,6 +90,8 @@ const CommonLocationSelect = ({ locations, value, onChange, onClear }) => {
                 </div>
               ))}
             </div>
+          ) : (
+            <div className="text-center py-4 text-gray-500">No locations found</div>
           )}
         </div>
       )}

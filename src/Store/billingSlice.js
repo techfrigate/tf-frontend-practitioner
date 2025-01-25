@@ -55,7 +55,7 @@ export const getBillingById = createAsyncThunk(
 
 export const getAllBillings = createAsyncThunk(
   "billing/getAllBillings",
-  async ({ currentPage, itemsPerPage, sortBy, order }, { rejectWithValue }) => {
+  async ({ currentPage, itemsPerPage, sortBy, order,doctorId }, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${ADMIN_URL}/billing`, {
         params: {
@@ -68,6 +68,7 @@ export const getAllBillings = createAsyncThunk(
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`,
           tenantid: Cookies.get("TenantId"),
+          doctorId:doctorId,
         },
       });
       console.log("Received billings:", response.data);  
