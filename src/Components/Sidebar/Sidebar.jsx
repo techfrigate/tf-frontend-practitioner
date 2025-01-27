@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 import { FaSuitcaseMedical } from "react-icons/fa6";
 import styles from "../../Css/Sidebar/Sidebar.module.css";
+import logo from "../../assist/logo.png"
 
 import { useNavigate } from "react-router-dom";
 import { MdKeyboardArrowUp } from "react-icons/md";
@@ -65,17 +66,15 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="pb-3 pt-[9px] h-full w-[16%] ">
-    <div className="bg-gray-50 pl-[8px]   h-[100%] rounded-md  ">
+    <div className="pb-3 pt-[9px] h-full w-[16%]">
+    <div className="bg-gray-50 pl-[8px] h-[100%] rounded-md  ">
      
       <div className="flex items-center gap-2 pt-[10px] pb-[12px] px-[10px]   ">
         <img
-          src="https://dev-central.unify.care/build/_assets/shortLogo-ZSVGBGEP.svg"
+          src={logo}
+          className="h-10 w-28"
           alt=""
         />
-        <div className="flex items-center justify-between gap-10">
-          <h2 className="text-[20px] font-bold">CareDr</h2>
-        </div>
       </div>
 
       <div className={`pr-[5px] mt-3 h-[83%] w-full ${styles.customScrollbar}`}>
