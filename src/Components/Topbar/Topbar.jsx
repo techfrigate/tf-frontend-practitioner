@@ -10,6 +10,7 @@ import CreateNewModal from "./CreateNewModal";
 import HospitalModal from "./HospitalModal";
 import Cookies from "js-cookie";
 import Swal from 'sweetalert2';
+import { useSelector } from "react-redux";
 
 const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -22,7 +23,7 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
   const thanosRef = useRef();
 
   const navigate =useNavigate()
-
+  const{profileData} = useSelector((state) => state.profile);
   const [selectedTenant, setSelectedTenant] = useState();
 
   const pathSegments = [
@@ -205,7 +206,7 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
             </div>
             <div className="relative w-8 h-8 cursor-pointer" ref={thanosRef}>
               <img
-                src="https://t4.ftcdn.net/jpg/03/24/22/77/360_F_324227760_73JhXgDh5OFsYuymiMzn6s7FHHzf3Ef0.jpg"
+                src={profileData?.imageUrl || null}
                 alt="Profile"
                 className="w-full h-full object-cover rounded-full border-2 border-[#64C6B0] shadow-lg"
                 onClick={handleProfileClick}

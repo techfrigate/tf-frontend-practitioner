@@ -38,7 +38,7 @@ const CreateNewModal = ({ onClose }) => {
         </div>
         <div
           onClick={() => {
-            navigate("/newPatients");
+            navigate("/new-patient");
             onClose();
           }}
           className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"

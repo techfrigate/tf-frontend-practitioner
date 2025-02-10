@@ -3,12 +3,15 @@ import PersonalInfo from "./PersonalInfo";
 import AddressInfo from "./AddressInfo";
 import { personalInfoFormData, addressInfo as addressFormData } from "./NewpatientFormData";
 import { useDispatch, useSelector } from "react-redux";
-import { addPatient, fetchPatientById, patchPatientById } from "../../../Store/patientSlice";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import Loading from "../../Common/Loading";
 import Cookies from "js-cookie";
-import CustomImageInput from "../../Common/CustomImageInput";
-import { getImageUrl } from "../../../util/fileUploader";
+import {getImageUrl} from "../../util/fileUploader"
+import { addPatient, fetchPatientById, patchPatientById } from "../../Store/patientSlice";
+import Loading from "../../Components/Common/Loading";
+ import CustomImageInput from "../../Components/Common/CustomImageInput";
+import toast from "react-hot-toast";
+import Loader from "../../Components/Common/Loader";
+import { User } from "lucide-react";
 
 const CreateNewPatients = () => {
   const [personalInfo, setPersonalInfo] = useState({
@@ -43,6 +46,7 @@ const CreateNewPatients = () => {
     try {
       const url = await getImageUrl(e);
       setImageUrl(url); 
+      setInvalidObject((pre) => ({ ...pre, image: "" }));
     } catch (error) {
       console.error('Failed to upload image:', error);
     }
@@ -79,43 +83,9 @@ const CreateNewPatients = () => {
     const randomNumber = Math.floor(Math.random() * 1000000);
     return `UHI${randomNumber.toString().padStart(6, '0')}`;
   };
+ 
 
-// function handleSavePatient(){
-//   const validCheck =    {...personalInfo,...addressInfo}  
-//     const invalidObj = {}
-//     // eslint-disable-next-line
-//     Object.keys(validCheck).map((key)=>{
-//     if(!validCheck[key] && key !=="address2" && key !== "uhid"){
-//       invalidObj[key] =  `please provied ${key}`
-//       }
-//   })
-
-//   if(!validatePhoneNumber(personalInfo.phoneNumber)) {
-//       invalidObj.phoneNumber = `Please provide a valid 10-digit phone number`;
-//     }
-//  if(!invalidObj){
-//   return setInvalidObject(invalidObj)
-//     }
-
-//     const uhid = generateUHID();
-
-
-//   if(!patientId){
-//     const tenantId =  Cookies.get("TenantId");
-//     const tenantObj =  profileData?.tenants.find((elm)=>elm.tenantId===tenantId);
-//     const{tenantName} = tenantObj
-//     dispatch(addPatient({...personalInfo,...addressInfo,tenantName,uhid}))
-//   }else{
-//     const updates={
-//       ...personalInfo,...addressInfo ,tenants:patient?.tenants
-//     }
-//     dispatch(patchPatientById({id:patientId, userId:patient.userId,updates,navigate}))
-  
-//   }
-  
-// }
-
-function handleSavePatient() {
+async function handleSavePatient() {
   const validCheck = { ...personalInfo, ...addressInfo };
   const invalidObj = {};
 
@@ -139,30 +109,41 @@ function handleSavePatient() {
   }
 
   const uhid = generateUHID();
-
-
-
-  if (!patientId) {
-    const tenantId = Cookies.get("TenantId");
-    const tenantObj = profileData?.tenants.find((elm) => elm.tenantId === tenantId);
-    const { tenantName } = tenantObj;
-    const patientData = {
-      ...personalInfo,
-      ...addressInfo,
+  const tenantId = Cookies.get("TenantId");
+  const tenantObj = profileData?.tenants.find((elm) => elm.tenantId === tenantId);
+  const { phoneNumber, dialCode, ...rest } = personalInfo;
+    const { address1, address2, ...restAddress} = addressInfo;
+  const { tenantName } = tenantObj;
+  const tenants=[
+    {
+      tenantId: Cookies.get("TenantId"),
       tenantName,
-      uhid,
-      imageUrl,
-    };
-    dispatch(addPatient(patientData));
-  } else {
-    const updates = {
-      ...personalInfo,
-      ...addressInfo,
-      tenants: patient?.tenants,
-      imageUrl,
-    };
-    dispatch(patchPatientById({ id: patientId, userId: patient.userId, updates, navigate }));
-  }
+      userType:'patient'
+    }
+  ]
+
+  const body = {
+    ...rest,
+    phoneNumber: {
+      dialCode,
+      value: phoneNumber
+    },
+    address: {
+      addressLine1: address1,
+      addressLine2: address2,
+       ...restAddress
+    },
+    imageUrl,
+  };
+ 
+    try {
+     !patientId ? await dispatch(addPatient({...body,tenants,uhid})).unwrap():dispatch(patchPatientById({ id: patientId, userId: patient.userId, updates:body })).unwrap();
+      toast.success(`Patient ${patientId ? "updated" : "added"} successfully`);
+      navigate("/patients");
+    } catch (error) {
+      toast.error(error.message);
+    }
+ 
 }
 
 
@@ -204,25 +185,11 @@ useEffect(()=>{
       });
     }
   }, [patientId,patient]);
-
-  console.log(addressInfo)
-
-  // useEffect(() => {
-  //   if (formValues.displayImage) {
-  //     setImageUrl(formValues.displayImage);
-  //   }
-  // }, [formValues.displayImage]);
-
-  if (saveStatus === "loading") {
-    return <Loading size="16" color="teal-500" className="h-screen" />;
-  }
-  if (status === "loading") {
-    return <Loading size="16" color="teal-500" className="h-screen" />;
-  }
+ 
 
   return (
     <div className="p-4 max-h-full px-3 customScrollbar">
-      <div className="mb-6">
+      <div className="mb-6 max-w-xs mx-auto">
         <CustomImageInput
           id="patient-photo"
           label="Patient Photo"
@@ -231,29 +198,30 @@ useEffect(()=>{
           imageUrl={imageUrl}
         />
       </div> 
-      <PersonalInfo
-        personalInfoFormData={personalInfoFormData}
+      <PersonalInfo personalInfoFormData={personalInfoFormData}
         personalInfo={personalInfo}
         handlePersonalInfoChange={handlePersonalInfoChange}
         handleDialCodeChange={handleDialCodeChange}
         inValidObject={inValidObject}
         handleChange={handleChange}
       />
-      <AddressInfo
-        addressFormData={addressFormData}
+      <AddressInfo addressFormData={addressFormData}
         addressInfo={addressInfo}
         setAddressInfo={setAddressInfo}
         inValidObject={inValidObject}
 
       />
-      <div className="flex justify-center gap-2 mt-4">
-        <button className="px-4 pb-2 pt-1.5 text-[14px] border border-[#1e817e] hover:bg-[#239591] hover:text-white rounded">
-          Cancel
-        </button>
-        <button className="px-4 pb-2 pt-1.5 text-[14px] bg-[#1e817e] text-white hover:bg-[#166866] transition duration-300 ease-in-out rounded" onClick={handleSavePatient}>
-          Save
-        </button>
-      </div>
+     <div className="flex justify-center gap-2 mt-4">
+              <button className="px-4 pb-2 pt-1.5 text-[14px] border border-[#1e817e] hover:bg-[#239591] hover:text-white rounded">
+                Cancel
+              </button>
+              <button 
+                className="px-4 pb-2 pt-1.5 text-[14px] bg-[#1e817e] text-white hover:bg-[#166866] transition duration-300 ease-in-out rounded" 
+                onClick={handleSavePatient}
+              >
+                {saveStatus === "loading" ? "Saving...": "Save"}
+              </button>
+            </div>
     </div>
   );
 };

@@ -5,18 +5,11 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
-const CustomDatePicker = ({
-  id,
-  label,
-  value,
-  isInvalid,
-  errorMessage,
-  onChange,
-}) => {
+const CustomDatePicker = ({id,label,value,isInvalid,errorMessage,onChange,required}) => {
   return (
     <div className="grid w-full max-w-sm items-center gap-1.5 ">
       <label htmlFor={id} className="block text-sm font-semibold text-gray-700">
-        {label}
+        {label} {required &&<span className="text-red-500">*</span>}
       </label>
       <LocalizationProvider dateAdapter={AdapterDayjs} >
         <DatePicker

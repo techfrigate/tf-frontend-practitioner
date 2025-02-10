@@ -6,7 +6,7 @@ import { Video } from "lucide-react";
 import GlobalTable from "../../Components/Common/GlobalTable";
 import { TableCell, TableRow } from "../../Components/ui/table";
 
-function PatientTableContent({ patients }) {
+function PatientTableContent({ patients ,setChannelName ,setStatus }) {
   const formatTime = (dateString) => {
     const utcDate = parseISO(dateString);
     const localDate = new Date(
@@ -34,6 +34,28 @@ function PatientTableContent({ patients }) {
     "Type",
     "Actions",
   ];
+
+  const handleTaskClick = (patient) => {
+    const { bookingStatus } = patient;
+ 
+    let status = "Scheduled"; 
+    if (bookingStatus.booked && bookingStatus.checkIn && bookingStatus.checkOut && bookingStatus.closed) {
+      status = "Closed";
+    } else if (bookingStatus.booked && bookingStatus.checkIn && bookingStatus.checkOut) {
+      status = "Checked Out";
+    } else if (bookingStatus.booked && bookingStatus.checkIn) {
+      status = "Checked In";
+    } else if (bookingStatus.booked) {
+      status = "Scheduled";
+    }
+   if(status === "Checked In"){
+    setChannelName((patient.channelName).slice(0, 16));
+    setStatus(status);
+   }
+     
+  };
+ 
+
 
   return (
     <GlobalTable headers={tableHeaders}>
@@ -77,13 +99,15 @@ function PatientTableContent({ patients }) {
               <TableCell>
                 <Badge variant="forestLight">Appointment</Badge>
               </TableCell>
-              <TableCell className="flex items-center justify-center gap-2">
+              <TableCell className="flex items-center justify-center gap-2 " onClick={() => handleTaskClick(patient)}>
+              {patient?.bookingStatus?.checkIn && !patient.bookingStatus?.checkOut && !patient?.bookingStatus?.closed && 
                 <CustomTooltip content={`Video call`}>
                   <Video
                     className="text-green-500 hover:text-green-600 transition-colors cursor-pointer"
                     size={20}
                   />
                 </CustomTooltip>
+              }
               </TableCell>
             </TableRow>
           );

@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../../Components/ui/dialog";
+import Loader from "../../Components/Common/Loader";
 
 const renderEventContent = (eventInfo) => {
   return (
@@ -94,7 +95,7 @@ const Calendar = () => {
   return (
     <div className="rounded-md customScrollbar h-full  shadow-md border border-gray-300 p-2">
       {rosterStatus === "loading" ? (
-        <Loading size="16" color="teal-500" className="h-screen" />
+        <Loader />
       ) : rosterStatus === "failed" ? (
         <div className="text-center text-red-500">
           {error || "Error loading roster data"}

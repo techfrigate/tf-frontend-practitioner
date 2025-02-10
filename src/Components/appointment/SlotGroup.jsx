@@ -1,18 +1,44 @@
 import React from "react";
 import Slot from "./Slot";
-
-const SlotGroup = ({ title, slots, selectedTimeSlot, handleTimeSlotSelect }) => {
+import { format, parseISO } from "date-fns";
+const formatTime = (dateString) => {
+  const utcDate = parseISO(dateString);
+  const localDate = new Date(
+    utcDate.getTime() + utcDate.getTimezoneOffset() * 60000
+  );
+  return format(localDate, "hh:mm a");
+};
+const SlotGroup = ({
+  title,
+  slots,
+  selectedTimeSlot,
+  handleTimeSlotSelect,
+}) => {
   return (
     <div className="mb-6">
       <h1 className="text-md font-semibold text-gray-600 mb-3">{title}</h1>
       <div className="flex flex-wrap gap-3">
         {slots.map((time, index) => (
-          <Slot
-            key={index}
-            time={time}
-            selectedTimeSlot={selectedTimeSlot}
-            handleTimeSlotSelect={handleTimeSlotSelect}
-          />
+          <div
+            className={`rounded-sm px-6 py-1 mb-2 cursor-pointer transition-colors duration-200 border-2 ${
+              (time.status === "booked")
+                ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                : selectedTimeSlot?.startDateTime === time.startDateTime
+                ? "bg-gray-200 border-gray-700"
+                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+            }`}
+            onClick={!(time.status === "booked") ? () => handleTimeSlotSelect(time) : null}
+          >
+            <p
+              className={`text-center ${
+                ( time.status === "booked") ? "text-gray-400" : "text-gray-700"
+              }`}
+            >
+              {`${formatTime(time.startDateTime)} - ${formatTime(
+                time.endDateTime
+              )}`}
+            </p>
+          </div>
         ))}
       </div>
     </div>

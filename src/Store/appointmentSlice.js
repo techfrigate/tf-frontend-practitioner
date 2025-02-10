@@ -56,7 +56,6 @@ export const getPrescriptions = createAsyncThunk(
           },
         }
       );
-      console.log(response.data, "get Prescriptions data");
       return response.data;
     } catch (error) {
       console.log(error, "get Prescriptions error");
@@ -67,7 +66,7 @@ export const getPrescriptions = createAsyncThunk(
 
 // Update Appointment
 export const updateAppointment = createAsyncThunk(
-  "appointment/updateAppointment", // changed action name
+  "appointment/updateAppointment",
   async ({ _id, body }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios.patch(

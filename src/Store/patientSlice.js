@@ -42,41 +42,17 @@ export const fetchPatients = createAsyncThunk(
 export const addPatient = createAsyncThunk(
   'patient/addPatient',
   async (newPatient, { rejectWithValue }) => {
-    const { phoneNumber, dialCode, address1, address2, city, state, country, zipCode,tenantName, ...rest } = newPatient;
-
-    const body = {
-      ...rest,
-      phoneNumber: {
-        dialCode,
-        value: phoneNumber
-      },
-      address: {
-        addressLine1: address1,
-        addressLine2: address2,
-        city, state, country, zipCode
-      },
-      tenants:[
-        {
-          tenantId: Cookies.get("TenantId"),
-          tenantName,
-          userType:'patient'
-        }
-      ]
-    };
-
-
+  
     try {
-      const response = await axios.post(`${ACCOUNTS_URL}/profiles/practioner-profile`, body, {
+      const response = await axios.post(`${ACCOUNTS_URL}/profiles/practioner-profile`, newPatient, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`
         }
       });
-      console.log(response.data,"user res")
-      window.location.href=   `${PRACTITIONER_URL}/patients`
-      return response.data;
+     return response.data;
     } catch (error) {
-      console.log(error, "user error");
+      console.log(error)
       return rejectWithValue(error.response ? error.response.data : error.message);
     }
   }
@@ -101,37 +77,17 @@ export const fetchPatientById = createAsyncThunk(
 
 export const patchPatientById = createAsyncThunk(
   'patient/patchPatientById',
-  async ({ id, userId, updates,navigate }, { rejectWithValue }) => {
-    console.log("Updates:", updates); 
-    const { phoneNumber, dialCode, address1, address2, city, state, country, zipCode,tenants ,...rest } = updates;
-
-    const body = {
-      ...rest,
-      tenants,
-      phoneNumber: {
-        dialCode,
-        value: phoneNumber
-      },
-      address: {
-        addressLine1: address1,
-        addressLine2: address2,
-        city, state, country, zipCode
-      },
-    };
+  async ({ id, userId, updates}, { rejectWithValue }) => { 
 
     try {
-      console.log("Request Body:", body);
-      const response = await axios.patch(`${ACCOUNTS_URL}/profiles/${id}/${userId}`, body, {
+      const response = await axios.patch(`${ACCOUNTS_URL}/profiles/${id}/${userId}`, updates, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`
         }
       });
-      console.log(response.data);
-     navigate(`/patients`)
       return response.data;
     } catch (error) {
-      console.log(error);
       return rejectWithValue(error.response ? error.response.data : error.message);
     }
   }

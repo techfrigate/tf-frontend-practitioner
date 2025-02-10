@@ -23,18 +23,18 @@ const ScheduleSelector = ({
 
     return format(date, "eee");
   };
-
+ 
   return (
     <div
       style={{ boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px" }}
-      className="mt-2 w-full max-w-lg bg-white rounded-lg p-4"
+      className="mt-4 w-full max-w-lg bg-white rounded-lg p-4"
     >
       <h2 className="text-lg font-semibold text-gray-800 mb-4">
         Select Schedule
       </h2>
       <div className="flex items-center gap-2">
         {/* Slot List */}
-        <div className="flex overflow-x-auto gap-2 scrollbar-hide">
+        <div className="flex overflow-x-auto gap-2">
           {selectedDoctor.slots.map(
             (item, index) =>
               (item.visitType === "Both" ||

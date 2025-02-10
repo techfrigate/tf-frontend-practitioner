@@ -12,6 +12,7 @@ import categories from "./CategoriesData";
 import FillDetailsSheet from "./FillDetailsSheet";
 import PatientColumn from "../../Components/Prescription/PatientColumn";
 import { allowedTransitions, initialStatuses, statusColors } from "../../util/patientUtil";
+import toast from "react-hot-toast";
 
  
 function PatientDetails() {
@@ -26,8 +27,13 @@ function PatientDetails() {
   const { prescriptionData } = useSelector((state) => state.appointment);
   const { profileData } = useSelector((state) => state.profile);
   useEffect(() => {
-    dispatch(getPrescriptions({ practitionerId: profileData?._id }));
+    getAppointmentData();
+    
   }, [dispatch]);
+
+  function getAppointmentData(){
+    dispatch(getPrescriptions({ practitionerId: profileData?._id }));
+  }
 
   useEffect(() => {
     const filtered = {
@@ -55,7 +61,7 @@ function PatientDetails() {
     setFilteredData(filtered);
   }, [prescriptionData]);
  
-  const onTaskDrop = (event, newStatus) => {
+  const onTaskDrop = async (event, newStatus) => {
     event.preventDefault();
     const patientId = event.dataTransfer.getData("text/plain");
     const patient = prescriptionData.find((item) => item._id === patientId);
@@ -75,7 +81,7 @@ function PatientDetails() {
 
       if (!allowedTransitions[currentStatusKey]?.includes(newStatus)) {
         showErrorToast(
-          `Can't change status from ${currentStatusKey} to ${newStatus} for Swetarani Patel.`
+          `Can't change status from ${currentStatusKey} to ${newStatus}.`
         );
         return;
       }
@@ -103,24 +109,22 @@ function PatientDetails() {
       }
 
       const updatedStatus = {
-        ...bookingStatus,
         [updatedStatusKey]: new Date(),
       };
 
+      
       const body = { bookingStatus: updatedStatus };
-      dispatch(updateAppointment({ _id: patientId, body }));
+      try {
+        await  dispatch(updateAppointment({ _id: patientId, body })).unwrap()
+        toast.success("Apponinment Status Successfully Changed")
+        getAppointmentData()
+      } catch (error) {
+        toast.error(error)
+      }
+    
 
-      setFilteredData((prev) => {
-        const updatedData = { ...prev };
-        updatedData[currentStatusKey] = updatedData[currentStatusKey].filter(
-          (p) => p._id !== patientId
-        );
-        updatedData[newStatus] = [...(updatedData[newStatus] || []), patient];
-
-        return updatedData;
-      });
     } else {
-      console.error("Patient not found in prescriptionData");
+      console.error("Appointment not found in prescriptionData");
     }
   };
 
@@ -135,7 +139,7 @@ function PatientDetails() {
   };
 
   return (
-    <div className={`h-full w-full overflow-y-auto custom-scrollbar p-1 relative`}>
+    <div className={`h-full w-full p-1 relative`}>
     <div>
     <Tabs defaultValue="Patient Details">
         <TabsList>
@@ -183,7 +187,7 @@ function PatientDetails() {
         </TabsContent>
 
         <TabsContent value="Table">
-          <PatientTableContent patients={prescriptionData} />
+          <PatientTableContent patients={prescriptionData} setChannelName={setChannelName} setStatus={setStatus}/>
         </TabsContent>
       </Tabs>
     </div>
