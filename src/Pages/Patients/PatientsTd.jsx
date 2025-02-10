@@ -8,7 +8,7 @@ const PatientsTd = () => {
   const navigate = useNavigate();
 
   const navigateToPatient = (patientId) => {
-    navigate(`/newPatients?id=${patientId}`);
+    navigate(`/new-patient?id=${patientId}`);
   };
 
   const { patients, status } = useSelector((state) => state.patient);
@@ -19,10 +19,14 @@ const PatientsTd = () => {
 
   return (
     <>
-      {patients.length > 0 && patients.map((item) => {
+      {patients.length > 0 &&
+        patients.map((item) => {
           const maskedPhone = `${item.phoneNumber.value}`;
           const formattedDob = format(new Date(item.dob), "MMM dd, yyyy");
-          const formattedUpdatedAt = format(new Date(item.updatedAt), "MMM dd, yyyy");
+          const formattedUpdatedAt = format(
+            new Date(item.updatedAt),
+            "MMM dd, yyyy"
+          );
 
           return (
             <tr
@@ -32,9 +36,11 @@ const PatientsTd = () => {
             >
               <td className="py-4 px-4 text-nowrap text-xs">
                 <div className="flex gap-2 items-center">
-                  <p className="bg-[#1e817e] w-[30px] h-[30px] rounded-full flex items-center justify-center text-white text-[12px]">
-                    {`${item.firstName[0]}${item.lastName[0]}`}
-                  </p>
+                  <img
+                    src={item.imageUrl}
+                    alt={`${item.firstName} ${item.lastName}`}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
                   <div className="flex flex-col">
                     <p>{`${item.firstName} ${item.lastName}`}</p>
                     <p className="text-gray-500">{item.gender}</p>
@@ -43,12 +49,19 @@ const PatientsTd = () => {
               </td>
               <td className="py-4 px-4 text-nowrap text-xs">{item.uhid}</td>
               <td className="py-4 px-4 text-nowrap text-xs">
-                <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-900">
-                  Active
-                </span>
-              </td>
+  <span
+    className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold
+      ${item.status ? 'bg-green-100 text-green-900 border-green-400' : 'bg-red-100 text-red-900 border-red-400'}
+    `}
+  >
+    {item.status ? 'Active' : 'Inactive'}
+  </span>
+</td>
+
               <td className="py-4 px-4 text-nowrap text-xs">{formattedDob}</td>
-              <td className="py-4 px-4 text-nowrap text-xs">{formattedUpdatedAt}</td>
+              <td className="py-4 px-4 text-nowrap text-xs">
+                {formattedUpdatedAt}
+              </td>
               <td className="py-4 px-4 text-nowrap text-xs">{maskedPhone}</td>
             </tr>
           );

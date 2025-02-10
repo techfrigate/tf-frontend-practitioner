@@ -35,7 +35,7 @@ const PatientColumn = ({patient,setChannelName,setStatus}) => {
    }
      
   };
-console.log(patient);
+ 
   return (
     <div
     key={patient._id}
@@ -64,13 +64,13 @@ console.log(patient);
     </div>
     <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg shadow-sm ">
       <Badge variant="forestLight">Appointment</Badge>
-      <CustomTooltip content={`Video call`}>
+       {patient?.bookingStatus?.checkIn && !patient.bookingStatus?.checkOut && !patient?.bookingStatus?.closed && <CustomTooltip content={`Video call`}> 
       <Video
         className="text-green-500 hover:text-green-600 transition-colors cursor-pointer"
         size={20}
       />
       </CustomTooltip>
-      
+       }
     </div>
   </div>
   )

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateAppointment } from '../../Store/appointmentSlice';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const Payment = ({setShowPayment}) => {
   const [paymentMethod, setPaymentMethod] = useState('Cash');
@@ -17,16 +18,21 @@ const handlePayment = async()=>{
 
   const body = {
     bookingStatus:{
-      ...rest,
       booked:new Date()
     },
     paymentStatus,
     transactionId
   }
-
- await dispatch(updateAppointment({_id,body}))
+  try {
+    await dispatch(updateAppointment({_id,body})).unwrap()
  setShowPayment(false)
- navigate("/appointment")
+ navigate("/worklist")
+    toast.success("Appointment Booked Successfully!")
+  } catch (error) {
+    toast.error(error)
+  }
+
+ 
 }
 
   return (

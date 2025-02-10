@@ -19,7 +19,7 @@ function handleDocumentTitle(location) {
     '/patients': 'Patients - Practitoner',
     '/calendar': 'Calendar - Practitoner',
     '/billing': 'Billing - Practitoner',
-    '/newPatients': 'Create New Patients - Practitoner',
+    '/new-patient': 'Create New Patients - Practitoner',
     '/appointment': 'Appointment - Practitoner',
     '/payment': 'Payment - Practitoner',
     '/fillDetails': 'Patient Info Categories - Practitoner',
@@ -73,12 +73,12 @@ function App() {
 
 
   return (
-    <div className="flex  bg-gray-200 h-[100vh] ">
+    <div className="flex bg-gray-200 h-[100vh] ">
       <Sidebar />
       <div className="flex flex-col w-full h-[100vh] box-border overflow-hidden">
         <Topbar toggleCreateProviderForm={toggleCreateProviderForm} />
-        <div className="px-2 pb-3 h-full w-full  overflow-y-hidden">
-          <div className={`w-full h-full  rounded-md bg-white`}>
+        <div className="px-2 pb-3 h-full w-full overflow-y-hidden">
+          <div className={`w-full h-full customScrollbar rounded-md bg-white`}>
             <Suspense fallback={<Loader/>}>
               <Routes>
               {

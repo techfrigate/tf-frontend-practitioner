@@ -1,72 +1,119 @@
+ 
 import React, { useState, useEffect } from "react";
 import { MdOutlineEdit } from "react-icons/md";
 import CustomButton from "../Common/CustomButton";
 import EditProfileModal from "./EditProfileModal";
 import ConfirmationModal from "./ConfirmationModal";
 import Cookies from "js-cookie";
+
 const PROVIDER_APP = process.env.REACT_APP_PROVIDER_URL;
 const PATIENT_APP = process.env.REACT_APP_PATIENT_URL;
 const PRACTITIONER_APP = process.env.REACT_APP_PRACTITIONER_URL;
 const CENTRAL_ADMIN_APP = process.env.REACT_APP_CENTRAL_ADMIN_URL;
 const SIGNUP_APP = process.env.REACT_APP_SIGNIN_URL;
+const SIGNIN_URL = process.env.REACT_APP_SIGNIN_URL;
+
+
+const formatStateWord = (stateWord) => {
+  return stateWord
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 const ProfileModal = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState(
     "https://t4.ftcdn.net/jpg/03/24/22/77/360_F_324227760_73JhXgDh5OFsYuymiMzn6s7FHHzf3Ef0.jpg"
   );
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  // eslint-disable-next-line
+ 
   const [userTypes, setUserTypes] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  // eslint-disable-next-line
+ 
   const [selectedUserType, setSelectedUserType] = useState("practitioner");
-  const openEditModal = () => {
-    setIsEditOpen(true);
-  };
- 
-  const SignIn_URL = process.env.REACT_APP_SIGNIN_URL;
+  const [profile, setProfile] = useState(null);
 
-  console.log(SignIn_URL);
- 
+  useEffect(() => {
+    // Load profile data when component mounts
+    const storedProfile = localStorage.getItem("admin_profile");
+    if (storedProfile) {
+      try {
+        const parsedProfile = JSON.parse(storedProfile);
+        setProfile(parsedProfile);
+        setProfileImageUrl(parsedProfile.imageUrl)
 
-  const handleSignOut = () => {
-    setIsConfirmOpen(true);
-  };
+        const tenantId = Cookies.get("TenantId");
+        if (parsedProfile?.tenants) {
+          const findTenant = parsedProfile.tenants.find(
+            (elm) => elm.tenantId === tenantId
+          );
+          if (!findTenant) {
+            localStorage.clear();
+            window.location.href = SIGNIN_URL;
+            return;
+          }
+          setUserTypes(findTenant.userTypes || []);
+        }
+      } catch (error) {
+        console.error("Error parsing profile:", error);
+  
+        localStorage.clear();
+        window.location.href = SIGNIN_URL;
+      }
+    }
+  }, []);
+
+  const openEditModal = () => setIsEditOpen(true);
+  const closeEditModal = () => setIsEditOpen(false);
+  const handleSignOut = () => setIsConfirmOpen(true);
 
   const confirmSignOut = () => {
     Cookies.remove("tenant");
     Cookies.remove("tenantId");
     Cookies.remove("Token");
-
     localStorage.clear();
-
-    window.location.href = SIGNUP_APP;
+    window.location.href = SIGNIN_URL;
   };
 
-  const cancelSignOut = () => {
-    setIsConfirmOpen(false);
-  };
-
-  const closeEditModal = () => {
-    setIsEditOpen(false);
-  };
+  const cancelSignOut = () => setIsConfirmOpen(false);
 
   const updateProfileImage = (newImageUrl) => {
     setProfileImageUrl(newImageUrl);
     closeEditModal();
   };
 // eslint-disable-next-line
-  const toggleUserTypeDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
+  const toggleUserTypeDropdown = () => setIsDropdownOpen(!isDropdownOpen);
+// eslint-disable-next-line
+  const handleUserTypeChange = (type) => {
+    setSelectedUserType(type);
+    const tenantId = Cookies.get("TenantId");
+    const token = Cookies.get("Token");
+    const userId = profile?.userId;
+
+    setIsDropdownOpen(false);
+
+    const ports = {
+      central_admin: CENTRAL_ADMIN_APP,
+      practitioner: PRACTITIONER_APP,
+      patient: PATIENT_APP,
+      provider: PROVIDER_APP
+    };
+
+    const port = ports[type];
+    const url = port
+      ? `${port}?vt=${token}&ui=${userId}&ti=${tenantId}`
+      : `${SIGNUP_APP}`;
+
+    window.location.href = url;
   };
 
-  const tenantId = Cookies.get("TenantId");
-
-  const profile = JSON.parse(localStorage.getItem("admin_profile"));
-
+  if (!profile) {
+    return null; 
+  }
 
   const { firstName = "", lastName = "", email = "" } = profile;
-// eslint-disable-next-line
+ 
   const mergedTenants = profile?.tenants?.reduce((acc, curr) => {
     const existingTenant = acc.find(
       (tenant) => tenant.tenantId === curr.tenantId
@@ -85,113 +132,96 @@ const ProfileModal = () => {
       });
     }
     return acc;
-  }, []);
-
-  useEffect(() => {
-    const findTenant = profile.tenants.find((elm) => elm.tenantId === tenantId);
-    if (!findTenant) {
-      localStorage.clear();
-      return (window.location.href = SIGNUP_APP);
-    }
-    const { userTypes } = findTenant;
-    setUserTypes(() => userTypes);
-    // eslint-disable-next-line
-  }, []);
-// eslint-disable-next-line
-  const handleUserTypeChange = (type) => {
-    setSelectedUserType(type);
-    console.log(`User type for tenant ${tenantId} changed to ${type}`);
-    const token = Cookies.get("Token");
-    const { userId } = profile;
-
-    setIsDropdownOpen(false);
-    const ports = {
-      central_admin: CENTRAL_ADMIN_APP,
-      practitioner: PRACTITIONER_APP,
-      patient: PATIENT_APP,
-      provider: PROVIDER_APP,
-    };
-
-    const port = ports[type];
-    const url = port
-      ? `${port}?vt=${token}&ui=${userId}&ti=${tenantId}`
-      : `${SIGNUP_APP}`;
-
-    window.location.href = url;
-  };
+  }, []) || [];
 
   return (
     <>
       {isEditOpen ? null : (
-        <div className="absolute z-20 top-12 right-0 bg-white border border-gray-200 rounded-lg shadow-lg py-5 px-7 w-80">
-          <div className="flex items-center mb-6">
-            <div className="w-10 h-10 relative">
+        <div className="absolute z-20 top-12 right-0 bg-white rounded-xl shadow-2xl w-80 overflow-hidden">
+        {/* Header Section with Gradient */}
+        <div className="bg-gradient-to-r from-[#64C6B0]/10 to-[#64C6B0]/5 p-6">
+          <div className="flex items-start space-x-4">
+            {/* Profile Image */}
+            <div className="relative flex-shrink-0">
               <img
                 src={profileImageUrl}
                 alt="Profile"
-                className="w-full h-full object-cover rounded-full border-2 border-[#64C6B0] shadow-lg"
+                className="w-16 h-16 rounded-full object-cover border-2 border-[#64C6B0]/20 shadow-md"
               />
               <button
-                onClick={openEditModal}
-                className="absolute -bottom-1 -right-1.5 bg-[#64C6B0] rounded-full p-1 border border-gray-200"
+                onClick={() => setIsEditOpen(true)}
+                className="absolute -bottom-1 -right-1 bg-[#64C6B0] rounded-full p-1.5 shadow-lg hover:bg-[#58b19e] transition-colors"
               >
-                <MdOutlineEdit className="text-white" size={14} />
+                <MdOutlineEdit className="text-white w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="ml-4">
-              <h2 className="text-base font-semibold">
+
+            {/* User Info */}
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-gray-800 truncate">
                 {firstName} {lastName}
               </h2>
-              <p className="text-gray-600 text-sm">{email}</p>
+              <p className="text-sm text-gray-500 truncate">{email}</p>
+              <span className="inline-flex items-center px-2.5 py-0.5 mt-2 rounded-full text-xs font-medium bg-[#64C6B0]/10 text-[#64C6B0]">
+                {formatStateWord(selectedUserType)}
+              </span>
             </div>
           </div>
-          <div className="flex items-center justify-end">
-            <div className="w-[37%]">
-              <CustomButton
-                width={"w-full"}
-                text="Sign out"
-                onclick={handleSignOut}
-              />
-            </div>
-
-            {/* <div className="relative text-black">
-              <button
-                onClick={toggleUserTypeDropdown}
-                className="py-2 px-4 rounded-lg border border-[#64C6B0] flex items-center"
-              >
-                {selectedUserType}
-                <span className="ml-2">&#9662;</span>
-              </button>
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-lg shadow-lg">
-                  {mergedTenants.map((tenant) => (
-                    <div
-                      key={tenant.tenantId}
-                      className="flex items-center mb-4"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          {tenant.userType.map((type, index) => (
-                            <button
-                              key={index}
-                              className="w-full px-4 py-2 text-left hover:bg-gray-200"
-                              onClick={() => handleUserTypeChange(type)}
-                            >
-                              {type}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div> */}
- 
-          </div>
-
-          <div className="mt-4"></div>
         </div>
+
+        {/* Divider */}
+        <div className="h-px bg-gray-200" />
+
+        {/* Actions Section */}
+        <div className="p-4 space-y-3">
+          {/* Role Switcher */}
+          {/* <div className="relative">
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full px-4 py-2 text-left text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#64C6B0] focus:ring-offset-2 transition-colors"
+            >
+              <div className="flex items-center justify-between">
+                <span>Switch Role</span>
+                <svg
+                  className={`w-4 h-4 transition-transform ${
+                    isDropdownOpen ? "transform rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
+
+          
+            {isDropdownOpen && (
+              <div className="absolute z-30 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                {profile?.tenants?.map((tenant) => (
+                  tenant.userType !=='central_admin' &&
+                  <button
+                    key={tenant.tenantId}
+                    onClick={() => handleUserTypeChange(tenant.userType)}
+                    className="w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg focus:outline-none focus:bg-gray-50 transition-colors"
+                  >
+                    {tenant.userType.replace(/_/g, ' ').charAt(0).toUpperCase() + 
+                     tenant.userType.slice(1)}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div> */}
+
+          {/* Sign Out Button */}
+          <button
+            onClick={handleSignOut}
+            className="w-full px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
       )}
       <EditProfileModal
         isOpen={isEditOpen}

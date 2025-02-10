@@ -17,7 +17,7 @@ root.render(
     <MeetingProvider>
       <React.StrictMode>
         <App />
-        <Toaster position="top-right"/>
+        <Toaster position="top-center"/>
       </React.StrictMode>
     </MeetingProvider>
     </BrowserRouter>

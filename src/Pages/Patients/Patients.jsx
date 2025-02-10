@@ -54,8 +54,6 @@ const Patients = () => {
         }
         activeClassName={"bg-[#64c6b0] text-white rounded"}
         activeLinkClassName={"border-none"} 
-        // eslint-disable-next-line
-        forcePage={currentPage - 1}
       />
     </div>
   );

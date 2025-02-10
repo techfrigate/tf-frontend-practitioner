@@ -4,30 +4,35 @@ export const personalInfoFormData = [
         label: "First Name",
         id: "firstName",
         placeholder: "Enter Your Name",
+        required : true
       },
       {
         type: "text",
         label: "Last Name",
         id: "lastName",
         placeholder: "Last Name",
+        required : true
       },
       {
         type: "date",
         label: "Date of Birth",
         id: "dob",
         placeholder: "",
+        required : true
       },
       {
         type: "number",
         label: "Contact Number (Log In)",
         id: "phoneNumber",
         placeholder: "Enter Your Phone Number",
+        required : true
       },
       {
         type: "email",
         label: "Email",
         id: "email",
         placeholder: "Enter Your Email",
+        required : true
       },
     ]
 
@@ -70,6 +75,7 @@ export const addressInfo = [
         label: "Address Line 1",
         id: "address1",
         placeholder: "Address Line 1",
+        required : true
       },
 
       {
@@ -83,23 +89,27 @@ export const addressInfo = [
         label: "PIN",
         id: "zipCode",
         placeholder: "Zipcode",
+        required : true
       },
       {
         type: "text",
-        label: "Country *",
+        label: "Country",
         id: "country",
         placeholder: "Country",
+        required : true
       },
       {
         type: "text",
-        label: "State *",
+        label: "State",
         id: "state",
         placeholder: "State",
+        required : true
       },
       {
         type: "text",
-        label: "City *",
+        label: "City",
         id: "city",
         placeholder: "City",
+        required : true
       },
 ]

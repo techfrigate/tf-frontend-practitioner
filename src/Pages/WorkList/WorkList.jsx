@@ -17,8 +17,7 @@ const WorkList = () => {
     setCurrentPage(selected);
   };
 
-  const handlePrescription = (item) => {
-    console.log(item.assignee);
+  const handlePrescription = () => {
     setShowPatientDetail(true);
   };
 
