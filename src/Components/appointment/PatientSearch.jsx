@@ -6,24 +6,22 @@ import Avatar from "@mui/material/Avatar";
 const PatientSearch = ({ patientsData, handlePatientSelect }) => {
   const [patientOptions, setPatientOptions] = useState([]);
 
-  const calculateAge = (dobString) => {
+  const calculatePreciseAge = (dobString) => {
     const dob = new Date(dobString);
     const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const monthDifference = today.getMonth() - dob.getMonth();
-    const dayDifference = today.getDate() - dob.getDate();
-    if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
-      age--;
-    }
-    return age;
+  
+    const ageInMilliseconds = today - dob;
+    const millisecondsInYear = 1000 * 60 * 60 * 24 * 365.25;  
+    const preciseAge = ageInMilliseconds / millisecondsInYear;
+    console.log(preciseAge, "precise age");
+    return preciseAge.toFixed(1);
   };
 
   useEffect(() => {
     const patients = patientsData.map((patient) => ({
       name: `${patient?.firstName} ${patient?.lastName}`,
-      age: calculateAge(patient.dob),
-      image:
-        "https://icons.veryicon.com/png/o/miscellaneous/user-avatar/user-avatar-male-5.png",
+      age: calculatePreciseAge(patient.dob),
+      image:patient.imageUrl  ? patient.imageUrl : "https://icons.veryicon.com/png/o/miscellaneous/user-avatar/user-avatar-male-5.png",
       data: patient,
     }));
     setPatientOptions(patients);

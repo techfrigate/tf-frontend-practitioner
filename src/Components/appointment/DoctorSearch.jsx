@@ -11,18 +11,20 @@ const DoctorSearch = ({ slotsData, handleDoctorSelect }) => {
     const num = Math.floor(value / 12);
     return `${num}.${rem}`;
   };
+ 
 
   useEffect(() => {
     const doctors = slotsData
       .filter((doc) => doc.slots?.[0]?.practitionerData)
       .map((doc) => ({
-        name: `${doc.slots[0].practitionerData.firstName} ${doc.slots[0].practitionerData.lastName}`,
+        name: `Dr. ${doc.slots[0].practitionerData.firstName} ${doc.slots[0].practitionerData.lastName}`,
         speciality:
           doc.slots[0].practitionerData.speciality ||
           "Speciality not available",
         experience: convertExperience(
           doc.slots[0].practitionerData.experience || 0
         ),
+        image: doc.slots[0].practitionerData.imageUrl || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-ECZ28iBTpFlNtSadX7LKKBAcliGr1TXOiw&s",
         data: doc,
       }));
     setDoctorOptions(doctors);
@@ -50,7 +52,7 @@ const DoctorSearch = ({ slotsData, handleDoctorSelect }) => {
             <Avatar
               sx={{ mr: 2 }}
               alt={option.name}
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-ECZ28iBTpFlNtSadX7LKKBAcliGr1TXOiw&s"
+              src={option.image}
             />
             <div>
               <p className="text-gray-800 font-semibold">{option.name}</p>

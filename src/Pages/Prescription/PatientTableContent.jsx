@@ -5,7 +5,7 @@ import { Badge } from "../../Components/ui/badge";
 import { Video } from "lucide-react";
 import GlobalTable from "../../Components/Common/GlobalTable";
 import { TableCell, TableRow } from "../../Components/ui/table";
-
+import {calculateAge} from "../../util/patientUtil.js"
 function PatientTableContent({ patients ,setChannelName ,setStatus }) {
   const formatTime = (dateString) => {
     const utcDate = parseISO(dateString);
@@ -21,14 +21,14 @@ function PatientTableContent({ patients ,setChannelName ,setStatus }) {
     const endTime = formatTime(endDateTime);
     return {
       date: formattedDate,
-      timeRange: `${startTime}–${endTime}`,
+      timeRange: `${startTime} – ${endTime}`,
     };
   };
 
   const tableHeaders = [
     "Patient Name",
     "Age & Gender",
-    "Team",
+    "Type of Meeting",
     "Appointment Time",
     "Status",
     "Type",
@@ -69,13 +69,13 @@ function PatientTableContent({ patients ,setChannelName ,setStatus }) {
           return (
             <TableRow key={index} className={`text-center`}>
               <TableCell>
-                {`${patient.practitionerData.firstName} ${patient.practitionerData.lastName}`}
+                {`${patient.patientData.firstName} ${patient.patientData.lastName}`}
               </TableCell>
-              <TableCell>{`34Y | M`}</TableCell>
-              <TableCell>{`Medical`}</TableCell>
+              <TableCell>{`${calculateAge(patient?.patientData?.dob)}Y | ${patient?.patientData?.gender?.charAt(0).toUpperCase()}`}</TableCell>
+              <TableCell>{patient.visitType}</TableCell>
 
               <TableCell>
-                {date}, {timeRange}
+                {date  + "   " + timeRange}
               </TableCell>
               <TableCell
                 className={`${

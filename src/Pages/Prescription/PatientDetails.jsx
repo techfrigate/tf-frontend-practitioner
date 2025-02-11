@@ -121,8 +121,6 @@ function PatientDetails() {
       } catch (error) {
         toast.error(error)
       }
-    
-
     } else {
       console.error("Appointment not found in prescriptionData");
     }

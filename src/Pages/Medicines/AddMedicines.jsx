@@ -9,7 +9,7 @@ import CustomButton from "../../Components/Common/CustomButton";
 import CustomInput from "../../Components/Common/CustomInput";
 import CustomSelect from "../../Components/Common/CustomSelect";
 import CommonLocationSelect from "../../Components/Common/CommonLocationSelect";
-import { formFields } from "./MedicinesData";
+import { MadicalformFields as formFields } from "../../util/data";
 import { fetchLocations } from "../../Store/locationSlice";
 import { createMedicine, getMedicineById, updateMedicine } from "../../Store/MedicinesSlice";
 import Cookies from "js-cookie";
@@ -242,6 +242,7 @@ const AddMedicines = () => {
         value={formData[field.id]}
         onChange={(e) => handleChange(field.id, e.target.value)}
         isInvalid={invalidFields[field.id]}
+        required={field.required}
       />
     );
   };
@@ -257,6 +258,7 @@ const AddMedicines = () => {
                 value={formData.locationName}
                 onChange={handleLocationSelect}
                 onClear={() => handleLocationSelect(null)}
+                isInvalid={invalidFields.locationName}
               />
             </div>
             <div className="flex flex-col  -mt-1">
@@ -268,7 +270,7 @@ const AddMedicines = () => {
                 onChange={(e) => handlePharmacySelect(e.target.value)}
                 isInvalid={invalidFields.pharmacyName}
                 isDisabled={!formData.locationName}
-                isClearable
+                required={true}
               />
             </div>
             {formFields.map((field) => (

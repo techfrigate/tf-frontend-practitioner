@@ -43,7 +43,7 @@ export const Country = [
   
 
   export const City= [
-  {
+{
     "id": "1",
     "name": "Bombuflat",
     "state_id": "1"
@@ -28750,3 +28750,82 @@ export const Country = [
   },
 ];
   
+// Madical Form Fields
+export const MadicalformFields = [
+  {
+    id: "medicineName",
+    label: "Medicine Name",
+    type: "text",
+    placeholder: "Name",
+    required:true
+  },
+  {
+    id: "genericName",
+    label: "Generic Name",
+    type: "text",
+    placeholder: "Generic Name",
+  },
+  {
+    id: "manufacturedBy",
+    label: "Manufactured By",
+    type: "text",
+    placeholder: "Manufactured By",
+  },
+  {
+    id: "unit",
+    label: "Unit",
+    type: "text",
+    placeholder: "Unit",
+    required:true
+  },
+  {
+    id: "rackName",
+    label: "Rack Name",
+    type: "text",
+    placeholder: "Rack Name",
+  },
+  {
+    id: "hsnCode",
+    label: "HSN Code",
+    type: "text",
+    placeholder: "HSN Code",
+  },
+  {
+    id: "snowmedCtCode",
+    label: "Snowmed CT Code",
+    type: "text",
+    placeholder: "Snowmed CT Code",
+  },
+  {
+    id: "gstPercentage",
+    label: "GST %",
+    type: "text",
+    placeholder: "GST %",
+    required:true
+  },
+  {
+    id: "minQuantity",
+    label: "Min Quantity",
+    type: "text",
+    placeholder: "Min Quantity",
+  },
+  {
+    id: "sale",
+    label: "Sale",
+    type: "text",
+    placeholder: "Sale",
+  },
+  {
+    id: "mrpPerUnit",
+    label: "MRP Per Unit ₹",
+    type: "text",
+    placeholder: "MRP Per Unit ₹",
+  },
+  {
+    id: "expiryDate",
+    label: "Expiry Date",
+    type: "date",  
+    placeholder: "Expiry Date",
+    required:true
+  },
+];
