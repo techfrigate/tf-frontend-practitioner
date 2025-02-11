@@ -5,6 +5,7 @@ import CustomButton from "../Common/CustomButton";
 import EditProfileModal from "./EditProfileModal";
 import ConfirmationModal from "./ConfirmationModal";
 import Cookies from "js-cookie";
+import { useSelector } from "react-redux";
 
 const PROVIDER_APP = process.env.REACT_APP_PROVIDER_URL;
 const PATIENT_APP = process.env.REACT_APP_PATIENT_URL;
@@ -27,42 +28,31 @@ const ProfileModal = () => {
     "https://t4.ftcdn.net/jpg/03/24/22/77/360_F_324227760_73JhXgDh5OFsYuymiMzn6s7FHHzf3Ef0.jpg"
   );
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
- 
+  const {profileData}  =  useSelector((state)=>state.profile)
+
   const [userTypes, setUserTypes] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
  
   const [selectedUserType, setSelectedUserType] = useState("practitioner");
   const [profile, setProfile] = useState(null);
 
-  useEffect(() => {
-    // Load profile data when component mounts
-    const storedProfile = localStorage.getItem("admin_profile");
-    if (storedProfile) {
-      try {
-        const parsedProfile = JSON.parse(storedProfile);
-        setProfile(parsedProfile);
-        setProfileImageUrl(parsedProfile.imageUrl)
-
-        const tenantId = Cookies.get("TenantId");
-        if (parsedProfile?.tenants) {
-          const findTenant = parsedProfile.tenants.find(
-            (elm) => elm.tenantId === tenantId
-          );
-          if (!findTenant) {
-            localStorage.clear();
-            window.location.href = SIGNIN_URL;
-            return;
-          }
-          setUserTypes(findTenant.userTypes || []);
-        }
-      } catch (error) {
-        console.error("Error parsing profile:", error);
-  
-        localStorage.clear();
+useEffect(() => {
+  if (profileData) {
+    setProfile(profileData);
+    setProfileImageUrl(profileData.imageUrl);
+    const tenantId = Cookies.get("TenantId");
+    if (profileData?.tenants) {
+      const findTenant = profileData.tenants.find(
+        (elm) => elm.tenantId === tenantId
+      );
+      if (!findTenant) {
         window.location.href = SIGNIN_URL;
+        return;
       }
+      setUserTypes(findTenant.userTypes || []);
     }
-  }, []);
+  }
+}, [profileData]);
 
   const openEditModal = () => setIsEditOpen(true);
   const closeEditModal = () => setIsEditOpen(false);
@@ -75,13 +65,10 @@ const ProfileModal = () => {
     localStorage.clear();
     window.location.href = SIGNIN_URL;
   };
+  console.log(profile)
 
   const cancelSignOut = () => setIsConfirmOpen(false);
 
-  const updateProfileImage = (newImageUrl) => {
-    setProfileImageUrl(newImageUrl);
-    closeEditModal();
-  };
 // eslint-disable-next-line
   const toggleUserTypeDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 // eslint-disable-next-line
@@ -227,8 +214,12 @@ const ProfileModal = () => {
         isOpen={isEditOpen}
         setIsOpen={setIsEditOpen}
         onClose={closeEditModal}
-        profileImageUrl={profileImageUrl}
-        updateProfileImage={updateProfileImage}
+        profileImageUrl={profile.imageUrl}
+        patientId={profile._id}
+        patient={{              
+          _id: profile._id,
+          userId: profile.userId
+        }}
       />
       <ConfirmationModal
         isOpen={isConfirmOpen}

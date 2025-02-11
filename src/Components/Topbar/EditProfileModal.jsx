@@ -1,24 +1,28 @@
 import React, { useState, useRef, useEffect } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import CustomButton from "../Common/CustomButton";
+import CustomImageInput from "../Common/CustomImageInput";
+import { getImageUrl } from "../../util/fileUploader";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { patchPatientById } from "../../Store/patientSlice";
+import { useNavigate } from "react-router-dom";
 
 const EditProfileModal = ({
   isOpen,
   onClose,
   profileImageUrl,
-  updateProfileImage,
+  patientId,
+  patient,
   setIsOpen,
 }) => {
   const [imageUrl, setImageUrl] = useState(profileImageUrl);
-  const [newImageFile, setNewImageFile] = useState(null);
-
+  const [isInvalid, setIsInvalid] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
   const modalRef = useRef();
-
-  const handleClickOutside = (event) => {
-    if (modalRef.current && !modalRef.current.contains(event.target)) {
-      setIsOpen(false);
-    }
-  };
 
   useEffect(() => {
     if (isOpen) {
@@ -30,21 +34,57 @@ const EditProfileModal = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  });
+  }, [isOpen]);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setNewImageFile(file);
-    setImageUrl(URL.createObjectURL(file));
-  };
-
-  const handleSave = () => {
-    if (newImageFile) {
-      const newImageUrl = imageUrl;
-      updateProfileImage(newImageUrl);
+  const handleClickOutside = (event) => {
+    if (modalRef.current && !modalRef.current.contains(event.target)) {
+      setIsOpen(false);
     }
   };
 
+  const handleImageChange = async (e) => {
+    try {
+      setIsLoading(true);
+      const url = await getImageUrl(e);
+      setImageUrl(url);
+      setIsInvalid(false);
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      toast.error('Failed to upload image');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!imageUrl) {
+      setIsInvalid(true);
+      return;
+    }
+  
+    try {
+      setIsLoading(true);
+      const updatePayload = {
+        id: patientId,         
+        userId: patient.userId, 
+        updates: {
+          imageUrl
+        }
+      };  
+      const result = await dispatch(patchPatientById(updatePayload)).unwrap();
+      
+      if (result) {
+        toast.success("Profile image updated successfully");
+        onClose();
+        navigate("/patients");
+      }
+    } catch (error) {
+      console.error('Update failed:', error);
+      toast.error(error?.message || "Failed to update profile image");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   if (!isOpen) return null;
 
   return (
@@ -53,15 +93,13 @@ const EditProfileModal = ({
         <div className="fixed inset-0 transition-opacity" aria-hidden="true">
           <div className="absolute inset-0 bg-gray-900/10 backdrop-blur-[1.5px]"></div>
         </div>
-
         <span
           className="hidden sm:inline-block sm:align-middle sm:h-screen"
           aria-hidden="true"
         >
           &#8203;
         </span>
-
-        <div className="inline-block align-bottom bg-white shadow-lg pb-10 pl-4 pt-2 text-left rounded-xl transform transition-all sm:my-8 sm:align-middle w-[100%] max-w-[36rem]">
+        <div className="inline-block align-bottom bg-white shadow-lg p-6 text-left rounded-xl transform transition-all sm:my-8 sm:align-middle w-[100%] max-w-[36rem]">
           <div className="relative bg-white rounded-xl" ref={modalRef}>
             <button
               onClick={onClose}
@@ -69,18 +107,25 @@ const EditProfileModal = ({
             >
               <AiOutlineClose />
             </button>
-            <h2 className="text-lg font-semibold mb-4">Edit Profile Image</h2>
-            <input type="file" accept="image/*" onChange={handleImageChange} />
-            {imageUrl && (
-              <img
-                src={imageUrl}
-                alt="Preview"
-                className="mt-4 w-32 h-32 object-cover rounded-full"
+            <h2 className="text-lg font-semibold mb-6">Edit Profile Image</h2>
+            <CustomImageInput
+              id="profile-image"
+              label="Profile Picture"
+              isInvalid={isInvalid}
+              onchange={handleImageChange}
+              imageUrl={imageUrl}
+            />
+            <div className="mt-6 flex justify-end gap-3">
+              <CustomButton 
+                onclick={handleSave} 
+                text={"Save"}
+                disabled={isLoading}
               />
-            )}
-            <div className="mt-4 px-4 py-2 flex justify-end gap-3">
-              <CustomButton onclick={handleSave} text={"Save"} />
-              <CustomButton onclick={onClose} text={"Cancel"} />
+              <CustomButton 
+                onclick={onClose} 
+                text="Cancel" 
+                disabled={isLoading}
+              />
             </div>
           </div>
         </div>

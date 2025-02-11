@@ -27,7 +27,6 @@ const PatientsTd = () => {
             new Date(item.updatedAt),
             "MMM dd, yyyy"
           );
-
           return (
             <tr
               key={item._id}
@@ -49,15 +48,14 @@ const PatientsTd = () => {
               </td>
               <td className="py-4 px-4 text-nowrap text-xs">{item.uhid}</td>
               <td className="py-4 px-4 text-nowrap text-xs">
-  <span
-    className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold
-      ${item.status ? 'bg-green-100 text-green-900 border-green-400' : 'bg-red-100 text-red-900 border-red-400'}
-    `}
-  >
-    {item.status ? 'Active' : 'Inactive'}
-  </span>
-</td>
-
+              <span
+                className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold
+                  ${item.status ? 'bg-green-100 text-green-900 border-green-400' : 'bg-red-100 text-red-900 border-red-400'}
+                `}
+              >
+                {item.status ? 'Active' : 'Inactive'}
+              </span>
+            </td>
               <td className="py-4 px-4 text-nowrap text-xs">{formattedDob}</td>
               <td className="py-4 px-4 text-nowrap text-xs">
                 {formattedUpdatedAt}
