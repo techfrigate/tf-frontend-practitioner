@@ -39,3 +39,9 @@ export const allowedTransitions = {
   "Checked Out": ["Closed"],
   Closed: [],
 };
+
+export function calculateAge(dobString) {
+  const dobYear = new Date(dobString).getFullYear();
+  const currentYear = new Date().getFullYear();
+  return currentYear - dobYear;
+}

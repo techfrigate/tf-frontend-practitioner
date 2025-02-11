@@ -30,7 +30,7 @@ const Appointment = () => {
     patient: { patients, slotsStatus },
   } = useSelector((state) => state);
   const dispatch = useDispatch();
-
+ 
   useEffect(() => {
     dispatch(getSlots());
     dispatch(fetchPatients({ page: null, limit: null }));
@@ -57,7 +57,7 @@ const Appointment = () => {
       setSelectedDate({});
     }
   }, [consultationDateshow, selectedDoctor]);
-
+console.log(selectedPatient,"sele")
   useEffect(() => {
     if (!selectedDoctor || !selectedDoctor.slots) return;
     const selectedSlot = selectedDoctor.slots.find(
@@ -127,7 +127,7 @@ const Appointment = () => {
       { morningSlots: [], afternoonSlots: [], eveningSlots: [] }
     );
   };
-
+ 
   const handleBookAppointment = () => {
     const slotSelected = selectedDoctor?.slots.find(
       (elm) => elm._id === selectedDate.slotId
@@ -137,6 +137,7 @@ const Appointment = () => {
       consultationType === "Online"
         ? selectedDoctor?.slots[0]?.practitionerData?.onlineFees
         : selectedDoctor?.slots[0]?.practitionerData?.inPersonFees;
+    const{ imageUrl, firstName, lastName, email, phoneNumber:{dialCode,value}, gender, dob } = selectedPatient
 
     const body = {
       slotId: selectedDate.slotId,
@@ -151,6 +152,7 @@ const Appointment = () => {
         discount: 0,
         netAmount: (amount * 118) / 100,
       },
+      patientData:{firstName,lastName,email,dialCode,number:value,gender,dob,imageUrl},
       paymentMethod: "online",
       paymentStatus: "pending",
       bookingStatus: { pending: new Date() },

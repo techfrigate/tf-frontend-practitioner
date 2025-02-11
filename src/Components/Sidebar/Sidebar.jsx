@@ -95,15 +95,15 @@ const Sidebar = () => {
   return (
     <div className="pb-3 pt-[9px] h-full w-[16%] ">
       <div className="bg-gray-50 pl-[8px]   h-[100%] rounded-md  ">
-        <div className="flex items-center gap-2 pt-[10px] pb-[12px] px-[10px]   ">
+        <div className="flex items-center gap-2 pt-4 pb-[12px] px-[10px] ml-4 ">
           <img
             src={tenant?.businessInformation?.displayImage}
             alt="tenant Name"
-            className="w-8 h-8 object-cover"
+            className="w-10 h-10 object-cover"
           />
-          <div className="flex items-center justify-between gap-10">
+          {/* <div className="flex items-center justify-between gap-10">
             <h2 className="text-[20px] font-bold">CareDr</h2>
-          </div>
+          </div> */}
         </div>
 
         <div

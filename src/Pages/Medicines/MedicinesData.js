@@ -1,4 +1,4 @@
-export const formFields = [
+export const MadicalformFields = [
   {
     id: "medicineName",
     label: "Medicine Name*",

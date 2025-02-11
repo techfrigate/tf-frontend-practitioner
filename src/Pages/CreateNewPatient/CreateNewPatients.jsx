@@ -137,7 +137,7 @@ async function handleSavePatient() {
   };
  
     try {
-     !patientId ? await dispatch(addPatient({...body,tenants,uhid})).unwrap():dispatch(patchPatientById({ id: patientId, userId: patient.userId, updates:body })).unwrap();
+     !patientId ? await dispatch(addPatient({...body,tenants,uhid,status:true})).unwrap():dispatch(patchPatientById({ id: patientId, userId: patient.userId, updates:body })).unwrap();
       toast.success(`Patient ${patientId ? "updated" : "added"} successfully`);
       navigate("/patients");
     } catch (error) {
