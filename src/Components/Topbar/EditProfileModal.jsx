@@ -64,16 +64,13 @@ const EditProfileModal = ({
   
     try {
       setIsLoading(true);
-            const updatePayload = {
+      const updatePayload = {
         id: patientId,         
         userId: patient.userId, 
         updates: {
           imageUrl
         }
-      };
-  
-      console.log('Sending update payload:', updatePayload);
-  
+      };  
       const result = await dispatch(patchPatientById(updatePayload)).unwrap();
       
       if (result) {
@@ -121,7 +118,7 @@ const EditProfileModal = ({
             <div className="mt-6 flex justify-end gap-3">
               <CustomButton 
                 onclick={handleSave} 
-                text={isLoading ? "Saving..." : "Save"}
+                text={"Save"}
                 disabled={isLoading}
               />
               <CustomButton 
