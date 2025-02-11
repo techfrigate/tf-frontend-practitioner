@@ -75,6 +75,7 @@ const ProfileModal = () => {
     localStorage.clear();
     window.location.href = SIGNIN_URL;
   };
+  console.log(profile)
 
   const cancelSignOut = () => setIsConfirmOpen(false);
 
@@ -227,8 +228,12 @@ const ProfileModal = () => {
         isOpen={isEditOpen}
         setIsOpen={setIsEditOpen}
         onClose={closeEditModal}
-        profileImageUrl={profileImageUrl}
-        updateProfileImage={updateProfileImage}
+        profileImageUrl={profile.imageUrl}
+        patientId={profile._id}
+        patient={{              
+          _id: profile._id,
+          userId: profile.userId
+        }}
       />
       <ConfirmationModal
         isOpen={isConfirmOpen}
