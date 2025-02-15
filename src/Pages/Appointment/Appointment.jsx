@@ -57,7 +57,7 @@ const Appointment = () => {
       setSelectedDate({});
     }
   }, [consultationDateshow, selectedDoctor]);
-console.log(selectedPatient,"sele")
+ 
   useEffect(() => {
     if (!selectedDoctor || !selectedDoctor.slots) return;
     const selectedSlot = selectedDoctor.slots.find(
@@ -135,9 +135,9 @@ console.log(selectedPatient,"sele")
     const patientId = selectedPatient?._id;
     const amount =
       consultationType === "Online"
-        ? selectedDoctor?.slots[0]?.practitionerData?.onlineFees
-        : selectedDoctor?.slots[0]?.practitionerData?.inPersonFees;
-    const{ imageUrl, firstName, lastName, email, phoneNumber:{dialCode,value}, gender, dob } = selectedPatient
+        ? selectedDoctor?.slots[0]?.practitionerData?.work.online
+        : selectedDoctor?.slots[0]?.practitionerData?.work.inPerson;
+    
 
     const body = {
       slotId: selectedDate.slotId,
@@ -152,16 +152,13 @@ console.log(selectedPatient,"sele")
         discount: 0,
         netAmount: (amount * 118) / 100,
       },
-      patientData:{firstName,lastName,email,dialCode,number:value,gender,dob,imageUrl},
       paymentMethod: "online",
       paymentStatus: "pending",
       bookingStatus: { pending: new Date() },
       startDateTime: selectedTimeSlot.startDateTime,
       endDateTime: selectedTimeSlot.endDateTime,
-      visitType: slotSelected.visitType,
+      visitType:consultationType,
       duration: slotSelected.duration,
-      practitionerData: { ...slotSelected.practitionerData },
-      locationData: { ...slotSelected.locationData },
     };
 
     dispatch(
@@ -194,7 +191,7 @@ console.log(selectedPatient,"sele")
 
 
   if (slotsStatus === "loading") return <Loader />;
-
+ 
   return (
     <div className="px-3 py-3 h-[100%] customScrollbar">
       {showPayment ? (

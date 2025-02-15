@@ -24,7 +24,7 @@ export const getSlots = createAsyncThunk(
          // practitionerid:Cookies.get("UserId")
         },
       });
-     console.log(response.data,"get slots data");
+    
       return response.data;
     } catch (error) {
       console.log(error,"get slots error");

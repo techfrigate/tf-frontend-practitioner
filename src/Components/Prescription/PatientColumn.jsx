@@ -49,17 +49,17 @@ const PatientColumn = ({ patient, setChannelName, setStatus }) => {
             <Avatar className="w-16 h-16 border-2 border-gray-200">
               <AvatarImage src={patient?.patientData?.imageUrl} />
               <AvatarFallback>
-                {patient.patientData?.firstName.charAt(0) + " " + patient.patientData?.lastName.charAt(0)}
+                {patient?.patientData?.firstName.charAt(0) + " " + patient?.patientData?.lastName.charAt(0)}
               </AvatarFallback>
             </Avatar>
             <div>
               <h1 className="text-xl font-semibold text-gray-800">
-                {`${patient.patientData?.firstName} ${patient.patientData?.lastName}`}
+                {`${patient?.patientData?.firstName} ${patient?.patientData?.lastName}`}
               </h1>
               <p className="text-gray-600 text-sm">{`${calculateAge(patient?.patientData?.dob)}Y | ${patient?.patientData?.gender?.charAt(0).toUpperCase()}`}</p>
               <div className="flex items-center space-x-2 mt-1 text-gray-600">
                 <Phone className="w-4 h-4" />
-                <span className="text-sm">{patient?.patientData?.dialCode + patient?.patientData?.number || "N/A"}</span>
+                <span className="text-sm">{patient?.patientData?.phoneNumber?.dialCode + patient?.patientData?.phoneNumber?.value || "N/A"}</span>
               </div>
             </div>
           </div>
@@ -86,7 +86,7 @@ const PatientColumn = ({ patient, setChannelName, setStatus }) => {
               <Badge variant="forestLight">{patient.visitType}</Badge>
               {patient?.bookingStatus?.checkIn &&
                 !patient.bookingStatus?.checkOut &&
-                !patient?.bookingStatus?.closed && (
+                !patient?.bookingStatus?.closed && patient.visitType === "Online" && (
                   <CustomTooltip content={`Video call`}>
                     <Video className="text-green-500 hover:text-green-600 transition-colors cursor-pointer" size={22} />
                   </CustomTooltip>

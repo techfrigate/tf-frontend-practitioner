@@ -35,6 +35,7 @@ function PatientDetails() {
     dispatch(getPrescriptions({ practitionerId: profileData?._id }));
   }
 
+
   useEffect(() => {
     const filtered = {
       Scheduled: [],
@@ -80,9 +81,6 @@ function PatientDetails() {
       }
 
       if (!allowedTransitions[currentStatusKey]?.includes(newStatus)) {
-        showErrorToast(
-          `Can't change status from ${currentStatusKey} to ${newStatus}.`
-        );
         return;
       }
 
