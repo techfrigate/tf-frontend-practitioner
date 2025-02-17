@@ -259,47 +259,27 @@ const AddBill = () => {
       </div>
       {selectedLocation && selectedPatient && selectedDoctor && (
         <div className="mt-4 bg-white rounded-2xl p-6 shadow-md">
-          {/* <div className="flex items-center justify-between space-x-10">
-          <ServiceDropdown 
-            onAddService={handleAddService} 
-            billId={billId} 
-            billIdFromUrl={billIdFromUrl}
-            selectedLocation={selectedLocation} 
-            medicines={medicines}
-          />
-          <div className="border-b border-gray-100 mt-5">
-            <div className="flex items-center space-x-2 ">
-              <IndianRupee className="w-5 h-5 text-gray-600" />
-              <h2 className="text-xl font-semibold text-gray-900">Added Services</h2>
-            </div>
-            <BillTable 
-              bills={bills} 
-              onDelete={handleDeleteService} 
-              totalAmount={totalAmount} 
-            />
-          </div>
-          </div> */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-  <ServiceDropdown 
-    onAddService={handleAddService} 
-    billId={billId} 
-    billIdFromUrl={billIdFromUrl}
-    selectedLocation={selectedLocation} 
-    medicines={medicines}
-  />
-  <div>
-    <div className="flex items-center space-x-2 mb-4">
-      <IndianRupee className="w-5 h-5 text-gray-600" />
-      <h2 className="text-xl font-semibold text-gray-900">Added Services</h2>
-    </div>
-    <BillTable 
-      bills={bills} 
-      onDelete={handleDeleteService} 
-      totalAmount={totalAmount}
-      billIdFromUrl={billIdFromUrl}
-    />
-  </div>
-</div>
+            <ServiceDropdown 
+              onAddService={handleAddService} 
+              billId={billId} 
+              billIdFromUrl={billIdFromUrl}
+              selectedLocation={selectedLocation} 
+              medicines={medicines}
+            />
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <IndianRupee className="w-5 h-5 text-gray-600" />
+                <h2 className="text-xl font-semibold text-gray-900">Added Services</h2>
+              </div>
+              <BillTable 
+                bills={bills} 
+                onDelete={handleDeleteService} 
+                totalAmount={totalAmount}
+                billIdFromUrl={billIdFromUrl}
+              />
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-3">
             <div className="space-y-1">
               <div className="flex justify-between items-center text-gray-600">
