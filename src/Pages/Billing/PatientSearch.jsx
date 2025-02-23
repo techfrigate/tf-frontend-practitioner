@@ -140,7 +140,7 @@ const PatientSearch = ({
       ) : (
         <div
           className="flex items-center gap-3 p-1.5 bg-emerald-50 border-2 border-emerald-500 
-            rounded-2xl w-full md:w-[28rem] group cursor-pointer transition-all duration-200
+            rounded-2xl w-full md:w-[26rem] group cursor-pointer transition-all duration-200
             hover:bg-emerald-100 shadow-sm"
         >
           <div className="bg-emerald-100 p-2 rounded-lg">
