@@ -28,7 +28,7 @@ const PatientSearch = ({
 
   const filteredPatients =
     searchQuery.trim() === ""
-      ? patients
+      ? patients.filter(patient => patient.status === true)
       : patients.filter((patient) => {
           const searchLower = searchQuery.toLowerCase();
           const fullName =
@@ -37,9 +37,11 @@ const PatientSearch = ({
           const email = patient.email?.toLowerCase() || "";
 
           return (
-            fullName.includes(searchLower) ||
-            phone.includes(searchLower) ||
-            email.includes(searchLower)
+            patient.status === true && (
+              fullName.includes(searchLower) ||
+              phone.includes(searchLower) ||
+              email.includes(searchLower)
+            )
           );
         });
 
@@ -66,7 +68,7 @@ const PatientSearch = ({
             </div>
             <Input
               type="text"
-              placeholder="Search patients by name, phone, or email..."
+              placeholder="Search active patients by name, phone, or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsVisible(true)}
@@ -119,7 +121,6 @@ const PatientSearch = ({
                         <Mail className="h-4 w-4" />
                         <span>{patient.email || "No email"}</span>
                       </div>
-
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
                         <span>Age: {calculateAge(patient.dob)}</span>
@@ -131,7 +132,7 @@ const PatientSearch = ({
             ))}
             {filteredPatients.length === 0 && (
               <div className="text-center py-8 text-gray-500 text-sm">
-                No patients found matching your search
+                No active patients found matching your search
               </div>
             )}
           </div>

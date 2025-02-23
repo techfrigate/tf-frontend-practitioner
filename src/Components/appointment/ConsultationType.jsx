@@ -22,7 +22,7 @@ const ConsultationType = ({ consultationType, handleConsultationChange, selected
         {availableConsultationTypes.includes("Offline") && (
           <div
             onClick={() => handleConsultationChange("Offline")}
-            className={`flex items-center justify-between p-3 border-2 rounded-lg cursor-pointer transition-colors duration-300 ${
+            className={`flex items-center justify-between p-3 border-2 rounded-2xl cursor-pointer transition-colors duration-300 ${
               consultationType === "Offline"
                 ? "bg-gray-200 border-gray-700"
                 : "bg-white border-gray-300"
@@ -42,7 +42,7 @@ const ConsultationType = ({ consultationType, handleConsultationChange, selected
         {availableConsultationTypes.includes("Online") && (
           <div
             onClick={() => handleConsultationChange("Online")}
-            className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors duration-300 ${
+            className={`flex items-center justify-between p-4 border-2 rounded-2xl cursor-pointer transition-colors duration-300 ${
               consultationType === "Online"
                 ? "bg-gray-200 border-gray-700"
                 : "bg-white border-gray-300"

@@ -18,18 +18,26 @@ const PatientSearch = ({ patientsData, handlePatientSelect }) => {
   };
 
   useEffect(() => {
-    const patients = patientsData.map((patient) => ({
-      name: `${patient?.firstName} ${patient?.lastName}`,
-      age: calculatePreciseAge(patient.dob),
-      image:patient.imageUrl  ? patient.imageUrl : "https://icons.veryicon.com/png/o/miscellaneous/user-avatar/user-avatar-male-5.png",
-      data: patient,
-    }));
+    const patients = patientsData
+      .filter(patient => patient.status === true)
+      .map((patient) => ({
+        name: `${patient?.firstName} ${patient?.lastName}`,
+        age: calculatePreciseAge(patient.dob),
+        image: patient.imageUrl || "https://icons.veryicon.com/png/o/miscellaneous/user-avatar/user-avatar-male-5.png",
+        data: patient,
+      }));
     setPatientOptions(patients);
   }, [patientsData]);
 
   return (
     <Autocomplete
-      sx={{ width: "100%" }}
+    sx={{ width: "100%", "& .MuiOutlinedInput-root": {
+      borderRadius: "20px",
+    },
+    "& .MuiAutocomplete-paper": {
+      borderRadius: "20px", 
+      marginTop: "8px"
+    } }}
       disablePortal
       options={patientOptions}
       getOptionLabel={(option) => option.name || ""}
