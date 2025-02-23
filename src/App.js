@@ -36,7 +36,7 @@ function handleDocumentTitle(location) {
 function App() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
@@ -74,9 +74,9 @@ function App() {
 
   return (
     <div className="flex bg-gray-200 h-[100vh] ">
-      <Sidebar />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}/>
       <div className="flex flex-col w-full h-[100vh] box-border overflow-hidden">
-        <Topbar toggleCreateProviderForm={toggleCreateProviderForm} />
+        <Topbar toggleCreateProviderForm={toggleCreateProviderForm}  onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}/>
         <div className="px-2 pb-3 h-full w-full overflow-y-hidden">
           <div className={`w-full h-full customScrollbar rounded-md bg-white`}>
             <Suspense fallback={<Loader/>}>

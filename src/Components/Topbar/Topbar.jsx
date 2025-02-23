@@ -11,8 +11,9 @@ import HospitalModal from "./HospitalModal";
 import Cookies from "js-cookie";
 import Swal from 'sweetalert2';
 import { useSelector } from "react-redux";
+import { HiOutlineMenuAlt2 } from "react-icons/hi";
 
-const Topbar = ({ toggleCreateProviderForm, showForm }) => {
+const Topbar = ({ toggleCreateProviderForm, showForm,onMenuClick }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
@@ -149,7 +150,12 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
 
   return (
     <div className="w-full p-2  ">
-      <div className="bg-white rounded-md px-10 py-2 flex justify-between items-center">
+      <div className="bg-white rounded-md lg:pl-10 pl-6 pr-10 py-2 flex justify-between items-center">
+       
+      <div className="flex items-center gap-4 justify-center">
+      <button onClick={onMenuClick} className="lg:hidden">
+            <HiOutlineMenuAlt2 size={25} />
+          </button>
         <div className="flex flex-col justify-center items-start gap-1">
           <HospitalModal
             selectedTenant={selectedTenant}
@@ -167,6 +173,7 @@ const Topbar = ({ toggleCreateProviderForm, showForm }) => {
             ))}
           </p>
         </div>
+      </div>
         <div className="flex gap-10 justify-between  items-center ">
           <div className="flex items-center gap-6 text-[#64C6B0] relative">
             <div>{ window.location.href.includes("billing") &&!showForm && (
