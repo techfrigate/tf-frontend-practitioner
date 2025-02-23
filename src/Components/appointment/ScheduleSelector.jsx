@@ -27,7 +27,7 @@ const ScheduleSelector = ({
   return (
     <div
       style={{ boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px" }}
-      className="mt-4 w-full max-w-lg bg-white rounded-lg p-4"
+      className="mt-4 w-full max-w-lg bg-white rounded-xl p-4"
     >
       <h2 className="text-lg font-semibold text-gray-800 mb-4">
         Select Schedule

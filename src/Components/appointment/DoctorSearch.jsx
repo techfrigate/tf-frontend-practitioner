@@ -32,7 +32,13 @@ const DoctorSearch = ({ slotsData, handleDoctorSelect }) => {
 
   return (
     <Autocomplete
-      sx={{ width: "100%" }}
+      sx={{ width: "100%", "& .MuiOutlinedInput-root": {
+        borderRadius: "20px",
+      },
+      "& .MuiAutocomplete-paper": {
+        borderRadius: "20px", 
+        marginTop: "8px"
+      } }}
       disablePortal
       options={doctorOptions}
       getOptionLabel={(option) => option.name || ""}

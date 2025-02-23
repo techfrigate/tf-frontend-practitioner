@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getRosters } from "../../Store/rosterSlice";
-import Loading from "../../Components/Common/Loading";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -22,7 +21,7 @@ const renderEventContent = (eventInfo) => {
     <Dialog>
       <DialogTrigger asChild>
         <div
-          className="px-1 py-0.5 rounded-sm overflow-hidden text-[0.90em] cursor-pointer"
+          className="px-1 py-1 rounded-sm overflow-hidden text-[0.90em] cursor-pointer"
           style={{
             backgroundColor: eventInfo.event.backgroundColor,
             color: eventInfo.event.textColor,
@@ -33,7 +32,7 @@ const renderEventContent = (eventInfo) => {
           <div>{eventInfo.event.title}</div>
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent >
         <DialogHeader>
           <DialogTitle> {eventInfo.event.title}</DialogTitle>
           <DialogDescription>
@@ -75,7 +74,7 @@ const Calendar = () => {
         const color = colors[index % colors.length];
         return {
           id: roster._id,
-          title: `Appointment with Dr. ${roster.practitionerData.firstName} ${roster.practitionerData.lastName}`,
+          title: `Appointment with Dr. ${profileData?.firstName} ${profileData?.lastName}`,
           start: startTime,
           end: endTime,
           backgroundColor: color,
@@ -89,7 +88,7 @@ const Calendar = () => {
       });
 
       setRosterData(() => newEvents);
-    }
+    }// eslint-disable-next-line
   }, [rostersData]);
 
   return (
