@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { setStatusFail } from './statusFailSlice';
 
 const initialState = {
   profileData: null,
@@ -16,7 +17,10 @@ const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
 // Async thunk for fetching user profile
 export const fetchUserProfile = createAsyncThunk(
   'profile/fetchUserProfile',
-  async ({ userId, accessToken, tenantId }, {rejectWithValue}) => {
+  async ({ userId, accessToken, tenantId,navigate }, {rejectWithValue,dispatch}) => {
+    Cookies.set("Token",accessToken);
+    Cookies.set("UserId",userId);
+    Cookies.set("TenantId", tenantId);
     try {
       const response = await axios.get(`${ACCOUNTS_URL}/profiles/user-profile/${userId}`, {
           headers: {
@@ -36,8 +40,17 @@ export const fetchUserProfile = createAsyncThunk(
       );
       return response.data.profile;
     } catch (error) {
-      console.log("practitioner error", error);
-      return rejectWithValue(error.response.data);
+    let message=  error?.response?.data?.message || "Something went wrong"
+      let route=  "/unauthorized"
+
+      if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }else{
+        navigate(route)
+      }
+      
+      return rejectWithValue(message);
     }
   }
 );
@@ -45,7 +58,7 @@ export const fetchUserProfile = createAsyncThunk(
 
 export const fetchLocationProfiles = createAsyncThunk(
   'profile/fetchLocationProfiles',
-  async ({ tenantId, locationId, userType, accessToken }, { rejectWithValue }) => {
+  async ({ tenantId, locationId, userType, accessToken }, { rejectWithValue, dispatch }) => {
     try {
       const headers = {
         'Content-Type': 'application/json',
@@ -69,7 +82,10 @@ export const fetchLocationProfiles = createAsyncThunk(
       localStorage.setItem('location_profiles', JSON.stringify(response.data));
       return response.data;
     } catch (error) {
-      console.error('Error fetching location profiles:', error);
+      if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
       return rejectWithValue(error.response?.data || 'An error occurred');
     }
   }

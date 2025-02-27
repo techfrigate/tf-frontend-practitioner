@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { setStatusFail } from "./statusFailSlice";
 
 const initialState = {
   billing: {},        
@@ -14,7 +15,7 @@ const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
 
 export const createBilling = createAsyncThunk(
   "billing/createBilling",
-  async (body, { rejectWithValue }) => {
+  async (body, { rejectWithValue ,dispatch}) => {
     try {
       const response = await axios.post(
         `${ADMIN_URL}/billing`,
@@ -29,6 +30,10 @@ export const createBilling = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
+       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+              const route = "/status-failed"
+              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+            }
       return rejectWithValue(error.response?.data?.message || "An error occurred");
     }
   }
@@ -36,7 +41,7 @@ export const createBilling = createAsyncThunk(
 
 export const getBillingById = createAsyncThunk(
   "billing/getBillingById",
-  async (billId, { rejectWithValue }) => {
+  async (billId, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.get(`${ADMIN_URL}/billing/${billId}`, {
         headers: {
@@ -47,6 +52,10 @@ export const getBillingById = createAsyncThunk(
       console.log(response.data,"bill data")
       return response.data; 
     } catch (error) {
+      if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
       return rejectWithValue(error.response?.data?.message || "An error occurred");
     }
   }
@@ -55,7 +64,7 @@ export const getBillingById = createAsyncThunk(
 
 export const getAllBillings = createAsyncThunk(
   "billing/getAllBillings",
-  async ({ currentPage, itemsPerPage, sortBy, order,doctorId }, { rejectWithValue }) => {
+  async ({ currentPage, itemsPerPage, sortBy, order,doctorId }, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.get(`${ADMIN_URL}/billing`, {
         params: {
@@ -75,6 +84,10 @@ export const getAllBillings = createAsyncThunk(
 
       return response.data; 
     } catch (error) {
+      if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
       return rejectWithValue(error.response?.data?.message || "An error occurred");
     }
   }
@@ -82,7 +95,7 @@ export const getAllBillings = createAsyncThunk(
 
 export const updateBilling = createAsyncThunk(
   "billing/updateBilling",
-  async ({ billId, body }, { rejectWithValue }) => {
+  async ({ billId, body }, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.patch(
         `${ADMIN_URL}/billing/${billId}`,
@@ -97,6 +110,10 @@ export const updateBilling = createAsyncThunk(
       console.log(response.data)
       return response.data;  
     } catch (error) {
+      if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
       return rejectWithValue(error.response?.data?.message || "An error occurred");
     }
   }

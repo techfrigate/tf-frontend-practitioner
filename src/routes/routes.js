@@ -1,6 +1,8 @@
 import { Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute"
 import { lazy } from "react";
+import StatusFail from "../Components/Common/StatusFail";
+ 
 const WorkList  =  lazy(()=>import("../Pages/WorkList/WorkList"))
 const Calendar  =  lazy(()=>import("../Pages/Calendar/Calendar"))
 const Billing  =  lazy(()=>import("../Pages/Billing/Billing"))
@@ -35,6 +37,7 @@ const routes = [
     { path: "/payment", component: <ProtectedRoute><Payment/></ProtectedRoute> },
     { path: "/fillDetails",component: <ProtectedRoute><PatientInfoCategories /> </ProtectedRoute>},
     { path: "/unauthorized", component: <UnauthorizedModal/>},
+    { path: "/status-failed", component: <StatusFail/> },
     { path: "*", component: <NotFound/>},
     
 ]

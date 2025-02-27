@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "js-cookie"
+import { setStatusFail } from "./statusFailSlice";
 const initialState = {
   patients: [],
   status: 'idle',
@@ -16,7 +17,7 @@ const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
 const PRACTITIONER_URL =  process.env.REACT_APP_PRACTITIONER_URL
 export const fetchPatients = createAsyncThunk(
   'patient/fetchPatients',
-  async ({ page, limit,order }, { rejectWithValue }) => {
+  async ({ page, limit,order }, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.get(`${ACCOUNTS_URL}/profiles`, {
         headers: {
@@ -33,7 +34,10 @@ export const fetchPatients = createAsyncThunk(
       console.log(response.data,"patient data");
       return { data: response.data.profiles, totalPages: response.data.totalPages };
     } catch (error) {
-      console.log(error,"patient error");
+    if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+           const route = "/status-failed"
+           await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+         }
       return rejectWithValue(error.response ? error.response.data : error.message);
     }
   }
@@ -41,7 +45,7 @@ export const fetchPatients = createAsyncThunk(
 
 export const addPatient = createAsyncThunk(
   'patient/addPatient',
-  async (newPatient, { rejectWithValue }) => {
+  async (newPatient, { rejectWithValue,dispatch }) => {
   
     try {
       const response = await axios.post(`${ACCOUNTS_URL}/profiles/practioner-profile`, newPatient, {
@@ -52,7 +56,10 @@ export const addPatient = createAsyncThunk(
       });
      return response.data;
     } catch (error) {
-      console.log(error)
+       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+              const route = "/status-failed"
+              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+            }
       return rejectWithValue(error.response ? error.response.data : error.message);
     }
   }
@@ -60,7 +67,7 @@ export const addPatient = createAsyncThunk(
 
 export const fetchPatientById = createAsyncThunk(
   'patient/fetchPatientById',
-  async (id, { rejectWithValue }) => {
+  async (id, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.get(`${ACCOUNTS_URL}/profiles/${id}`, {
         headers: {
@@ -69,7 +76,10 @@ export const fetchPatientById = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      console.log(error);
+       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+              const route = "/status-failed"
+              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+            }
       return rejectWithValue(error.response ? error.response.data : error.message);
     }
   }
@@ -77,7 +87,7 @@ export const fetchPatientById = createAsyncThunk(
 
 export const patchPatientById = createAsyncThunk(
   'patient/patchPatientById',
-  async ({ id, userId, updates}, { rejectWithValue }) => { 
+  async ({ id, userId, updates}, { rejectWithValue,dispatch }) => { 
 
     try {
       const response = await axios.patch(`${ACCOUNTS_URL}/profiles/${id}/${userId}`, updates, {
@@ -88,6 +98,10 @@ export const patchPatientById = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
+       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+              const route = "/status-failed"
+              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+            }
       return rejectWithValue(error.response ? error.response.data : error.message);
     }
   }

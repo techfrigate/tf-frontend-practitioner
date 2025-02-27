@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useLocation, useSearchParams } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Suspense, useEffect, useState } from "react";
 import Cookies from 'js-cookie';
 import { useDispatch, useSelector } from "react-redux";
@@ -47,10 +47,10 @@ function App() {
   const tenantId = searchParams.get("ti") ||  Cookies.get("TenantId");
 
  const {profileData}  =  useSelector((state)=>state.profile)
- 
+ const navigate = useNavigate();
   useEffect(() => {
     if (userId && accessToken && tenantId && !profileData) {
-      dispatch(fetchUserProfile({ userId, accessToken, tenantId }));
+      dispatch(fetchUserProfile({ userId, accessToken, tenantId, navigate}));
     }
 
     setTimeout(() => {
@@ -62,6 +62,19 @@ function App() {
   useEffect(()=>{
    handleDocumentTitle(location)
   },[location])
+
+  
+  useEffect(() => {
+    const handleRouteChange = () => {
+      navigate(window.location.pathname);  
+    };
+
+    window.addEventListener("customRouteChange", handleRouteChange);
+
+    return () => {
+      window.removeEventListener("customRouteChange", handleRouteChange);
+    };
+  }, [navigate]);
   
   const toggleCreateProviderForm = () => {
     setShowForm((prevShowForm) => !prevShowForm);
