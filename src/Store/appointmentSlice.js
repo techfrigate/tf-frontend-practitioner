@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { editSlotStatus, getSlots } from "./slotsSlice";
 import Cookies from "js-cookie";
+import { setStatusFail } from "./statusFailSlice";
 
 const initialState = {
   appointment: {},
@@ -34,7 +35,10 @@ export const createAppointment = createAsyncThunk(
       setShowPayment(true);
       return response.data;
     } catch (error) {
-      console.log(error);
+      if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
       return rejectWithValue(error.response.data.message);
     }
   }
@@ -43,7 +47,7 @@ export const createAppointment = createAsyncThunk(
 // Get Prescriptions
 export const getPrescriptions = createAsyncThunk(
   "prescription/getPrescriptions",
-  async ({ practitionerId }, { rejectWithValue }) => {
+  async ({ practitionerId }, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.get(
         `${ADMIN_URL}/appointments/practitioner-appointments`,
@@ -58,7 +62,10 @@ export const getPrescriptions = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      console.log(error, "get Prescriptions error");
+     if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
       return rejectWithValue(error.response?.data?.message || "An error occurred");
     }
   }
@@ -82,7 +89,10 @@ export const updateAppointment = createAsyncThunk(
       console.log(response.data);
       return response.data;
     } catch (error) {
-      console.log(error);
+      if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
       return rejectWithValue(error.response?.data?.message || "An error occurred");
     }
   }

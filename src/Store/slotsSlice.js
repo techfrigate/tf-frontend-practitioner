@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "js-cookie"
+import { setStatusFail } from "./statusFailSlice";
 const initialState = {
   slotsData: [],
   slotsStatus: "idle",
@@ -14,7 +15,7 @@ const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
 
 export const getSlots = createAsyncThunk(
   "slots/getSlots",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue ,dispatch}) => {
     try {
       const response = await axios.get(`${ADMIN_URL}/slots`, {
         headers: {
@@ -27,7 +28,10 @@ export const getSlots = createAsyncThunk(
     
       return response.data;
     } catch (error) {
-      console.log(error,"get slots error");
+      if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+             const route = "/status-failed"
+             await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+           }
       return rejectWithValue(error.response.data.message);
     }
   }
@@ -49,6 +53,10 @@ export const editSlotStatus = createAsyncThunk(
       dispatch(getSlots());
       console.log(res,"slote update res",slotId,slotDetailSlotId);
     } catch (error) {
+       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+              const route = "/status-failed"
+              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+            }
       return rejectWithValue("error")
     }
   }

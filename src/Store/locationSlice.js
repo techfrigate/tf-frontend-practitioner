@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { setStatusFail } from "./statusFailSlice";
 
 const initialState = {
   locations: [],
@@ -15,7 +16,7 @@ const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
 
 export const fetchLocations = createAsyncThunk(
   "locations/fetchLocations",
-  async ({ currentPage, itemsPerPage, sortBy, order }, { rejectWithValue }) => {
+  async ({ currentPage, itemsPerPage, sortBy, order }, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.get(`${ADMIN_URL}/locations`, {
         params: {
@@ -32,7 +33,10 @@ export const fetchLocations = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      console.log(error, "caling");
+     if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+            const route = "/status-failed"
+            await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+          }
       return rejectWithValue(error.response.data.message);
     }
   }

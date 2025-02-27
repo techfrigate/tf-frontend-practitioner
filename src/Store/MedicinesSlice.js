@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { setStatusFail } from "./statusFailSlice";
 
 const initialState = {
   medicine: {},        
@@ -14,7 +15,7 @@ const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
 
 export const createMedicine = createAsyncThunk(
   "medicines/createMedicine",
-  async (body, { rejectWithValue }) => {
+  async (body, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.post(
         `${ADMIN_URL}/medicines`,
@@ -28,6 +29,10 @@ export const createMedicine = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
+       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+              const route = "/status-failed"
+              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+            }
       return rejectWithValue(error.response?.data?.message || "An error occurred");
     }
   }
@@ -35,7 +40,7 @@ export const createMedicine = createAsyncThunk(
 
 export const getAllMedicines = createAsyncThunk(
   "medicines/getAllMedicines",
-  async ({ currentPage, itemsPerPage, sortBy, order,doctorId }, { rejectWithValue }) => {
+  async ({ currentPage, itemsPerPage, sortBy, order,doctorId }, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.get(`${ADMIN_URL}/medicines`, {
         params: {
@@ -53,6 +58,10 @@ export const getAllMedicines = createAsyncThunk(
       });
       return response.data; 
     } catch (error) {
+       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+              const route = "/status-failed"
+              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+            }
       return rejectWithValue(error.response?.data?.message || "An error occurred");
     }
   }
@@ -60,7 +69,7 @@ export const getAllMedicines = createAsyncThunk(
 
 export const getMedicineById = createAsyncThunk(
   "medicines/getMedicineById",
-  async (medId, { rejectWithValue }) => {
+  async (medId, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.get(`${ADMIN_URL}/medicines/${medId}`, {
         headers: {
@@ -70,6 +79,10 @@ export const getMedicineById = createAsyncThunk(
       });
       return response.data; 
     } catch (error) {
+       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+              const route = "/status-failed"
+              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+            }
       return rejectWithValue(error.response?.data?.message || "An error occurred");
     }
   }
@@ -77,7 +90,7 @@ export const getMedicineById = createAsyncThunk(
 
 export const updateMedicine = createAsyncThunk(
   "medicines/updateMedicine",
-  async ({ medId, body }, { rejectWithValue }) => {
+  async ({ medId, body }, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.patch(
         `${ADMIN_URL}/medicines/${medId}`,
@@ -91,6 +104,10 @@ export const updateMedicine = createAsyncThunk(
       );
       return response.data;  
     } catch (error) {
+       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+              const route = "/status-failed"
+              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+            }
       return rejectWithValue(error.response?.data?.message || "An error occurred");
     }
   }
@@ -98,7 +115,7 @@ export const updateMedicine = createAsyncThunk(
 
 export const deleteMedicine = createAsyncThunk(
   "medicines/deleteMedicine",
-  async (medId, { rejectWithValue }) => {
+  async (medId, { rejectWithValue ,dispatch}) => {
     try {
       // eslint-disable-next-line
       const response = await axios.delete(`${ADMIN_URL}/medicines/${medId}`, {
@@ -109,6 +126,10 @@ export const deleteMedicine = createAsyncThunk(
       });
       return medId;
     } catch (error) {
+       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+              const route = "/status-failed"
+              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+            }
       return rejectWithValue(error.response?.data?.message || "An error occurred");
     }
   }
