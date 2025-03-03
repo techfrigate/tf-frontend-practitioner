@@ -68,7 +68,6 @@ const Sidebar = ({ isOpen, onClose }) => {
     }
   }, [location.pathname]);
   
-  // Fetch tenant data for tenant image
   useEffect(() => {
     const fetchTenant = async () => {
       if (tenantId && !tenant) {
@@ -110,7 +109,6 @@ const Sidebar = ({ isOpen, onClose }) => {
     navigate(subelm.route);
   };
 
-  // Close sidebar when clicking outside (on mobile)
   useEffect(() => {
     if (!isOpen) return;
     const handleClickOutside = (event) => {
@@ -146,8 +144,6 @@ const Sidebar = ({ isOpen, onClose }) => {
             </button>
         
         </div>
-
-        {/* Navigation Links */}
         <nav className="flex-1 overflow-y-auto pr-4 pl-2 py-6 space-y-1 customScrollbar">
           {sidebarLinks.map((elm, index) => (
             <div key={index} className="space-y-1">
