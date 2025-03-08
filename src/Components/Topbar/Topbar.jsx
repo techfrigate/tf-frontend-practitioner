@@ -103,7 +103,7 @@ const Topbar = ({ toggleCreateProviderForm, showForm,onMenuClick }) => {
   }, []);
 
   const handleAddBillClick = () => {
-    navigate("/AddBill");
+    navigate("/add-bill");
     toggleCreateProviderForm();
   };
 
@@ -128,7 +128,7 @@ const Topbar = ({ toggleCreateProviderForm, showForm,onMenuClick }) => {
       didOpen: () => {
         document.getElementById('addMedicine').addEventListener('click', () => {
           Swal.close();
-          navigate("/AddMedicine");
+          navigate("/add-medicine");
           toggleCreateProviderForm();
         });
 

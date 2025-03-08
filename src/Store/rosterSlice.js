@@ -24,14 +24,14 @@ export const getRosters = createAsyncThunk(
           tenantid:Cookies.get("TenantId")
         },
       });
-      console.log(response.data);
-      return response.data;
+    
+      return response.data.data;
     } catch (error) {
-       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
-              const route = "/status-failed"
-              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
-            }
-      return rejectWithValue(error.response.data.message);
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response.data?.error?.message || "Something went wrong");
     }
   }
 );

@@ -5,6 +5,8 @@ import WorkListTd from "./WorkListTd";
 import WorkListtrHeader from "./WorkListtrHeader";
 import PatientDetails from "../Prescription/PatientDetails";
 import CustomTable from "../../Components/Common/CustomTable";
+
+
 const WorkList = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [showPatientDetail, setShowPatientDetail] = useState(true);

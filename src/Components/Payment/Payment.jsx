@@ -3,13 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateAppointment } from '../../Store/appointmentSlice';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import CustomButton from '../Common/CustomButton';
 
 const Payment = ({setShowPayment}) => {
   const [paymentMethod, setPaymentMethod] = useState('Cash');
-const{appointment} =  useSelector(state=>state.appointment)
+const{appointment,isLoading} =  useSelector(state=>state.appointment)
  const navigate =  useNavigate()
-
-const dispatch=   useDispatch();
+ const dispatch=   useDispatch();
 
 const handlePayment = async()=>{
   const {_id, bookingStatus:{_id:bookId,...rest}} =  appointment
@@ -23,16 +23,15 @@ const handlePayment = async()=>{
     paymentStatus,
     transactionId
   }
+
   try {
     await dispatch(updateAppointment({_id,body})).unwrap()
- setShowPayment(false)
- navigate("/worklist")
+      setShowPayment(false)
+      navigate("/worklist")
     toast.success("Appointment Booked Successfully!")
   } catch (error) {
-    toast.error(error)
+     console.log(error)
   }
-
- 
 }
 
   return (
@@ -103,9 +102,10 @@ const handlePayment = async()=>{
           <button className="bg-gray-500 text-white py-2 px-6 rounded-md transition transform hover:scale-105 hover:bg-gray-600 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
             Cancel
           </button>
-          <button className="bg-[#00A182] text-white py-2 px-6 rounded-md transition transform hover:scale-105 hover:bg-[#008a6c] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00A182]" onClick={handlePayment}>
+          <CustomButton text={"Add Payment"} onclick={handlePayment} loading={isLoading}/>
+          {/* <button className="bg-[#00A182] text-white py-2 px-6 rounded-md transition transform hover:scale-105 hover:bg-[#008a6c] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00A182]" onClick={handlePayment}>
             Add Payment
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

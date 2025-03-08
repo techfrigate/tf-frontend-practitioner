@@ -1,13 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {Zap,ReceiptText,Package,Stethoscope,Briefcase,Pill,} from "lucide-react";
 import { Card, CardHeader, CardContent } from "../../Components/ui/card";
 import IconCustomSelect from "../../Components/Common/IconCustomSelect";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
+import { clearMadicinesError } from "../../Store/MedicinesSlice";
+import { useDispatch } from "react-redux";
 
-const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl, medicines }) => {
+const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl }) => {
   const [category, setCategory] = useState("");
   const [selectedService, setSelectedService] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [maxAvailableQuantity, setMaxAvailableQuantity] = useState(0);
+  
+  const dispatch = useDispatch();
+  
+  const { medicines ,isLoading,error} = useSelector((state) => state.Medicines);
 
   const categoryIcons = {
     Packages: <Package className="w-5 h-5" />,
@@ -42,12 +50,10 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
   const handleServiceChange = (e) => {
     const value = e.target.value;
     setSelectedService(value);
-    
     if (category === "Medicine") {
       const medicine = getServices(category).find(med => med._id === value);
       setMaxAvailableQuantity(medicine ? parseInt(medicine.unit) : 0);
     }
-    
     setQuantity(1);
   };
 
@@ -123,6 +129,16 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
       icon
     }))
   ];
+
+  useEffect(() => {
+    if (error) {
+     toast.error(error)
+     setTimeout(() => {
+      dispatch(clearMadicinesError())
+     },2000)
+    }
+  }, [error]);
+
 
   return (
     <Card className="w-full mx-auto bg-white shadow-lg">

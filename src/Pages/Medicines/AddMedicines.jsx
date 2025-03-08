@@ -11,7 +11,12 @@ import CustomSelect from "../../Components/Common/CustomSelect";
 import CommonLocationSelect from "../../Components/Common/CommonLocationSelect";
 import { MadicalformFields as formFields } from "../../util/data";
 import { fetchLocations } from "../../Store/locationSlice";
-import { createMedicine, getMedicineById, updateMedicine } from "../../Store/MedicinesSlice";
+import {
+  clearMadicinesError,
+  createMedicine,
+  getMedicineById,
+  updateMedicine,
+} from "../../Store/MedicinesSlice";
 import Cookies from "js-cookie";
 
 const INITIAL_FORM_STATE = {
@@ -40,7 +45,7 @@ const REQUIRED_FIELDS = [
   "unit",
   "gstPercentage",
   "mrpPerUnit",
-  "expiryDate"
+  "expiryDate",
 ];
 
 const AddMedicines = () => {
@@ -51,47 +56,55 @@ const AddMedicines = () => {
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [invalidFields, setInvalidFields] = useState({});
   const [availablePharmacies, setAvailablePharmacies] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  // eslint-disable-next-line
-  const [isLoading, setIsLoading] = useState(false);
-  const medicineId = searchParams.get("id");
 
-  console.log(formData)
+  // eslint-disable-next-line
+  const medicineId = searchParams.get("id");
 
   useEffect(() => {
     if (!locations?.length) {
-      dispatch(fetchLocations({ currentPage: null, itemsPerPage: null, sortBy: 'name', order: 'desc' }));
+      dispatch(
+        fetchLocations({
+          currentPage: null,
+          itemsPerPage: null,
+          sortBy: "name",
+          order: "desc",
+        })
+      );
     }
   }, [dispatch, locations]);
   const { profileData } = useSelector((state) => state.profile);
+  const { isLoading, error } = useSelector((state) => state.Medicines);
 
   useEffect(() => {
     const fetchMedicineData = async () => {
       if (!medicineId) return;
-      
-      setIsLoading(true);
       try {
-        const medicineData = await dispatch(getMedicineById(medicineId)).unwrap();
-        console.log("API Response:", medicineData);
+        const medicineData = await dispatch(
+          getMedicineById(medicineId)
+        ).unwrap();
 
-        if (!medicineData || !medicineData.locationId) {
-          throw new Error("Medicine data not found");
-        }
-        const locationObj = locations.find(loc => loc._id === medicineData.locationId);
+        const locationObj = locations.find(
+          (loc) => loc._id === medicineData.locationId
+        );
         if (!locationObj) {
-          throw new Error(`Location not found for ID: ${medicineData.locationId}`);
+           toast.error("Location not found in this madicine data.");
         }
-        const pharmacyOptions = locationObj.pharmacy?.map(p => ({
-          value: p._id,
-          label: p.name,
-          ...p
-        })) || [];
+
+        const pharmacyOptions =
+          locationObj.pharmacy?.map((p) => ({
+            value: p._id,
+            label: p.name,
+            ...p,
+          })) || [];
         setAvailablePharmacies(pharmacyOptions);
 
-        const pharmacyObj = locationObj.pharmacy?.find(p => p._id === medicineData.pharmacyId);
+        const pharmacyObj = locationObj.pharmacy?.find(
+          (p) => p._id === medicineData.pharmacyId
+        );
         if (!pharmacyObj) {
-          throw new Error(`Pharmacy not found for ID: ${medicineData.pharmacyId}`);
+          throw new Error(
+            `Pharmacy not found for ID: ${medicineData.pharmacyId}`
+          );
         }
         const formattedData = {
           ...medicineData,
@@ -99,42 +112,38 @@ const AddMedicines = () => {
           pharmacyName: pharmacyObj,
           expiryDate: dayjs(medicineData.expiryDate),
           enable: medicineData.enable || false,
-          prescriptionRequired: medicineData.prescriptionRequired || false
+          prescriptionRequired: medicineData.prescriptionRequired || false,
         };
 
         setFormData(formattedData);
-        setIsEditMode(true);
       } catch (error) {
-        console.error("Error fetching medicine:", error);
-        toast.error(error.message || "Failed to fetch medicine details");
-        setTimeout(() => navigate("/Medicines"), 2000);
-      } finally {
-        setIsLoading(false);
+        console.log("Error fetching medicine:", error);
       }
     };
 
     if (medicineId && locations?.length) {
       fetchMedicineData();
     }
-  }, [medicineId, locations, dispatch, navigate]);
+  }, [medicineId, locations,dispatch, navigate]);
 
   const handleChange = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (value != null && value !== "") {
-      setInvalidFields(prev => ({ ...prev, [name]: "" }));
+      setInvalidFields((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const handleLocationSelect = (location) => {
     handleChange("locationName", location);
     handleChange("pharmacyName", null);
-    
-    const pharmacyOptions = location?.pharmacy?.map(p => ({
-      value: p._id,
-      label: p.name,
-      ...p
-    })) || [];
-    
+
+    const pharmacyOptions =
+      location?.pharmacy?.map((p) => ({
+        value: p._id,
+        label: p.name,
+        ...p,
+      })) || [];
+
     setAvailablePharmacies(pharmacyOptions);
   };
 
@@ -144,7 +153,9 @@ const AddMedicines = () => {
       return;
     }
 
-    const pharmacy = availablePharmacies.find(p => p._id === selectedPharmacyId);
+    const pharmacy = availablePharmacies.find(
+      (p) => p._id === selectedPharmacyId
+    );
     if (pharmacy) {
       const { value, label, ...pharmacyData } = pharmacy;
       handleChange("pharmacyName", pharmacyData);
@@ -153,58 +164,70 @@ const AddMedicines = () => {
 
   const validateForm = () => {
     const newInvalidFields = {};
-    
-    REQUIRED_FIELDS.forEach(key => {
+
+    REQUIRED_FIELDS.forEach((key) => {
       if (key === "locationName" || key === "pharmacyName") {
         if (!formData[key]?._id) {
-          newInvalidFields[key] = `Please select a ${key === "locationName" ? "location" : "pharmacy"}`;
+          newInvalidFields[key] = `Please select a ${
+            key === "locationName" ? "location" : "pharmacy"
+          }`;
         }
       } else if (!formData[key]) {
-        newInvalidFields[key] = `Please enter ${formFields.find(f => f.id === key)?.label}`;
+        newInvalidFields[key] = `Please enter ${
+          formFields.find((f) => f.id === key)?.label
+        }`;
       }
     });
     setInvalidFields(newInvalidFields);
     return Object.keys(newInvalidFields).length === 0;
   };
 
-
   const handleSave = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-  
+
     const medicineData = {
       locationName: formData.locationName.name,
       locationId: formData.locationName._id,
       tenantId: Cookies.get("TenantId"),
-      doctorId:profileData._id,
+      doctorId: profileData._id,
       pharmacyName: formData.pharmacyName.name,
       pharmacyId: formData.pharmacyName._id,
       ...Object.fromEntries(
-        Object.entries(formData).filter(([key, value]) => 
-          !["locationName", "pharmacyName"].includes(key) && value !== ""
+        Object.entries(formData)?.filter(
+          ([key, value]) =>
+            !["locationName", "pharmacyName"].includes(key) && value !== ""
         )
-      )
+      ),
     };
-  
+
     try {
-      setIsSubmitting(true);
-      if (isEditMode) {
-        await dispatch(updateMedicine({ 
-          medId: medicineId,
-          body: medicineData 
-        })).unwrap();
+      if (medicineId) {
+        await dispatch(
+          updateMedicine({
+            medId: medicineId,
+            body: medicineData,
+          })
+        ).unwrap();
         toast.success("Medicine updated successfully!");
       } else {
         await dispatch(createMedicine(medicineData)).unwrap();
         toast.success("Medicine created successfully!");
       }
-      navigate("/Medicines");
+      navigate("/medicines");
     } catch (error) {
-      toast.error(error || `Failed to ${isEditMode ? 'update' : 'create'} medicine`);
-    } finally {
-      setIsSubmitting(false);
+      console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      setTimeout(() => {
+        dispatch(clearMadicinesError());
+      }, 2000);
+    }
+  }, [error]);
 
   const renderField = (field) => {
     if (field.type === "date") {
@@ -219,15 +242,40 @@ const AddMedicines = () => {
             value={formData.expiryDate}
             onChange={(date) => handleChange(field.id, date)}
             renderInput={(params) => <CustomInput {...params} />}
-            isInvalid={invalidFields[field.id]}
-            sx={{
-              '& .MuiInputLabel-root': { top: '15px' },
-              '& .MuiOutlinedInput-root': {
-                height: '40px',
-                borderRadius: 2,
-                border: "1px solid gray",
-                marginTop: "23px",
-              },
+            
+            slotProps={{
+              textField: {
+                error: invalidFields[field.id],
+                sx: {
+                  "marginTop":"23px",
+                  '& .MuiOutlinedInput-root': {
+                    height: '40px',
+                    borderRadius: 2,
+                    '& fieldset': {
+                      borderColor: '#D1D5DB'
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '30#D1D5DB'
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#64c6b0',
+                      borderWidth: '1px'
+                    },
+                    '&.Mui-error fieldset': {
+                      borderColor: 'red'
+                    }
+                  },
+                  '& .MuiInputLabel-root': {
+                    transform: 'translate(14px, 8px) scale(1)'
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    transform: 'translate(14px, -9px) scale(0.75)'
+                  },
+                  '& .MuiInputLabel-root.MuiFormLabel-filled': {
+                    transform: 'translate(14px, -9px) scale(0.75)'
+                  }
+                }
+              }
             }}
           />
         </LocalizationProvider>
@@ -265,7 +313,7 @@ const AddMedicines = () => {
               <CustomSelect
                 id="pharmacyName"
                 label="Pharmacy"
-                value={formData.pharmacyName?._id || ''}
+                value={formData.pharmacyName?._id || ""}
                 options={availablePharmacies}
                 onChange={(e) => handlePharmacySelect(e.target.value)}
                 isInvalid={invalidFields.pharmacyName}
@@ -281,9 +329,9 @@ const AddMedicines = () => {
           </div>
           <div className="flex justify-end">
             <CustomButton
-              text={isSubmitting ? "Saving..." : (isEditMode ? "Update" : "Save")}
+              text={medicineId ? "Update" : "Save"}
               onclick={handleSave}
-              disabled={isSubmitting}
+              loading={isLoading}
             />
           </div>
         </form>

@@ -25,19 +25,19 @@ export const fetchLocations = createAsyncThunk(
           sortBy,
           order,
         },
-
         headers: {
           Authorization: `Bearer ${Cookies.get("Token")}`,
           tenantId: Cookies.get("TenantId"),
         },
       });
-      return response.data;
+       
+      return response.data.data;
     } catch (error) {
-     if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+     if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
             const route = "/status-failed"
             await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
           }
-      return rejectWithValue(error.response.data.message);
+      return rejectWithValue(error.response.data?.error?.message || "Something went wrong");
     }
   }
 );

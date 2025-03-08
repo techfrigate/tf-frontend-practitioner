@@ -15,12 +15,12 @@ const SlotGroup = ({title,slots,selectedTimeSlot,handleTimeSlotSelect}) => {
       <div className="flex flex-wrap gap-3">
         {slots.map((time, index) => (
           <div
-            className={`rounded-sm px-6 py-1 mb-2 cursor-pointer transition-colors duration-200 border-2 ${
+            className={`rounded-sm px-6 py-1 mb-2 transition-colors duration-200 border-2 ${
               (time.status === "booked")
                 ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                 : selectedTimeSlot?.startDateTime === time.startDateTime
-                ? "bg-gray-200 border-gray-700"
-                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                ? "bg-gray-200 border-gray-700 "
+                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 cursor-pointer"
             }`}
             onClick={!(time.status === "booked") ? () => handleTimeSlotSelect(time) : null}
           >

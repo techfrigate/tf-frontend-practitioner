@@ -5,10 +5,10 @@ import { setStatusFail } from "./statusFailSlice";
 const initialState = {
   slotsData: [],
   slotsStatus: "idle",
+  isLoading:false,
+  error: null,
   slotsError: null,
 };
-
- 
 
 const ACCOUNTS_URL  = process.env.REACT_APP_ACCOUNTS_URL
 const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
@@ -25,14 +25,14 @@ export const getSlots = createAsyncThunk(
          // practitionerid:Cookies.get("UserId")
         },
       });
-    
-      return response.data;
+  
+      return response.data.data;
     } catch (error) {
-      if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
-             const route = "/status-failed"
-             await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
-           }
-      return rejectWithValue(error.response.data.message);
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -51,13 +51,13 @@ export const editSlotStatus = createAsyncThunk(
         }
       })
       dispatch(getSlots());
-      console.log(res,"slote update res",slotId,slotDetailSlotId);
+       
     } catch (error) {
-       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
-              const route = "/status-failed"
-              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
-            }
-      return rejectWithValue("error")
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response.data?.error?.message || "Something went wrong");
     }
   }
 )
@@ -65,22 +65,27 @@ export const editSlotStatus = createAsyncThunk(
 export const slotsSlice = createSlice({
   name: "slots",
   initialState,
-  reducers: {},
+  reducers: {
+    clearSlotError:(state)=>{
+      state.error=null
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getSlots.pending, (state) => {
-        state.slotsStatus = "loading"
-        state.slotsError = null
+        state.isLoading = true
+        state.error = null
       })
       .addCase(getSlots.fulfilled, (state, action) => {
-        state.slotsStatus = "succeeded"
+        state.isLoading = false
         state.slotsData = action.payload;
       })
       .addCase(getSlots.rejected, (state, action) => {
-        state.slotsStatus = "failed"
-        state.slotsError = action.payload;
+        state.isLoading = false
+        state.error = action.payload;
       });
   },
 });
 
+export const {clearSlotError} =  slotsSlice.actions
 export default slotsSlice.reducer

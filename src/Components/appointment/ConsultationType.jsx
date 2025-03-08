@@ -33,7 +33,7 @@ const ConsultationType = ({ consultationType, handleConsultationChange, selected
               <p className="text-gray-800 font-medium">In-person Consultation</p>
             </div>
             <p className="text-gray-800 font-medium">
-              ₹{selectedDoctor.slots[0]?.practitionerData?.work.inPerson || "0"}
+              ₹{selectedDoctor.practitionerData?.work.inPerson || "0"}
             </p>
           </div>
         )}
@@ -53,7 +53,7 @@ const ConsultationType = ({ consultationType, handleConsultationChange, selected
               <p className="text-gray-800 font-medium">Online Consultation</p>
             </div>
             <p className="text-gray-800 font-medium">
-              ₹{selectedDoctor.slots[0]?.practitionerData?.work.online || "0"}
+              ₹{selectedDoctor.practitionerData?.work.online || "0"}
             </p>
           </div>
         )}

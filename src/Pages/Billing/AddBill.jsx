@@ -10,7 +10,7 @@ import CustomButton from "../../Components/Common/CustomButton";
 import DoctorSearch from "./DoctorSearch";
 import PatientSearch from "./PatientSearch";
 import LocationSearch from "./LocationSearch";
-import { createBilling, getBillingById, updateBilling } from "../../Store/billingSlice";
+import { clearBillingError, createBilling, getBillingById, updateBilling } from "../../Store/billingSlice";
 import { updateMedicine, getAllMedicines } from "../../Store/MedicinesSlice";
 import { fetchPatients } from "../../Store/patientSlice";
 import { fetchLocations } from "../../Store/locationSlice";
@@ -21,11 +21,7 @@ const AddBill = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const billIdFromUrl = searchParams.get("id");
-  const { patients } = useSelector((state) => state.patient);
-  const { profileData } = useSelector((state) => state.profile);
-  const { locations } = useSelector((state) => state.locations);
-  const { medicines } = useSelector((state) => state.Medicines);
-  const { billing } = useSelector((state) => state.billing);
+ 
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -40,6 +36,14 @@ const AddBill = () => {
   const [patientSearchQuery, setPatientSearchQuery] = useState("");
 
   const GST_RATE = 0.18;
+
+
+ 
+  const { profileData } = useSelector((state) => state.profile);
+  const { locations } = useSelector((state) => state.locations);
+
+  const { billing, isLoading, error} = useSelector((state) => state.billing);
+  
 
   useEffect(() => {
     dispatch(fetchPatients({ page: null, limit: 10 }));
@@ -73,6 +77,7 @@ const AddBill = () => {
     }
   }, [billIdFromUrl]);
 
+
   useEffect(() => {
     if (billIdFromUrl) {
       dispatch(getBillingById(billIdFromUrl))
@@ -105,6 +110,7 @@ const AddBill = () => {
     }
   }, [billIdFromUrl, dispatch, locations]);
 
+  
   const handleAddService = (newService) => {
     setBills(prev => [...prev, newService]);
     setTotalAmount(prev => prev + (newService.price * newService.quantity));
@@ -123,7 +129,7 @@ const AddBill = () => {
     setDueAmount(total - paid);
   };
 
-  const handleCreateBilling = () => {
+  const handleCreateBilling = async () => {
     if (!selectedPatient || !selectedDoctor || !selectedLocation) {
       toast.error("Please select patient, doctor, and location!");
       return;
@@ -134,7 +140,7 @@ const AddBill = () => {
       .filter(bill => bill.category === "Medicine" && bill.medicineId)
       .map(bill => {
         if (!bill.medicineId || !bill.quantity || !bill.currentStock) {
-          console.error("Invalid medicine data:", bill);
+          console.log("Invalid medicine data:", bill);
           return null;
         }
         const purchaseQuantity = parseInt(bill.quantity);
@@ -166,8 +172,7 @@ const AddBill = () => {
       .filter(update => update !== null);
     Promise.all(
       medicineUpdates.map(update => dispatch(updateMedicine(update)))
-    )
-      .then(() => {
+    ).then(async () => {
         const commonData = {
           patientId: selectedPatient._id,
           patientName: `${selectedPatient.firstName} ${selectedPatient.lastName}`,
@@ -181,13 +186,7 @@ const AddBill = () => {
           tenantId
         };
         const billingData = {
-          services: bills.map(bill => ({
-            ...bill,
-            ...(bill.category === "Medicine" && {
-              medicineId: bill.medicineId,
-              maxQuantity: bill.maxQuantity
-            })
-          })),
+          services: bills.map(bill => ({...bill, ...(bill.category === "Medicine" && {medicineId: bill.medicineId,maxQuantity: bill.maxQuantity})})),
           dueAmount,
           gst: gstAmount,
           doctorFees,
@@ -200,11 +199,11 @@ const AddBill = () => {
         };
 
         const dispatchPromise = billIdFromUrl
-          ? dispatch(updateBilling({
+          ? await dispatch(updateBilling({
               billId: billIdFromUrl,
               body: { ...billingData, phoneNumber: billing.phoneNumber }
-            }))
-          : dispatch(createBilling({ ...billingData, ...commonData }));
+            })).unwrap()
+          : await dispatch(createBilling({...billingData,...commonData })).unwrap()
 
         return dispatchPromise;
       })
@@ -228,6 +227,14 @@ const AddBill = () => {
         console.error("Detailed error:", error);
       });
   };
+ 
+   useEffect(()=>{
+    if(error){
+      toast.error(error);
+      setTimeout(()=>{dispatch(clearBillingError())},2000)
+    }
+
+   },[error])
 
 
   const gstAmount = totalAmount * GST_RATE;
@@ -235,6 +242,7 @@ const AddBill = () => {
 
   return (
     <div className="p-1 bg-gray-100 flex flex-col customScrollbar max-h-full">
+
       <div className="flex justify-between items-center w-max gap-5">
         <LocationSearch
           searchQuery={locationSearchQuery}
@@ -252,7 +260,6 @@ const AddBill = () => {
         <PatientSearch
           searchQuery={patientSearchQuery}
           setSearchQuery={setPatientSearchQuery}
-          patients={patients}
           onSelect={setSelectedPatient}
           selectedPatient={selectedPatient}
         />
@@ -265,7 +272,7 @@ const AddBill = () => {
               billId={billId} 
               billIdFromUrl={billIdFromUrl}
               selectedLocation={selectedLocation} 
-              medicines={medicines}
+             
             />
             <div>
               <div className="flex items-center space-x-2 mb-4">
@@ -334,6 +341,7 @@ const AddBill = () => {
               <CustomButton
                 text={billIdFromUrl ? "Update Bill" : "Create Bill"}
                 onclick={handleCreateBilling}
+                loading={isLoading}
               />
             </div>
           </div>

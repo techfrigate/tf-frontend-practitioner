@@ -1,35 +1,49 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import Avatar from "@mui/material/Avatar";
+import Cookies from "js-cookie";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { clearSlotError } from "../../Store/slotsSlice";
 
-const DoctorSearch = ({ slotsData, handleDoctorSelect }) => {
+const DoctorSearch = ({  handleDoctorSelect }) => {
   const [doctorOptions, setDoctorOptions] = useState([]);
-
+  const {slotsData,isLoading,error} = useSelector((state) => state.slots);
+  const dispatch =  useDispatch()
   const convertExperience = (value) => {
     const rem = value % 12;
     const num = Math.floor(value / 12);
     return `${num}.${rem}`;
   };
- console.log(slotsData,"slotsData")
 
   useEffect(() => {
     const doctors = slotsData
-      .filter((doc) => doc.slots?.[0]?.practitionerData)
+      .filter((doc) => doc.practitionerData.tenants.find((tenant) => tenant.status && tenant.tenantId === Cookies.get("TenantId") && tenant.userType==="practitioner"))
       .map((doc) => ({
-        name: `Dr. ${doc.slots[0].practitionerData.firstName} ${doc.slots[0].practitionerData.lastName}`,
+        name: `Dr. ${doc.practitionerData.firstName} ${doc.practitionerData.lastName}`,
         speciality:
-          doc.slots[0].practitionerData.work.speciality ||
+          doc.practitionerData.work.speciality ||
           "Speciality not available",
         experience: convertExperience(
-          doc.slots[0].practitionerData.work.experience || 0
+          doc.practitionerData.work.experience || 0
         ),
-        image: doc.slots[0].practitionerData.imageUrl || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-ECZ28iBTpFlNtSadX7LKKBAcliGr1TXOiw&s",
+        image: doc.practitionerData.imageUrl || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-ECZ28iBTpFlNtSadX7LKKBAcliGr1TXOiw&s",
         data: doc,
       }));
     setDoctorOptions(doctors);
   }, [slotsData]);
-
+ 
+useEffect(() => {
+  if (error) {
+    toast.error(error);
+    setTimeout(() => {
+      dispatch(clearSlotError())
+    },2000)
+  }
+}, [error]);
+  
   return (
     <Autocomplete
       sx={{ width: "100%", "& .MuiOutlinedInput-root": {
@@ -44,10 +58,8 @@ const DoctorSearch = ({ slotsData, handleDoctorSelect }) => {
       getOptionLabel={(option) => option.name || ""}
       onChange={(event, value) => {
         if (!value?.data) {
-          console.warn("No doctor selected");
           handleDoctorSelect(null);
         } else {
-          console.log("Selected Doctor:", value);
           handleDoctorSelect(value.data);
         }
       }}
@@ -70,8 +82,11 @@ const DoctorSearch = ({ slotsData, handleDoctorSelect }) => {
           </div>
         </li>
       )}
+      loading={isLoading}
+      loadingText="Loading doctors..."
+      noOptionsText={isLoading ? "Loading..." : "No doctors found"}
     />
   );
 };
 
-export default DoctorSearch;
+export default memo(DoctorSearch);

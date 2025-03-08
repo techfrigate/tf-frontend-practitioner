@@ -28820,6 +28820,7 @@ export const MadicalformFields = [
     label: "MRP Per Unit ₹",
     type: "text",
     placeholder: "MRP Per Unit ₹",
+    required:true
   },
   {
     id: "expiryDate",

@@ -3,15 +3,19 @@ import BillingTd from "./BillingTd";
 import BillingtrHeader from "./BillingtrHeader";
 import ReactPaginate from "react-paginate";
 import CustomTable from "../../Components/Common/CustomTable";
-import { getAllBillings } from "../../Store/billingSlice";
+import { clearBillingError, getAllBillings } from "../../Store/billingSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { FileText } from "lucide-react"; // Importing an icon from lucide-react
+import Loader from "../../Components/Common/Loader";
+import toast from "react-hot-toast";
 
 const Billing = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const dispatch = useDispatch();
-  const { totalPages, billings } = useSelector((state) => state.billing);
+  const { totalPages, billings, isLoading, error } = useSelector(
+    (state) => state.billing
+  );
   const { profileData } = useSelector((state) => state.profile);
 
   useEffect(() => {
@@ -31,9 +35,20 @@ const Billing = () => {
     setCurrentPage(selected + 1);
   };
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      setTimeout(() => {
+        dispatch(clearBillingError());
+      }, 2000);
+    }
+  }, [error]);
+
   return (
     <div className="overflow-y-auto h-full sm:rounded-lg">
-      {billings.length > 0 ? (
+      {isLoading ? (
+        <Loader />
+      ) : billings.length > 0 ? (
         <>
           <CustomTable trHeader={BillingtrHeader}>
             <BillingTd />
@@ -62,16 +77,17 @@ const Billing = () => {
           />
         </>
       ) : (
-        <div className="flex items-center justify-center w-full h-full">
-        <div className="flex flex-col items-center justify-center bg-gray-50 shadow-md rounded-lg p-6">
-          <FileText className="w-16 h-16 text-gray-400" />
-          <p className="mt-4 text-lg font-semibold text-gray-600">
-            No Billing Records Found
-          </p>
-          <p className="text-sm text-gray-500">
-            No invoices or bills available. Please generate a new billing record.
-          </p>
-        </div>
+        <div className="flex  items-center justify-center w-full h-full ">
+          <div className="flex flex-col items-center justify-center bg-gray-50 shadow-md rounded-lg p-6">
+            <FileText className="w-16 h-16 text-[#64c6b0]" />
+            <p className="mt-4 text-lg font-semibold text-gray-600">
+              No Billing Records Found
+            </p>
+            <p className="text-sm text-gray-500">
+              No invoices or bills available. Please generate a new billing
+              record.
+            </p>
+          </div>
         </div>
       )}
     </div>
