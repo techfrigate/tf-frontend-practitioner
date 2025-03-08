@@ -37,7 +37,7 @@ const PhoneNumberInput = ({type = "text",label,id,placeholder,value,dialCode,isI
               : "border-gray-300 focus-within:border-[#64C6B0] focus-within:shadow-md focus-within:shadow-[#64C6B0]/30"
           }`}>
           <select
-             className={`w-1/5 px-3 py-[7px] bg-white rounded-l-lg focus:outline-none`}
+             className={`w-1/4 px-3 py-[7px] bg-white rounded-l-lg focus:outline-none`}
             value={localDialCode}
             onChange={handleDialCodeChange}
           >
@@ -50,7 +50,7 @@ const PhoneNumberInput = ({type = "text",label,id,placeholder,value,dialCode,isI
           <input
             type={type}
             id={id}
-            className={`w-4/5 px-3 py-[7px] bg-white rounded-lg focus:outline-none focus:bg-transparent`}
+            className={`w-3/4 px-3 py-[7px] bg-white rounded-lg focus:outline-none focus:bg-transparent`}
             placeholder={placeholder}
             value={localNumber}
             onChange={handleNumberChange}

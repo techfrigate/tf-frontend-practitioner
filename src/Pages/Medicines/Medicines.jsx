@@ -3,15 +3,24 @@ import MedicinesTd from "./MedicinesTd";
 import MedicinestrHeader from "./MedicinestrHeader";
 import ReactPaginate from "react-paginate";
 import CustomTable from "../../Components/Common/CustomTable";
-import { getAllMedicines } from "../../Store/MedicinesSlice";
+import {
+  clearMadicinesError,
+  getAllMedicines,
+} from "../../Store/MedicinesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { PackageSearch } from "lucide-react"; // Importing icon from lucide-react
-
+import Loader from "../../Components/Common/Loader";
+import toast from "react-hot-toast";
 const Medicines = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState("locationName");
+  const [order, setOrder] = useState("asc");
+
   const itemsPerPage = 5;
   const dispatch = useDispatch();
-  const { totalPages, medicines } = useSelector((state) => state.Medicines);
+  const { totalPages, medicines, isLoading, error } = useSelector(
+    (state) => state.Medicines
+  );
   const { profileData } = useSelector((state) => state.profile);
 
   useEffect(() => {
@@ -19,22 +28,40 @@ const Medicines = () => {
       getAllMedicines({
         currentPage: currentPage,
         itemsPerPage,
-        sortBy: "updatedAt",
-        order: "desc",
+        sortBy,
+        order,
         doctorId: profileData._id,
       })
     );
-  }, [currentPage]);
+  }, [currentPage,sortBy,order]);
 
   const handlePageClick = ({ selected }) => {
     setCurrentPage(selected + 1);
   };
 
+  function handleSortClick(field){
+    setSortBy(field);
+  }
+  function handleOrderClick(order){
+    setOrder(order)
+  }
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      setTimeout(() => {
+        dispatch(clearMadicinesError());
+      }, 2000);
+    }
+  }, [error]);
+
+
   return (
     <div className="overflow-y-auto h-full sm:rounded-lg">
-      {medicines.length > 0 ? (
+      {isLoading ? (
+        <Loader />
+      ) : medicines.length > 0 ? (
         <>
-          <CustomTable trHeader={MedicinestrHeader}>
+          <CustomTable trHeader={<MedicinestrHeader setSortBy={handleSortClick} setOrder={handleOrderClick} sortBy={sortBy} order={order} />}>
             <MedicinesTd />
           </CustomTable>
           <ReactPaginate
@@ -62,15 +89,15 @@ const Medicines = () => {
         </>
       ) : (
         <div className="flex items-center justify-center w-full h-full">
-        <div className="flex flex-col items-center justify-center bg-gray-50 shadow-md rounded-lg p-6">
-          <PackageSearch className="w-16 h-16 text-gray-400" />
-          <p className="mt-4 text-lg font-semibold text-gray-600">
-            No Medicines Found
-          </p>
-          <p className="text-sm text-gray-500">
-            Try adding new medicines or adjusting your search criteria.
-          </p>
-        </div>
+          <div className="flex flex-col items-center justify-center bg-gray-50 shadow-md rounded-lg p-6">
+            <PackageSearch className="w-16 h-16 text-[#64c6b0]" />
+            <p className="mt-4 text-lg font-semibold text-gray-600">
+              No Medicines Found
+            </p>
+            <p className="text-sm text-gray-500">
+              Try adding new medicines or adjusting your search criteria.
+            </p>
+          </div>
         </div>
       )}
     </div>

@@ -4,12 +4,12 @@ import Cookies from "js-cookie"
 import { setStatusFail } from "./statusFailSlice";
 const initialState = {
   patients: [],
-  status: 'idle',
+  isLoading: false,
   error: null,
-  saveStatus: 'idle',
+  saveStatus: false,
   saveError: null,
   totalPages: 1,
-  patient: null, // Add a new state for a single patient
+  patient: null,  
 };
  
 const ACCOUNTS_URL  = process.env.REACT_APP_ACCOUNTS_URL
@@ -17,7 +17,7 @@ const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
 const PRACTITIONER_URL =  process.env.REACT_APP_PRACTITIONER_URL
 export const fetchPatients = createAsyncThunk(
   'patient/fetchPatients',
-  async ({ page, limit,order }, { rejectWithValue,dispatch }) => {
+  async ({ page, limit,order ,sortBy }, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.get(`${ACCOUNTS_URL}/profiles`, {
         headers: {
@@ -28,17 +28,18 @@ export const fetchPatients = createAsyncThunk(
         params: {
           page,
           limit,
-          order
+          order,sortBy
         }
       });
-      console.log(response.data,"patient data");
-      return { data: response.data.profiles, totalPages: response.data.totalPages };
+     
+      return { data: response.data.data.profiles, totalPages: response.data.data.totalPages };
     } catch (error) {
-    if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
-           const route = "/status-failed"
-           await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
-         }
-      return rejectWithValue(error.response ? error.response.data : error.message);
+      console.log(error,"error")
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -54,13 +55,13 @@ export const addPatient = createAsyncThunk(
           Authorization: `Bearer ${Cookies.get("Token")}`
         }
       });
-     return response.data;
+     return response.data.data;
     } catch (error) {
-       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
-              const route = "/status-failed"
-              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
-            }
-      return rejectWithValue(error.response ? error.response.data : error.message);
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -74,13 +75,13 @@ export const fetchPatientById = createAsyncThunk(
           Authorization: `Bearer ${Cookies.get("Token")}`,
         }
       });
-      return response.data;
+      return response.data.data;
     } catch (error) {
-       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
-              const route = "/status-failed"
-              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
-            }
-      return rejectWithValue(error.response ? error.response.data : error.message);
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -96,13 +97,35 @@ export const patchPatientById = createAsyncThunk(
           Authorization: `Bearer ${Cookies.get("Token")}`
         }
       });
-      return response.data;
+      return response.data.data;
     } catch (error) {
-       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
-              const route = "/status-failed"
-              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
-            }
-      return rejectWithValue(error.response ? error.response.data : error.message);
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response.data?.error?.message || "Something went wrong");
+    }
+  }
+);
+
+export const patchPatientByIdStatus = createAsyncThunk(
+  'patient/patchPatientByIdStatus',
+  async ({ id, userId, updates}, { rejectWithValue,dispatch }) => { 
+    const tenantId =  Cookies.get("TenantId")
+    try {
+      const response = await axios.patch( `${ACCOUNTS_URL}/profiles/update-profile-status/${id}/${tenantId}/patient`, updates, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("Token")}`
+        }
+      });
+      return response.data.data;
+    } catch (error) {
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -110,51 +133,60 @@ export const patchPatientById = createAsyncThunk(
 const patientSlice = createSlice({
   name: "patient",
   initialState,
-  reducers: {},
+  reducers: {
+    clearError: (state) => {
+      state.error = null;
+      state.saveError = null
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchPatients.pending, (state) => {
-        state.status = 'loading';
+        state.isLoading = true;
+        state.error = null
       })
       .addCase(fetchPatients.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.isLoading = false;
         state.patients = action.payload.data;
         state.totalPages = action.payload.totalPages;
       })
       .addCase(fetchPatients.rejected, (state, action) => {
-        state.status = 'failed';
+        state.isLoading = false;
         state.error = action.payload || action.error.message;
       })
 
       .addCase(addPatient.pending, (state) => {
-        state.saveStatus = 'loading';
+        state.saveStatus = true;
+        state.saveError = null
       })
       .addCase(addPatient.fulfilled, (state, action) => {
-        state.saveStatus = 'succeeded';
+        state.saveStatus = false;
         state.patients.push(action.payload);
       })
       .addCase(addPatient.rejected, (state, action) => {
-        state.saveStatus = 'failed';
+        state.saveStatus = false;
         state.saveError = action.payload || action.error.message;
       })
 
       .addCase(fetchPatientById.pending, (state) => {
-        state.status = 'loading';
+        state.status = true;
+        state.error =null
       })
       .addCase(fetchPatientById.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = false;
         state.patient = action.payload;
       })
       .addCase(fetchPatientById.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status = false;
         state.error = action.payload || action.error.message;
       })
       
       .addCase(patchPatientById.pending, (state) => {
-        state.saveStatus = 'loading';
+        state.saveStatus = true;
+        state.saveError=null
       })
       .addCase(patchPatientById.fulfilled, (state, action) => {
-        state.saveStatus = 'succeeded';
+        state.saveStatus = false;
         const index = state.patients.findIndex(patient => patient._id === action.payload._id);
         if (index !== -1) {
           state.patients[index] = action.payload;
@@ -162,10 +194,27 @@ const patientSlice = createSlice({
         }
       })
       .addCase(patchPatientById.rejected, (state, action) => {
-        state.saveStatus = 'failed';
+        state.saveStatus = false;
+        state.saveError = action.payload || action.error.message;
+      })
+      .addCase(patchPatientByIdStatus.pending, (state) => {
+        state.saveStatus = true;
+        state.saveError=null
+      })
+      .addCase(patchPatientByIdStatus.fulfilled, (state, action) => {
+        state.saveStatus = false;
+        const index = state.patients.findIndex(patient => patient._id === action.payload._id);
+        if (index !== -1) {
+          state.patients[index] = action.payload;
+          state.patient= null
+        }
+      })
+      .addCase(patchPatientByIdStatus.rejected, (state, action) => {
+        state.saveStatus = false;
         state.saveError = action.payload || action.error.message;
       });
   }
 });
 
+export const {clearError} =  patientSlice.actions
 export default patientSlice.reducer;

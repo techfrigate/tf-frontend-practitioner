@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { ScrollArea } from "../../Components/ui/scroll-area";
-import {Tabs,TabsContent,TabsList,TabsTrigger,} from "../../Components/ui/tabs";
-import { StethoscopeIcon, TableIcon, Video } from "lucide-react";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../Components/ui/tabs";
+import { Calendar, CalendarXIcon, FileXIcon, StethoscopeIcon, TableIcon, Video } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
-import {getPrescriptions,updateAppointment} from "../../../src/Store/appointmentSlice";
+import {
+  clearAppointmentError,
+  getPrescriptions,
+  updateAppointment,
+} from "../../../src/Store/appointmentSlice";
 import PatientTableContent from "./PatientTableContent";
 import { showErrorToast } from "../../Components/toastUtils";
 import VideoConsultation from "./VideoConsultation";
@@ -11,10 +20,14 @@ import GlobalSheet from "../../Components/Common/GlobalSheet";
 import categories from "./CategoriesData";
 import FillDetailsSheet from "./FillDetailsSheet";
 import PatientColumn from "../../Components/Prescription/PatientColumn";
-import { allowedTransitions, initialStatuses, statusColors } from "../../util/patientUtil";
+import {
+  allowedTransitions,
+  initialStatuses,
+  statusColors,
+} from "../../util/patientUtil";
 import toast from "react-hot-toast";
+import Loader from "../../Components/Common/Loader";
 
- 
 function PatientDetails() {
   const [channelName, setChannelName] = useState("");
   const [filteredData, setFilteredData] = useState({});
@@ -23,18 +36,18 @@ function PatientDetails() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isFormSheetOpen, setIsFormSheetOpen] = useState(false);
   const dispatch = useDispatch();
-  
-  const { prescriptionData } = useSelector((state) => state.appointment);
+
+  const { prescriptionData, isLoading, error } = useSelector(
+    (state) => state.appointment
+  );
   const { profileData } = useSelector((state) => state.profile);
   useEffect(() => {
     getAppointmentData();
-    
   }, [dispatch]);
 
-  function getAppointmentData(){
+  function getAppointmentData() {
     dispatch(getPrescriptions({ practitionerId: profileData?._id }));
   }
-
 
   useEffect(() => {
     const filtered = {
@@ -43,7 +56,6 @@ function PatientDetails() {
       "Checked Out": [],
       Closed: [],
     };
-
 
     prescriptionData.forEach((patient) => {
       const { bookingStatus } = patient;
@@ -61,7 +73,7 @@ function PatientDetails() {
 
     setFilteredData(filtered);
   }, [prescriptionData]);
- 
+
   const onTaskDrop = async (event, newStatus) => {
     event.preventDefault();
     const patientId = event.dataTransfer.getData("text/plain");
@@ -110,20 +122,18 @@ function PatientDetails() {
         [updatedStatusKey]: new Date(),
       };
 
-      
       const body = { bookingStatus: updatedStatus };
       try {
-        await  dispatch(updateAppointment({ _id: patientId, body })).unwrap()
-        toast.success("Apponinment Status Successfully Changed")
-        getAppointmentData()
+        await dispatch(updateAppointment({ _id: patientId, body })).unwrap();
+        toast.success("Apponinment Status Successfully Changed");
+        getAppointmentData();
       } catch (error) {
-        toast.error(error)
+        toast.error(error);
       }
     } else {
       console.error("Appointment not found in prescriptionData");
     }
   };
-
 
   const handleButtonClick = (category) => {
     setSelectedCategory(category);
@@ -134,130 +144,176 @@ function PatientDetails() {
     setIsFormSheetOpen(false);
   };
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      setTimeout(() => {
+        dispatch(clearAppointmentError());
+      }, 2000);
+    }
+  }, [error]);
+
+
+  function checkOnlineAppointment (appointments){
+ return appointments.filter((item) => item?.visitType ==="Online")
+  }
+
   return (
     <div className={`h-full w-full p-1 relative`}>
-    <div>
-    <Tabs defaultValue="Patient Details">
-        <TabsList>
-          <TabsTrigger value="Patient Details">
-            <StethoscopeIcon className="w-5 h-5" />
-            <span className="ml-2">Patient Details</span>
-          </TabsTrigger>
-          <TabsTrigger value="Table">
-            <TableIcon className="w-5 h-5" />
-            <span className="ml-2">Table</span>
-          </TabsTrigger>
-        </TabsList>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        checkOnlineAppointment(prescriptionData).length >0 ?
+        <>
+          <div>
+            <Tabs defaultValue="Patient Details">
+              <TabsList>
+                <TabsTrigger value="Patient Details">
+                  <StethoscopeIcon className="w-5 h-5" />
+                  <span className="ml-2">Patient Details</span>
+                </TabsTrigger>
+                <TabsTrigger value="Table">
+                  <TableIcon className="w-5 h-5" />
+                  <span className="ml-2">Table</span>
+                </TabsTrigger>
+              </TabsList>
 
-        <TabsContent value="Patient Details">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-2">
-            {initialStatuses.map((status) => (
-              <div
-                key={status.display}
-                className="bg-white p-5 pb-20 rounded-xl shadow-lg border border-gray-200 h-[570px] overflow-hidden custom-scrollbar"
-              >
-                <div
-                  className={`flex justify-between items-center mb-4 p-2 rounded-lg ${
-                    statusColors[status.display]
-                  }`}
-                >
-                  <h2 className="text-sm font-semibold">{status.display}</h2>
+              <TabsContent value="Patient Details">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-2">
+                  {initialStatuses.map((status) => (
+                    <div
+                      key={status.display}
+                      className="bg-white p-5 pb-20 rounded-xl shadow-lg border border-gray-200 h-[570px] overflow-hidden custom-scrollbar"
+                    >
+                      <div
+                        className={`flex justify-between items-center mb-4 p-2 rounded-lg ${
+                          statusColors[status.display]
+                        }`}
+                      >
+                        <h2 className="text-sm font-semibold">
+                          {status.display}
+                        </h2>
+                      </div>
+                      <ScrollArea className={`h-full`}>
+                        <div
+                          onDragOver={(event) => event.preventDefault()}
+                          onDrop={(event) => onTaskDrop(event, status.display)}
+                          className="p-2 bg-gray-50 rounded-lg shadow-inner h-[570px]"
+                        >
+                          {
+                            filteredData[status.display]?.map((patient) => (
+                           patient.visitType === "Online" && <PatientColumn
+                              patient={patient}
+                              setChannelName={setChannelName}
+                              setStatus={setStatus}
+                            />
+                          ))
+                          }
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  ))}
                 </div>
-                <ScrollArea className={`h-full`}>
-                  <div
-                    onDragOver={(event) => event.preventDefault()}
-                    onDrop={(event) => onTaskDrop(event, status.display)}
-                    className="p-2 bg-gray-50 rounded-lg shadow-inner h-[570px]"
-                  >
- 
-                    {filteredData[status.display]?.map((patient) => 
-                     <PatientColumn patient={patient} setChannelName={setChannelName} setStatus={setStatus}/>
-                     )}
- 
+              </TabsContent>
+
+              <TabsContent value="Table">
+                <PatientTableContent
+                  patients={prescriptionData}
+                  setChannelName={setChannelName}
+                  setStatus={setStatus}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {channelName && (
+            <VideoConsultation
+              channelName={channelName}
+              setChannelName={setChannelName}
+              isSheetOpen={isSheetOpen}
+              setIsSheetOpen={setIsSheetOpen}
+            />
+          )}
+          <GlobalSheet
+            isDialogOpen={isSheetOpen}
+            setIsDialogOpen={setIsSheetOpen}
+            label={`Patient Status: ${status || "Not Available"}`}
+            triggerText=""
+            buttonClassName="hidden"
+          >
+            <div>
+              {status === "Checked In" && (
+                <ScrollArea className={`h-screen`}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-xl mx-auto px-5">
+                    {categories.map((category, index) => (
+                      <div
+                        key={index}
+                        className="relative rounded-lg shadow-lg overflow-hidden bg-gray-800"
+                      >
+                        <div
+                          className="absolute inset-0 bg-cover bg-center"
+                          style={{
+                            backgroundImage: `url(${category.backgroundImage})`,
+                          }}
+                        ></div>
+
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1E3A8A]/90 to-[#3B82F6]/70 rounded-md"></div>
+
+                        <div className="relative p-4 text-white z-10 flex flex-col justify-between h-full">
+                          <div className="flex items-center space-x-2">
+                            <div>{category.icon}</div>
+                            <h3 className="text-sm font-semibold ">
+                              {" "}
+                              {category.name}
+                            </h3>
+                          </div>
+                          <p className="text-xs mt-2">{category.description}</p>
+                          <div className="flex justify-between">
+                            <div></div>
+                            <button
+                              onClick={() => handleButtonClick(category)}
+                              className="mt-1 bg-slate-300 text-blue-600 rounded-full shadow-lg flex items-center justify-center w-7 h-7"
+                              aria-label={`Fill details for ${category.name}`}
+                            >
+                              &rarr;
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {selectedCategory && (
+                      <FillDetailsSheet
+                        isDialogOpen={isFormSheetOpen}
+                        setIsDialogOpen={setIsFormSheetOpen}
+                        selectedCategory={selectedCategory}
+                        closeSheet={closeSheet}
+                      />
+                    )}
                   </div>
                 </ScrollArea>
-              </div>
-              
-            ))}
+              )}
+            </div>
+          </GlobalSheet>
+        </>: 
+        <div className="min-h-full  flex items-center justify-center">
+      <div className="text-center p-8 bg-white rounded-xl shadow-md max-w-96 w-full mx-4">
+        <div className="flex flex-col items-center gap-4">
+          <div className="rounded-full bg-[#e6f4f1] p-4">
+            <Calendar className="w-8 h-8 text-[#64c6b0]" />
           </div>
-        </TabsContent>
-
-        <TabsContent value="Table">
-          <PatientTableContent patients={prescriptionData} setChannelName={setChannelName} setStatus={setStatus}/>
-        </TabsContent>
-      </Tabs>
+          <h2 className="text-xl font-semibold text-gray-800">
+            No Appointments Found
+          </h2>
+          <p className="text-gray-600">
+            There are currently no appointments scheduled. Check back later or create a new appointment.
+          </p>
+        </div>
+      </div>
     </div>
-    
 
        
-       {channelName && 
-        <VideoConsultation channelName={channelName} setChannelName={setChannelName} isSheetOpen={isSheetOpen} setIsSheetOpen={setIsSheetOpen}/>
-        }
-       <GlobalSheet
-        isDialogOpen={isSheetOpen}
-        setIsDialogOpen={setIsSheetOpen}
-        label={`Patient Status: ${status || "Not Available"}`}
-        triggerText=""
-        buttonClassName="hidden"
-      >
-        <div>
-          {status === "Checked In" && (
-            <ScrollArea className={`h-screen`}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-xl mx-auto px-5">
-                {categories.map((category, index) => (
-                  <div
-                    key={index}
-                    className="relative rounded-lg shadow-lg overflow-hidden bg-gray-800"
-                  >
-                  
-                    <div
-                      className="absolute inset-0 bg-cover bg-center"
-                      style={{
-                        backgroundImage: `url(${category.backgroundImage})`,
-                      }}
-                    ></div>
-
-                    
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1E3A8A]/90 to-[#3B82F6]/70 rounded-md"></div>
-
-                  
-                    <div className="relative p-4 text-white z-10 flex flex-col justify-between h-full">
-                      <div className="flex items-center space-x-2">
-                        <div>{category.icon}</div>
-                        <h3 className="text-sm font-semibold ">
-                          {" "}
-                          {category.name}
-                        </h3>
-                      </div>
-                      <p className="text-xs mt-2">{category.description}</p>
-                      <div className="flex justify-between">
-                        <div></div>
-                        <button
-                          onClick={() => handleButtonClick(category)}
-                          className="mt-1 bg-slate-300 text-blue-600 rounded-full shadow-lg flex items-center justify-center w-7 h-7"
-                          aria-label={`Fill details for ${category.name}`}
-                        >
-                          &rarr;
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                {selectedCategory && (
-                  <FillDetailsSheet
-                    isDialogOpen={isFormSheetOpen}
-                    setIsDialogOpen={setIsFormSheetOpen}
-                    selectedCategory={selectedCategory}
-                    closeSheet={closeSheet}
-                  />
-                )}
-              </div>
-            </ScrollArea>
-          )}
-        </div>
-      </GlobalSheet>  
-    
+      )}
     </div>
   );
 }

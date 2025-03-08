@@ -65,8 +65,9 @@ function PatientTableContent({ patients ,setChannelName ,setStatus }) {
             patient.startDateTime,
             patient.endDateTime
           );
-
+          
           return (
+            patient.visitType === "Online"&&
             <TableRow key={index} className={`text-center`}>
               <TableCell>
                 {`${patient.patientData.firstName} ${patient.patientData.lastName}`}
@@ -118,7 +119,7 @@ function PatientTableContent({ patients ,setChannelName ,setStatus }) {
             colSpan="5"
             className="py-4 text-center text-gray-500 text-sm"
           >
-            No patients found.
+            No appointment found.
           </TableCell>
         </TableRow>
       )}

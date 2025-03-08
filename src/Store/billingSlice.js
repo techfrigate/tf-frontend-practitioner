@@ -8,7 +8,7 @@ const initialState = {
   billings: [],     
   totalPages: 0, 
   error: null,
-  billingStatus: "idle",
+  isLoading: false,
 };
 
 const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
@@ -28,13 +28,13 @@ export const createBilling = createAsyncThunk(
           },
         }
       );
-      return response.data;
+      return response.data.data;
     } catch (error) {
-       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
-              const route = "/status-failed"
-              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
-            }
-      return rejectWithValue(error.response?.data?.message || "An error occurred");
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -49,14 +49,14 @@ export const getBillingById = createAsyncThunk(
           Authorization: `Bearer ${Cookies.get("Token")}`,
         },
       });
-      console.log(response.data,"bill data")
-      return response.data; 
+  
+      return response.data.data; 
     } catch (error) {
-      if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
         const route = "/status-failed"
         await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
       }
-      return rejectWithValue(error.response?.data?.message || "An error occurred");
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -80,15 +80,15 @@ export const getAllBillings = createAsyncThunk(
           doctorId:doctorId,
         },
       });
-      console.log("Received billings:", response.data);  
+     
 
-      return response.data; 
+      return response.data.data; 
     } catch (error) {
-      if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
         const route = "/status-failed"
         await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
       }
-      return rejectWithValue(error.response?.data?.message || "An error occurred");
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -107,14 +107,14 @@ export const updateBilling = createAsyncThunk(
           },
         }
       );
-      console.log(response.data)
-      return response.data;  
+    
+      return response.data.data;  
     } catch (error) {
-      if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
         const route = "/status-failed"
         await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
       }
-      return rejectWithValue(error.response?.data?.message || "An error occurred");
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -122,19 +122,23 @@ export const updateBilling = createAsyncThunk(
 const billingSlice = createSlice({
   name: "billing",
   initialState,
-  reducers: {},
+  reducers: {
+    clearBillingError:(state)=>{
+      state.error=null
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createBilling.pending, (state) => {
-        state.billingStatus = "loading";
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(createBilling.fulfilled, (state, action) => {
-        state.billingStatus = "succeeded";
+        state.isLoading = false;
         state.billing = action.payload; 
       })
       .addCase(createBilling.rejected, (state, action) => {
-        state.billingStatus = "failed";
+        state.isLoading = false;
         state.error = action.payload; 
       })
       .addCase(getBillingById.pending, (state) => {
@@ -151,31 +155,32 @@ const billingSlice = createSlice({
       })
 
       .addCase(getAllBillings.pending, (state) => {
-        state.billingStatus = "loading";
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(getAllBillings.fulfilled, (state, action) => {
-        state.billingStatus = "succeeded";
+        state.isLoading = false;
         state.billings = action.payload.data;
         state.totalPages = action.payload.totalPages; 
       })
       .addCase(getAllBillings.rejected, (state, action) => {
-        state.billingStatus = "failed";
+        state.isLoading = false;
         state.error = action.payload; 
       })
       .addCase(updateBilling.pending, (state) => {
-        state.billingStatus = "loading";
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(updateBilling.fulfilled, (state, action) => {
-        state.billingStatus = "succeeded";
+        state.isLoading = false;
         state.billing = action.payload; 
       })
       .addCase(updateBilling.rejected, (state, action) => {
-        state.billingStatus = "failed";
+        state.isLoading = false;
         state.error = action.payload; 
       });
   },
 });
 
+export const {clearBillingError} = billingSlice.actions
 export default billingSlice.reducer;

@@ -80,7 +80,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               },
             }
           );
-          setTenant(response.data);
+          setTenant(response.data.data);
         } catch (error) {
           console.error(error);
         }
@@ -121,10 +121,11 @@ const Sidebar = ({ isOpen, onClose }) => {
       document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose]);
 
+ 
   return (
     <aside
       ref={sidebarRef}
-      className={`w-60 min-w-60 h-full pl-2 pt-2 pb-3 fixed z-50 top-0 left-0 lg:static lg:block transition-transform duration-300 ${
+      className={`w-60 min-w-60 h-full pl-2 pt-2 pb-3 fixed z-50 lg:z-0 top-0 left-0 lg:static lg:block transition-transform duration-300 ${
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       }`}
     >

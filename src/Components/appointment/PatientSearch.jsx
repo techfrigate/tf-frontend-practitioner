@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import Avatar from "@mui/material/Avatar";
-
-const PatientSearch = ({ patientsData, handlePatientSelect }) => {
+import Cookies from "js-cookie";
+import { useSelector } from "react-redux";
+const PatientSearch = ({ handlePatientSelect }) => {
   const [patientOptions, setPatientOptions] = useState([]);
-
+  const { patients:patientsData,isLoading,error} = useSelector((state) => state.patient);
   const calculatePreciseAge = (dobString) => {
     const dob = new Date(dobString);
     const today = new Date();
@@ -19,7 +20,7 @@ const PatientSearch = ({ patientsData, handlePatientSelect }) => {
 
   useEffect(() => {
     const patients = patientsData
-      .filter(patient => patient.status === true)
+      .filter(patient => patient.tenants.find(tenant => tenant.status && tenant.tenantId === Cookies.get("TenantId") && tenant.userType === "patient"))
       .map((patient) => ({
         name: `${patient?.firstName} ${patient?.lastName}`,
         age: calculatePreciseAge(patient.dob),
@@ -28,6 +29,8 @@ const PatientSearch = ({ patientsData, handlePatientSelect }) => {
       }));
     setPatientOptions(patients);
   }, [patientsData]);
+
+
 
   return (
     <Autocomplete
@@ -62,6 +65,9 @@ const PatientSearch = ({ patientsData, handlePatientSelect }) => {
           </div>
         </li>
       )}
+      loading={isLoading}
+      loadingText="Loading patinets..."
+      noOptionsText={isLoading ? "Loading..." : "No patients found"}
     />
   );
 };

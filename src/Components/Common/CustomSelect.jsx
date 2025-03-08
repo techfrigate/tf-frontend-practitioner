@@ -10,7 +10,7 @@ const CustomSelect = ({
   required,
 }) => {
   const locationTypes = ["country", "state", "city"];
-
+ 
   return (
     <div className="flex flex-col w-full ">
       <label htmlFor={id} className="text-gray-800 text-sm font-medium mb-1">

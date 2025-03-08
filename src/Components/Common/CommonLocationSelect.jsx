@@ -6,8 +6,7 @@ const CommonLocationSelect = ({ locations, value, onChange, onClear,isInvalid })
   const [showLocationList, setShowLocationList] = useState(false);
 
   const suggestedLocations = useMemo(() => {
-    return locations
-      .filter(location => location.status === true)
+    return locations?.filter(location => location.status === true)
       .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0))
       .slice(0, 5);
   }, [locations]);
@@ -15,7 +14,7 @@ const CommonLocationSelect = ({ locations, value, onChange, onClear,isInvalid })
   const filteredLocations = useMemo(() => {
     if (!searchQuery) return suggestedLocations;
     
-    return locations.filter(
+    return locations?.filter(
       ({displayName, name, address, status }) =>
         status === true &&
         [displayName,name, address.city, address.state].some((field) =>
@@ -90,7 +89,7 @@ const CommonLocationSelect = ({ locations, value, onChange, onClear,isInvalid })
             )
           ) : (
             <div>
-              {suggestedLocations.map((location) => (
+              {suggestedLocations && suggestedLocations.length && suggestedLocations?.map((location) => (
                 <div
                   key={location._id}
                   className="flex items-center p-4 cursor-pointer hover:bg-gray-50"

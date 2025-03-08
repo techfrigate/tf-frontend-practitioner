@@ -42,7 +42,7 @@ const ScheduleSelector = ({
                 <div
                   key={index}
                   className={`w-24 h-20 flex-shrink-0 flex flex-col items-center justify-center rounded-lg cursor-pointer transition-colors duration-200 ${
-                    selectedDate.startDate === item.startDate
+                    selectedDate.slotId === item._id
                       ? "bg-black text-white"
                       : "bg-white border border-gray-300 text-gray-800"
                   }`}
