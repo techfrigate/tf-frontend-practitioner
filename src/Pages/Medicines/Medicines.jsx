@@ -8,7 +8,7 @@ import {
   getAllMedicines,
 } from "../../Store/MedicinesSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { PackageSearch } from "lucide-react"; // Importing icon from lucide-react
+import { PackageSearch } from "lucide-react";  
 import Loader from "../../Components/Common/Loader";
 import toast from "react-hot-toast";
 const Medicines = () => {

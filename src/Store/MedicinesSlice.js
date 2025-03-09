@@ -10,6 +10,7 @@ const initialState = {
   error: null,         
   medicineStatus: "idle",
   isLoading: false,
+  pharmacies:null
 };
 
 const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
@@ -78,7 +79,7 @@ export const getMedicineById = createAsyncThunk(
           Authorization: `Bearer ${Cookies.get("Token")}`,
         },
       });
-      console.log(response,"response")
+    
       return response.data.data; 
     } catch (error) {
       if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
@@ -127,6 +128,28 @@ export const deleteMedicine = createAsyncThunk(
         },
       });
       return medId;
+    } catch (error) {
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
+    }
+  }
+);
+
+
+export const getAllPharmacies = createAsyncThunk(
+  "medicines/getAllPharmacies",
+  async ({locationId}, { rejectWithValue,dispatch }) => {
+    try {
+      const response = await axios.get(`${ADMIN_URL}/pharmacy`, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("Token")}`,
+          'location-id':locationId
+        },
+      });
+      return response.data.data.data;
     } catch (error) {
       if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
         const route = "/status-failed"
@@ -209,7 +232,20 @@ const medicinesSlice = createSlice({
       .addCase(deleteMedicine.rejected, (state, action) => {
         state.medicineStatus = "failed";
         state.error = action.payload;
-      });
+      })
+      .addCase(getAllPharmacies.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getAllPharmacies.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.pharmacies = action.payload;
+      })
+      .addCase(getAllPharmacies.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      ;
   },
 });
 

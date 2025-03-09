@@ -8,7 +8,7 @@ const MedicinesTd = () => {
   const { medicines } = useSelector((state) => state.Medicines);
 
   const navigateToBill = (id) => {
-    navigate(`/add-medicine?id=${id}`);
+    navigate(`/add-medicine?mid=${id}`);
   };
 
   const formatDateTime = (dateTime) => {

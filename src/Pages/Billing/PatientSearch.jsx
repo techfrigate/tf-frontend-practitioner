@@ -58,8 +58,8 @@ const PatientSearch = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
-console.log(patients,"patinets")
+  }, []); 
+  
   useEffect(() => {
     if (error) {
       toast.error(error);

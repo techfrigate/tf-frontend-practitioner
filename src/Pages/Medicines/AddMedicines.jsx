@@ -14,10 +14,12 @@ import { fetchLocations } from "../../Store/locationSlice";
 import {
   clearMadicinesError,
   createMedicine,
+  getAllPharmacies,
   getMedicineById,
   updateMedicine,
 } from "../../Store/MedicinesSlice";
 import Cookies from "js-cookie";
+import Loader from "../../Components/Common/Loader";
 
 const INITIAL_FORM_STATE = {
   locationName: null,
@@ -58,7 +60,7 @@ const AddMedicines = () => {
   const [availablePharmacies, setAvailablePharmacies] = useState([]);
 
   // eslint-disable-next-line
-  const medicineId = searchParams.get("id");
+  const medicineId = searchParams.get("mid");
 
   useEffect(() => {
     if (!locations?.length) {
@@ -73,7 +75,7 @@ const AddMedicines = () => {
     }
   }, [dispatch, locations]);
   const { profileData } = useSelector((state) => state.profile);
-  const { isLoading, error } = useSelector((state) => state.Medicines);
+  const { isLoading, error ,pharmacies} = useSelector((state) => state.Medicines);
 
   useEffect(() => {
     const fetchMedicineData = async () => {
@@ -89,16 +91,9 @@ const AddMedicines = () => {
         if (!locationObj) {
            toast.error("Location not found in this madicine data.");
         }
+       const pharmacies = await getPharmacies(locationObj._id)
 
-        const pharmacyOptions =
-          locationObj.pharmacy?.map((p) => ({
-            value: p._id,
-            label: p.name,
-            ...p,
-          })) || [];
-        setAvailablePharmacies(pharmacyOptions);
-
-        const pharmacyObj = locationObj.pharmacy?.find(
+        const pharmacyObj = pharmacies.find(
           (p) => p._id === medicineData.pharmacyId
         );
         if (!pharmacyObj) {
@@ -127,39 +122,61 @@ const AddMedicines = () => {
   }, [medicineId, locations,dispatch, navigate]);
 
   const handleChange = (name, value) => {
+ console.log(value)
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (value != null && value !== "") {
+    if (value) {
       setInvalidFields((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
-  const handleLocationSelect = (location) => {
+
+  const handleDateChange = (name, value) => {
+    if (value && value.$d) {
+      const formattedDate = value.toISOString();  
+      console.log(formattedDate); // Check formatted value
+      setFormData((prev) => ({ ...prev, [name]: formattedDate }));  
+      setInvalidFields((prev) => ({ ...prev, [name]: "" }));  
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: null })); 
+    }
+  };
+  
+
+  const handleLocationSelect = async (location) => {
     handleChange("locationName", location);
     handleChange("pharmacyName", null);
+    getPharmacies(location._id)
+  };
 
-    const pharmacyOptions =
-      location?.pharmacy?.map((p) => ({
+  async function getPharmacies(id){
+    try {
+      const response = await dispatch(
+        getAllPharmacies({
+          locationId: id
+        })
+      ).unwrap();
+      const pharmacyOptions =
+      response?.map((p) => ({
         value: p._id,
         label: p.name,
         ...p,
       })) || [];
-
-    setAvailablePharmacies(pharmacyOptions);
-  };
-
-  const handlePharmacySelect = (selectedPharmacyId) => {
-    if (!selectedPharmacyId) {
-      handleChange("pharmacyName", null);
-      return;
+      setAvailablePharmacies(pharmacyOptions);
+      return response
+    } catch (error) {
+      console.log("Error fetching locations:", error);
     }
 
+  }
+
+  const handlePharmacySelect = (selectedPharmacyId) => {
     const pharmacy = availablePharmacies.find(
       (p) => p._id === selectedPharmacyId
     );
-    if (pharmacy) {
+   
       const { value, label, ...pharmacyData } = pharmacy;
       handleChange("pharmacyName", pharmacyData);
-    }
+    
   };
 
   const validateForm = () => {
@@ -187,10 +204,9 @@ const AddMedicines = () => {
     if (!validateForm()) return;
 
     const medicineData = {
-      locationName: formData.locationName.name,
       locationId: formData.locationName._id,
       tenantId: Cookies.get("TenantId"),
-      doctorId: profileData._id,
+      practitionerId: profileData._id,
       pharmacyName: formData.pharmacyName.name,
       pharmacyId: formData.pharmacyName._id,
       ...Object.fromEntries(
@@ -200,7 +216,7 @@ const AddMedicines = () => {
         )
       ),
     };
-
+ 
     try {
       if (medicineId) {
         await dispatch(
@@ -239,8 +255,8 @@ const AddMedicines = () => {
             inputFormat="DD-MM-YYYY"
             views={["year", "month", "day"]}
             openTo="day"
-            value={formData.expiryDate}
-            onChange={(date) => handleChange(field.id, date)}
+            value={formData.expiryDate ? dayjs(formData.expiryDate) : null}
+            onChange={(date) => {handleDateChange(field.id, date)}}
             renderInput={(params) => <CustomInput {...params} />}
             
             slotProps={{
@@ -296,8 +312,10 @@ const AddMedicines = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-2">
-      <div className="mx-auto bg-white rounded-lg shadow-sm p-2">
+    <div className="h-full bg-gray-50 p-2 ">
+   {  isLoading ? <Loader/>:
+      <div className="mx-auto h-full bg-white rounded-lg shadow-sm p-2">
+ 
         <form className="space-y-4">
           <div className="grid grid-cols-3 gap-3">
             <div className="flex flex-col ">
@@ -335,7 +353,10 @@ const AddMedicines = () => {
             />
           </div>
         </form>
+  
+       
       </div>
+   }
     </div>
   );
 };
