@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { setStatusFail } from "./statusFailSlice";
+import { serviceData } from "../Pages/Billing/billingdata";
 
 const initialState = {
   billing: {},        
@@ -9,10 +10,13 @@ const initialState = {
   totalPages: 0, 
   error: null,
   isLoading: false,
+  practitioners:null,
+  serviceData:null
 };
 
-const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
 
+const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
+const ACCOUNTS_URL = process.env.REACT_APP_ACCOUNTS_URL;
 export const createBilling = createAsyncThunk(
   "billing/createBilling",
   async (body, { rejectWithValue ,dispatch}) => {
@@ -119,6 +123,54 @@ export const updateBilling = createAsyncThunk(
   }
 );
 
+export const getservicesData = createAsyncThunk(
+  "billing/getservicesData",
+  async ({type,locationId}, { rejectWithValue,dispatch }) => {
+    try {
+      const response = await axios.get(`${ADMIN_URL}/${type}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("Token")}`,
+          "location-id":locationId,
+          tenantid: Cookies.get("TenantId"),
+        },
+      });
+      return response.data.data;  
+    } catch (error) {
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
+    }
+  }
+)
+
+export const getAllLocationPractitioners = createAsyncThunk(
+  "billing/getAllLocationPractitioners",
+  async ({ locationId ,userType}, { rejectWithValue,dispatch }) => {
+    try {
+      const response = await axios.get(`${ACCOUNTS_URL}/profiles/location-profile`, {
+     
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("Token")}`,
+          tenantid: Cookies.get("TenantId"),
+          locationid:locationId,
+          usertype:userType
+        },
+      });
+      return response.data.data; 
+    } catch (error) {
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
+    }
+          }
+);
+
 const billingSlice = createSlice({
   name: "billing",
   initialState,
@@ -178,7 +230,32 @@ const billingSlice = createSlice({
       .addCase(updateBilling.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload; 
-      });
+      })
+      .addCase(getAllLocationPractitioners.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getAllLocationPractitioners.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.practitioners = action.payload; 
+      })
+      .addCase(getAllLocationPractitioners.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload; 
+      })
+      .addCase(getservicesData.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getservicesData.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.serviceData = action.payload.data; 
+      })
+      .addCase(getservicesData.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload; 
+      })
+      ;
   },
 });
 

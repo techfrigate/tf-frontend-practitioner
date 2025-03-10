@@ -7,15 +7,15 @@ const DoctorSearch = ({
   searchQuery,
   setSearchQuery,
   onSelect,
+  practitioners=[],
   selectedDoctor,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const { profileData } = useSelector((state) => state.profile);
-  const doctors = profileData ? [profileData] : [];
-  const filteredDoctors =
-    searchQuery.trim() === ""
-      ? doctors
-      : doctors.filter(
+ 
+  const filteredDoctors = ()=>{
+   return  searchQuery.trim() === ""
+      ? practitioners
+      : practitioners.filter(
           (doctor) =>
             `${doctor.firstName} ${doctor.lastName}`
               .toLowerCase()
@@ -24,20 +24,20 @@ const DoctorSearch = ({
               ?.toLowerCase()
               .includes(searchQuery.toLowerCase())
         );
-
+      }
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest('.doctor-search-container')) {
         setIsVisible(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
+ 
   return (
     <div className="w-full space-y-4 space-x-2 doctor-search-container">
       {!selectedDoctor ? (
@@ -70,7 +70,7 @@ const DoctorSearch = ({
               msOverflowStyle: "none",
             }}
           >
-            {filteredDoctors.map((doctor) => (
+            { practitioners?.length && filteredDoctors().map((doctor) => (
               <div
                 key={doctor._id}
                 className="cursor-pointer p-4 hover:bg-gray-50 transition-all duration-200 
@@ -95,7 +95,7 @@ const DoctorSearch = ({
                 </div>
               </div>
             ))}
-            {filteredDoctors.length === 0 && (
+            {filteredDoctors()?.length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 No doctors found matching your search
               </div>
