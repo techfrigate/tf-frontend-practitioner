@@ -30,10 +30,14 @@ const PatientSearch = ({
     return `${age} years`;
   };
 
+  function findActivePatient(patient){
+    return patient.tenants.find(tenant => tenant.status && tenant.tenantId === Cookies.get("TenantId") && tenant.userType === "patient")
+  }
   const filteredPatients =
     searchQuery.trim() === ""
-      ? patients.filter((patient) => patient.tenants.find(tenant => tenant.status && tenant.tenantId === Cookies.get("TenantId") && tenant.userType === "patient"))
+      ? patients.filter((patient) => findActivePatient(patient))
       : patients.filter((patient) => {
+          const findActivePatient =  findActivePatient(patient)
           const searchLower = searchQuery.toLowerCase();
           const fullName =
             `${patient.firstName} ${patient.lastName}`.toLowerCase();
@@ -41,9 +45,9 @@ const PatientSearch = ({
           const email = patient.email?.toLowerCase() || "";
 
           return (
-            (fullName.includes(searchLower) ||
+            (findActivePatient && (fullName.includes(searchLower) ||
               phone.includes(searchLower) ||
-              email.includes(searchLower))
+              email.includes(searchLower)) )
           );
         });
 
