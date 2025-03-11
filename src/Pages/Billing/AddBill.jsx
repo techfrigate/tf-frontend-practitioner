@@ -114,38 +114,92 @@ const AddBill = () => {
     }
   }, [billIdFromUrl]);
 
+  // useEffect(() => {
+  //   if (!billIdFromUrl) return;
+    
+  //   dispatch(getBillingById(billIdFromUrl))
+  //     .unwrap()
+  //     .then((payload) => {
+  //       const { patientName, doctorName, phoneNumber, services, doctorFees, 
+  //               dueAmount, billId, patientId, doctorId, locationId } = payload;
+        
+  //       setSelectedPatient({
+  //         _id: patientId,
+  //         firstName: patientName.split(" ")[0],
+  //         lastName: patientName.split(" ")[1] || "",
+  //         phoneNumber
+  //       });
+        
+  //       setSelectedDoctor({
+  //         _id: doctorId,
+  //         firstName: doctorName.split(" ")[0],
+  //         lastName: doctorName.split(" ")[1] || "",
+  //       });
+        
+  //       const locationData = locations.find(loc => loc._id === locationId);
+  //       console.log(locationData)
+  //       if (locationData) setSelectedLocation(locationData);
+        
+  //       setBills(services || []);
+  //       setTotalAmount(services?.reduce((sum, service) => sum + (service.price * service.quantity), 0) || 0);
+  //       setDueAmount(dueAmount || 0);
+  //       setDoctorFees(doctorFees || 0);
+  //       setBillId(billId);
+  //     })
+  //     .catch((error) => toast.error(`Error fetching billing: ${error.message}`));
+  // }, [billIdFromUrl, dispatch, locations]);
+
   useEffect(() => {
     if (!billIdFromUrl) return;
     
     dispatch(getBillingById(billIdFromUrl))
       .unwrap()
-      .then((payload) => {
-        const { patientName, doctorName, phoneNumber, services, doctorFees, 
-                dueAmount, billId, patientId, doctorId, locationId } = payload;
+      .then((response) => {
+        console.log("Response received:", response);
+        
+        // Extract the first item from the array
+        const payload = Array.isArray(response) ? response[0] : response;
+        
+        if (!payload) {
+          toast.error("No billing data found");
+          return;
+        }
+        
+        console.log("Processed payload:", payload);
         
         setSelectedPatient({
-          _id: patientId,
-          firstName: patientName.split(" ")[0],
-          lastName: patientName.split(" ")[1] || "",
-          phoneNumber
+          _id: payload.patientId,
+          firstName: payload.patient?.firstName || "",
+          lastName: payload.patient?.lastName || "",
+          phoneNumber: payload.phoneNumber || null
         });
         
         setSelectedDoctor({
-          _id: doctorId,
-          firstName: doctorName.split(" ")[0],
-          lastName: doctorName.split(" ")[1] || "",
+          _id: payload.practitionerId,
+          firstName: payload.practitioner?.firstName || "",
+          lastName: payload.practitioner?.lastName || "",
         });
         
-        const locationData = locations.find(loc => loc._id === locationId);
-        if (locationData) setSelectedLocation(locationData);
+        const locationData = locations.find(loc => loc._id === payload.locationId);
+        if (locationData) {
+          setSelectedLocation(locationData);
+        } else {
+          setSelectedLocation({
+            _id: payload.locationId,
+            name: payload.locationDisplayName || "Unknown Location"
+          });
+        }
         
-        setBills(services || []);
-        setTotalAmount(services?.reduce((sum, service) => sum + (service.price * service.quantity), 0) || 0);
-        setDueAmount(dueAmount || 0);
-        setDoctorFees(doctorFees || 0);
-        setBillId(billId);
+        setBills(payload.services || []);
+        setTotalAmount(payload.totalAmount || 0);
+        setDueAmount(payload.dueAmount || 0);
+        setDoctorFees(payload.doctorFees || 0);
+        setBillId(payload.billId || "");
       })
-      .catch((error) => toast.error(`Error fetching billing: ${error.message}`));
+      .catch((error) => {
+        console.error("Full error:", error);
+        toast.error(`Error fetching billing: ${error.message}`);
+      });
   }, [billIdFromUrl, dispatch, locations]);
 
   useEffect(() => {
