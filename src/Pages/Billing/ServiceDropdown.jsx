@@ -16,7 +16,7 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
   
   const dispatch = useDispatch();
   
-  const { medicines ,isLoading,error} = useSelector((state) => state.Medicines);
+  const { medicines ,isLoading,error} = useSelector((state) => state.medicines);
   const {serviceData} = useSelector(state => state.billing);
  
   const categoryIcons = {
@@ -105,13 +105,7 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
     setMaxAvailableQuantity(0);
   };
 
-  const calculatePackagePrice = (package_) => {
-    const diagnosticsTotal = (package_.diagnostics || []).reduce((sum, item) => 
-      sum + (parseFloat(item.price) || 0), 0);
-    const servicesTotal = (package_.services || []).reduce((sum, item) => 
-      sum + (parseFloat(item.price) || 0), 0);
-    return diagnosticsTotal + servicesTotal;
-  };
+
 
   const getServiceOptions = () => {
     // const services = getServices(category);

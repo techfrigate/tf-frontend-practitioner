@@ -19,7 +19,7 @@ const Medicines = () => {
   const itemsPerPage = 5;
   const dispatch = useDispatch();
   const { totalPages, medicines, isLoading, error } = useSelector(
-    (state) => state.Medicines
+    (state) => state.medicines
   );
   const { profileData } = useSelector((state) => state.profile);
 
