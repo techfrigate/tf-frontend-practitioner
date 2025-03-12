@@ -27,7 +27,7 @@ const MedicalRackApp = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { locations } = useSelector(state => state.locations);
-  const { medicines, error } = useSelector(state => state.Medicines);
+  const { medicines, error } = useSelector(state => state.medicines);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedPharmacy, setSelectedPharmacy] = useState(null);
   const [availablePharmacies, setAvailablePharmacies] = useState([]);

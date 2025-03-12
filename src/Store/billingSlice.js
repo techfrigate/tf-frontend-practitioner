@@ -68,7 +68,7 @@ export const getBillingById = createAsyncThunk(
 
 export const getAllBillings = createAsyncThunk(
   "billing/getAllBillings",
-  async ({ currentPage, itemsPerPage, sortBy, order,doctorId }, { rejectWithValue,dispatch }) => {
+  async ({ currentPage, itemsPerPage, sortBy, order,locationId }, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.get(`${ADMIN_URL}/billing`, {
         params: {
@@ -81,11 +81,9 @@ export const getAllBillings = createAsyncThunk(
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("Token")}`,
           tenantid: Cookies.get("TenantId"),
-          doctorId:doctorId,
+          "location-id":locationId,
         },
       });
-     
-
       return response.data.data; 
     } catch (error) {
       if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){

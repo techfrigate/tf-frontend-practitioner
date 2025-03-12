@@ -4,8 +4,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
-
-// Component imports
 import ServiceDropdown from "./ServiceDropdown";
 import BillTable from "./BillTable";
 import CustomButton from "../../Components/Common/CustomButton";
@@ -13,8 +11,6 @@ import DoctorSearch from "./DoctorSearch";
 import PatientSearch from "./PatientSearch";
 import LocationSearch from "./LocationSearch";
 import Loader from "../../Components/Common/Loader";
-
-// Redux actions
 import { clearBillingError, createBilling, getAllLocationPractitioners, getBillingById, updateBilling } from "../../Store/billingSlice";
 import { updateMedicine, getAllMedicines } from "../../Store/MedicinesSlice";
 import { fetchPatients } from "../../Store/patientSlice";
@@ -22,7 +18,6 @@ import { fetchLocations } from "../../Store/locationSlice";
 import { fetchLocationProfiles } from "../../Store/profileSlice";
 
 
-// Constants
 const GST_RATE = 0.18;
 
 const AddBill = () => {
@@ -30,9 +25,7 @@ const AddBill = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const billIdFromUrl = searchParams.get("id");
- 
-  // State
-  const [selectedLocation, setSelectedLocation] = useState(null);
+   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [bills, setBills] = useState([]);
@@ -47,33 +40,27 @@ const AddBill = () => {
     patient: ""
   });
 
-  // Redux state - use specific selectors to avoid unnecessary re-renders
   const profileData = useSelector((state) => state.profile.profileData);
   const locations = useSelector((state) => state.locations.locations);
   const { billing, isLoading, error ,practitioners} = useSelector((state) => state.billing);
 
-  // Derived values with useMemo
   const gstAmount = useMemo(() => totalAmount * GST_RATE, [totalAmount]);
   const totalWithGST = useMemo(() => totalAmount + gstAmount + doctorFees, 
     [totalAmount, gstAmount, doctorFees]);
   
-  // Memoized selector for showing billing form
   const showBillingForm = useMemo(() => 
     Boolean(selectedLocation && selectedPatient && selectedDoctor),
     [selectedLocation, selectedPatient, selectedDoctor]
   );
 
-  // Memoized common cookies values to prevent repeated access
   const cookieValues = useMemo(() => ({
     tenantId: Cookies.get("TenantId"),
     userId: Cookies.get("UserId"),
     token: Cookies.get("Token")
   }), []);
 
-  // Initial data fetching - use a single effect for related operations
   useEffect(() => {
     const fetchInitialData = async () => {
-      // Fetch patients and locations in parallel
       await Promise.all([
         dispatch(fetchPatients({ page: null, limit: 10 })),
         dispatch(fetchLocations({
@@ -88,7 +75,6 @@ const AddBill = () => {
     fetchInitialData();
   }, [dispatch]);
   
-  // fatch practitioner profile when location change
   useEffect(()=>{
     if(selectedLocation){
       dispatch(getAllLocationPractitioners({ 
@@ -96,9 +82,8 @@ const AddBill = () => {
         userType: "practitioner", 
       }));
     }
-
   },[selectedLocation])
-  // Separate effect for profile-dependent data fetching
+
   useEffect(() => {
     if (!profileData?._id) return;
     
@@ -123,49 +108,100 @@ const AddBill = () => {
     }
   }, [dispatch, profileData, cookieValues]);
 
-  // Generate bill ID for new bills - only run once
   useEffect(() => {
     if (!billIdFromUrl) {
       setBillId(`${Math.random().toString(36).substring(2, 6).toUpperCase()}${Date.now()}`);
     }
   }, [billIdFromUrl]);
 
-  // Load existing bill data if editing
+  // useEffect(() => {
+  //   if (!billIdFromUrl) return;
+    
+  //   dispatch(getBillingById(billIdFromUrl))
+  //     .unwrap()
+  //     .then((payload) => {
+  //       const { patientName, doctorName, phoneNumber, services, doctorFees, 
+  //               dueAmount, billId, patientId, doctorId, locationId } = payload;
+        
+  //       setSelectedPatient({
+  //         _id: patientId,
+  //         firstName: patientName.split(" ")[0],
+  //         lastName: patientName.split(" ")[1] || "",
+  //         phoneNumber
+  //       });
+        
+  //       setSelectedDoctor({
+  //         _id: doctorId,
+  //         firstName: doctorName.split(" ")[0],
+  //         lastName: doctorName.split(" ")[1] || "",
+  //       });
+        
+  //       const locationData = locations.find(loc => loc._id === locationId);
+  //       console.log(locationData)
+  //       if (locationData) setSelectedLocation(locationData);
+        
+  //       setBills(services || []);
+  //       setTotalAmount(services?.reduce((sum, service) => sum + (service.price * service.quantity), 0) || 0);
+  //       setDueAmount(dueAmount || 0);
+  //       setDoctorFees(doctorFees || 0);
+  //       setBillId(billId);
+  //     })
+  //     .catch((error) => toast.error(`Error fetching billing: ${error.message}`));
+  // }, [billIdFromUrl, dispatch, locations]);
+
   useEffect(() => {
     if (!billIdFromUrl) return;
     
     dispatch(getBillingById(billIdFromUrl))
       .unwrap()
-      .then((payload) => {
-        const { patientName, doctorName, phoneNumber, services, doctorFees, 
-                dueAmount, billId, patientId, doctorId, locationId } = payload;
+      .then((response) => {
+        console.log("Response received:", response);
+        
+        // Extract the first item from the array
+        const payload = Array.isArray(response) ? response[0] : response;
+        
+        if (!payload) {
+          toast.error("No billing data found");
+          return;
+        }
+        
+        console.log("Processed payload:", payload);
         
         setSelectedPatient({
-          _id: patientId,
-          firstName: patientName.split(" ")[0],
-          lastName: patientName.split(" ")[1] || "",
-          phoneNumber
+          _id: payload.patientId,
+          firstName: payload.patient?.firstName || "",
+          lastName: payload.patient?.lastName || "",
+          phoneNumber: payload.phoneNumber || null
         });
         
         setSelectedDoctor({
-          _id: doctorId,
-          firstName: doctorName.split(" ")[0],
-          lastName: doctorName.split(" ")[1] || "",
+          _id: payload.practitionerId,
+          firstName: payload.practitioner?.firstName || "",
+          lastName: payload.practitioner?.lastName || "",
         });
         
-        const locationData = locations.find(loc => loc._id === locationId);
-        if (locationData) setSelectedLocation(locationData);
+        const locationData = locations.find(loc => loc._id === payload.locationId);
+        if (locationData) {
+          setSelectedLocation(locationData);
+        } else {
+          setSelectedLocation({
+            _id: payload.locationId,
+            name: payload.locationDisplayName || "Unknown Location"
+          });
+        }
         
-        setBills(services || []);
-        setTotalAmount(services?.reduce((sum, service) => sum + (service.price * service.quantity), 0) || 0);
-        setDueAmount(dueAmount || 0);
-        setDoctorFees(doctorFees || 0);
-        setBillId(billId);
+        setBills(payload.services || []);
+        setTotalAmount(payload.totalAmount || 0);
+        setDueAmount(payload.dueAmount || 0);
+        setDoctorFees(payload.doctorFees || 0);
+        setBillId(payload.billId || "");
       })
-      .catch((error) => toast.error(`Error fetching billing: ${error.message}`));
+      .catch((error) => {
+        console.error("Full error:", error);
+        toast.error(`Error fetching billing: ${error.message}`);
+      });
   }, [billIdFromUrl, dispatch, locations]);
 
-  // Error handling
   useEffect(() => {
     if (!error) return;
     
@@ -174,7 +210,6 @@ const AddBill = () => {
     return () => clearTimeout(timerId);
   }, [error, dispatch]);
   
-  // Handlers as useCallbacks to prevent unnecessary re-renders
   const handleAddService = useCallback((newService) => {
     setBills(prev => [...prev, newService]);
     setTotalAmount(prev => prev + (newService.price * newService.quantity));
@@ -237,41 +272,29 @@ const AddBill = () => {
   }, []);
 
   const handleCreateBilling = useCallback(async () => {
-    // Validation
     if (!selectedPatient || !selectedDoctor || !selectedLocation) {
       toast.error("Please select patient, doctor, and location!");
       return;
     }
-
     if (bills.length === 0) {
       toast.error("Please add at least one service or item!");
       return;
     }
-
     const tenantId = cookieValues.tenantId;
     const status = dueAmount === 0;
     const medicineUpdates = validateMedicineUpdates(bills);
-    
     try {
-      // Update medicine inventory first
       await Promise.all(
         medicineUpdates.map(update => dispatch(updateMedicine(update)).unwrap())
       );
-
-      // Prepare billing data
       const commonData = {
         patientId: selectedPatient._id,
-        // patientName: `${selectedPatient.firstName} ${selectedPatient.lastName || ""}`.trim(),
-        // doctorName: `${selectedDoctor.firstName} ${selectedDoctor.lastName || ""}`.trim(),
-        doctorId: selectedDoctor._id,
-        // locationName: selectedLocation.name,
+        practitionerId: selectedDoctor._id,
         locationId: selectedLocation._id,
         uhid: selectedPatient.uhid, 
         billId,
         phoneNumber: selectedPatient.phoneNumber,
       };
-      
-
       const billingData = {
         services: bills.map(bill => ({
           ...bill, 
@@ -288,16 +311,13 @@ const AddBill = () => {
         tenantId,
         paidAmount
       };
- 
-      // Create or update the billing
-      const result = billIdFromUrl
+       const result = billIdFromUrl
         ? await dispatch(updateBilling({
             billId: billIdFromUrl,
             body: { ...billingData, phoneNumber: billing?.phoneNumber || selectedPatient.phoneNumber }
           })).unwrap()
         : await dispatch(createBilling({ ...billingData, ...commonData })).unwrap();
       
-      // Success handling
       toast.success(`Billing record ${billIdFromUrl ? 'updated' : 'created'} successfully!`);
       navigate('/paymentconfirmation', {
         state: {
@@ -321,8 +341,7 @@ const AddBill = () => {
     billing, dispatch, navigate, validateMedicineUpdates
   ]);
 
-  // Memoize the search components to prevent unnecessary re-renders
-  const searchComponents = useMemo(() => (
+ const searchComponents = useMemo(() => (
     <div className="flex justify-between items-center w-max gap-5">
       <LocationSearch
         searchQuery={searchQueries.location}
@@ -351,7 +370,6 @@ const AddBill = () => {
     selectedLocation, selectedDoctor, selectedPatient
   ]);
 
-  // Memoize the summary calculations section
   const summarySection = useMemo(() => (
     <div className="space-y-1">
       <div className="flex justify-between items-center text-gray-600">
@@ -380,7 +398,6 @@ const AddBill = () => {
     </div>
   ), [totalAmount, gstAmount, doctorFees, totalWithGST, dueAmount]);
 
-  // Memoize the payment section
   const paymentSection = useMemo(() => (
     <div className="space-y-1">
       <div>

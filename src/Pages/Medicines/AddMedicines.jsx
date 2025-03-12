@@ -75,7 +75,7 @@ const AddMedicines = () => {
     }
   }, [dispatch, locations]);
   const { profileData } = useSelector((state) => state.profile);
-  const { isLoading, error ,pharmacies} = useSelector((state) => state.Medicines);
+  const { isLoading, error ,pharmacies} = useSelector((state) => state.medicines);
 
   useEffect(() => {
     const fetchMedicineData = async () => {

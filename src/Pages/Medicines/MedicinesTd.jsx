@@ -5,7 +5,7 @@ import { MdModeEdit } from "react-icons/md";
 
 const MedicinesTd = () => {
   const navigate = useNavigate();
-  const { medicines } = useSelector((state) => state.Medicines);
+  const { medicines } = useSelector((state) => state.medicines);
 
   const navigateToBill = (id) => {
     navigate(`/add-medicine?mid=${id}`);
