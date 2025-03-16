@@ -24,11 +24,11 @@ const WorkList = () => {
   };
 
   return (
-    <div className="sm:rounded-lg h-[100%] p-2">
+    <div className="sm:rounded-lg h-[100%]">
       {showPatientDetail ? (
         <PatientDetails/>
       ) : (
-        <div>
+        <div> 
           <CustomTable trHeader={WorkListtrHeader}>
             <WorkListTd
               offset={offset}

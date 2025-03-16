@@ -9,6 +9,7 @@ const formatTime = (dateString) => {
   return format(localDate, "hh:mm a");
 };
 const SlotGroup = ({title,slots,selectedTimeSlot,handleTimeSlotSelect}) => {
+  console.log(slots);
   return (
     <div className="mb-6">
       <h1 className="text-md font-semibold text-gray-600 mb-3">{title}</h1>

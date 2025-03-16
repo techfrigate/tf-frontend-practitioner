@@ -146,7 +146,8 @@ export const getAllPharmacies = createAsyncThunk(
       const response = await axios.get(`${ADMIN_URL}/pharmacy`, {
         headers: {
           Authorization: `Bearer ${Cookies.get("Token")}`,
-          'location-id':locationId
+          'location-id':locationId,
+          tenantId: Cookies.get("TenantId"),
         },
       });
       return response.data.data.data;
