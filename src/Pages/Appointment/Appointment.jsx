@@ -107,7 +107,7 @@ const Appointment = () => {
 
     const futureSlots = doctor.slots.filter(
       (slot) =>
-        isAfter(parseISO(slot.startDate), new Date()) ||
+        isAfter(parseISO(slot.startDate), new Date())||
         isToday(parseISO(slot.startDate))
     );
 

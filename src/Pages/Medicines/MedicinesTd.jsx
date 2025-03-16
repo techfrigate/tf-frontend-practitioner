@@ -30,7 +30,7 @@ const MedicinesTd = () => {
           </td>
           <td className="py-4 px-6 font-medium">{item.locationName}</td>
           <td className="py-4 px-6 font-medium">{item.medicineName}</td>
-          <td className="py-4 px-6 font-medium">{item.manufacturedBy}</td>
+          <td className="py-4 px-6 font-medium">{item.manufacturedBy || "--"}</td>
           <td className="py-4 px-6 text-[13px] font-medium">
             {formatDateTime(item.expiryDate)}
           </td>

@@ -159,7 +159,7 @@ function PatientDetails() {
   }
 
   return (
-    <div className={`h-full w-full p-1 relative`}>
+    <div className={`h-full w-full   ${channelName?"p-0":"p-2"} relative`}>
       {isLoading ? (
         <Loader />
       ) : (

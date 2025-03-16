@@ -38,7 +38,17 @@ const VideoConsultation = ({ channelName,isSheetOpen,setIsSheetOpen,setChannelNa
 
   const {messages,sendMessage} = useAgoraRTM(APP_ID, channelName, rtmToken, chatuid.current);
 
+  useEffect(() => {
+    if (channelName) {
+      document.body.style.overflow = "hidden"; 
+    } else {
+      document.body.style.overflow = "auto";  
+    }
 
+    return () => {
+      document.body.style.overflow = "auto";  
+    };
+  }, [channelName]);
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -170,7 +180,7 @@ const VideoConsultation = ({ channelName,isSheetOpen,setIsSheetOpen,setChannelNa
 
   return (
 
-      <div className="h-full w-full absolute top-0 left-0 customScrollbar z-50">
+      <div className="h-full w-full border border-red-400 absolute left-0 bottom-0 right-0 top-0  z-50">
         <div
           className={`flex flex-col h-full w-full  ${
             isMinimized ? 'fixed bottom-4 right-4 h-48 w-80 rounded-lg shadow-lg' : ''
