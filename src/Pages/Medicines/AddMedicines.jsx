@@ -17,6 +17,7 @@ import {
   getAllPharmacies,
   getMedicineById,
   updateMedicine,
+  getPharmacies
 } from "../../Store/MedicinesSlice";
 import Cookies from "js-cookie";
 import Loader from "../../Components/Common/Loader";
@@ -36,8 +37,6 @@ const INITIAL_FORM_STATE = {
   sale: "",
   mrpPerUnit: "",
   expiryDate: null,
-  // prescriptionRequired: false,
-  // enable: false,
 };
 
 const REQUIRED_FIELDS = [
@@ -74,55 +73,67 @@ const AddMedicines = () => {
       );
     }
   }, [dispatch, locations]);
+
   const { profileData } = useSelector((state) => state.profile);
-  const { isLoading, error ,pharmacies} = useSelector((state) => state.medicines);
+  const { isLoading, error } = useSelector((state) => state.medicines);
 
-  useEffect(() => {
-    const fetchMedicineData = async () => {
-      if (!medicineId) return;
-      try {
-        const medicineData = await dispatch(
-          getMedicineById(medicineId)
-        ).unwrap();
-
-        const locationObj = locations.find(
-          (loc) => loc._id === medicineData.locationId
-        );
-        if (!locationObj) {
-           toast.error("Location not found in this madicine data.");
-        }
-       const pharmacies = await getPharmacies(locationObj._id)
-
-        const pharmacyObj = pharmacies.find(
-          (p) => p._id === medicineData.pharmacyId
-        );
-        if (!pharmacyObj) {
-          throw new Error(
-            `Pharmacy not found for ID: ${medicineData.pharmacyId}`
-          );
-        }
-        const formattedData = {
-          ...medicineData,
-          locationName: locationObj,
-          pharmacyName: pharmacyObj,
-          expiryDate: dayjs(medicineData.expiryDate),
-          enable: medicineData.enable || false,
-          prescriptionRequired: medicineData.prescriptionRequired || false,
-        };
-
-        setFormData(formattedData);
-      } catch (error) {
-        console.log("Error fetching medicine:", error);
+useEffect(() => {
+  const fetchMedicineData = async () => {
+    if (!medicineId) return;
+    try {
+      const medicineData = await dispatch(getMedicineById(medicineId)).unwrap();
+            const locationObj = locations.find(loc => loc._id === medicineData.locationId);
+      if (!locationObj) {
+        toast.error("Location not found for this medicine data.");
+        return;
+      }      
+      const pharmacyResponse = await dispatch(getPharmacies({locationId: medicineData.locationId})).unwrap();
+      
+      const pharmacyObj = pharmacyResponse.find(
+        (p) => p._id === medicineData.pharmacyId
+      );
+      
+      if (!pharmacyObj) {
+        toast.error(`Pharmacy not found for ID: ${medicineData.pharmacyId}`);
+        return;
       }
-    };
-
-    if (medicineId && locations?.length) {
-      fetchMedicineData();
+      
+      const formattedData = {
+        ...medicineData,
+        locationName: locationObj,
+        pharmacyName: pharmacyObj,
+        expiryDate: dayjs(medicineData.expiryDate),
+        enable: medicineData.enable || false,
+        prescriptionRequired: medicineData.prescriptionRequired || false,
+      };
+      
+      setFormData(formattedData);
+      
+      const allPharmacies = await dispatch(
+        getAllPharmacies({
+          locationId: medicineData.locationId
+        })
+      ).unwrap();
+      
+      const pharmacyOptions = allPharmacies?.map((p) => ({
+        value: p._id,
+        label: p.name,
+        ...p,
+      })) || [];
+      
+      setAvailablePharmacies(pharmacyOptions);
+      
+    } catch (error) {
+      toast.error("Failed to load medicine data");
     }
-  }, [medicineId, locations,dispatch, navigate]);
+  };
+
+  if (medicineId && locations?.length) {
+    fetchMedicineData();
+  }
+}, [medicineId, locations, dispatch, navigate]);
 
   const handleChange = (name, value) => {
- console.log(value)
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (value) {
       setInvalidFields((prev) => ({ ...prev, [name]: "" }));
@@ -133,7 +144,6 @@ const AddMedicines = () => {
   const handleDateChange = (name, value) => {
     if (value && value.$d) {
       const formattedDate = value.toISOString();  
-      console.log(formattedDate); // Check formatted value
       setFormData((prev) => ({ ...prev, [name]: formattedDate }));  
       setInvalidFields((prev) => ({ ...prev, [name]: "" }));  
     } else {
@@ -145,10 +155,10 @@ const AddMedicines = () => {
   const handleLocationSelect = async (location) => {
     handleChange("locationName", location);
     handleChange("pharmacyName", null);
-    getPharmacies(location._id)
+    getPharmacie(location._id)
   };
 
-  async function getPharmacies(id){
+  async function getPharmacie(id){
     try {
       const response = await dispatch(
         getAllPharmacies({

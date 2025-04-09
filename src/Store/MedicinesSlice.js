@@ -5,7 +5,8 @@ import { setStatusFail } from "./statusFailSlice";
 
 const initialState = {
   medicine: {},        
-  medicines: [],       
+  medicines: [], 
+  locationPharmacy:[],      
   totalPages: 1,       
   error: null,         
   medicineStatus: "idle",
@@ -160,6 +161,26 @@ export const getAllPharmacies = createAsyncThunk(
     }
   }
 );
+export const getPharmacies = createAsyncThunk(
+  "medicines/getPharmacies",
+  async ({locationId}, { rejectWithValue,dispatch }) => {
+    try {
+      const response = await axios.get(`${ADMIN_URL}/pharmacy/pharmacy-by-location-id/${locationId}`, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("Token")}`,
+          tenantId: Cookies.get("TenantId"),
+        },
+      });
+      return response.data.data;
+    } catch (error) {
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
+    }
+  }
+);
 
 const medicinesSlice = createSlice({
   name: "medicines",
@@ -243,6 +264,18 @@ const medicinesSlice = createSlice({
         state.pharmacies = action.payload;
       })
       .addCase(getAllPharmacies.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(getPharmacies.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getPharmacies.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.locationPharmacy = action.payload;
+      })
+      .addCase(getPharmacies.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
