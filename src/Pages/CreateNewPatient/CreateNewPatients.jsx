@@ -104,6 +104,10 @@ const CreateNewPatients = () => {
     if (!validatePhoneNumber(personalInfo.phoneNumber)) {
       invalidObj.phoneNumber = `Please provide a valid 10-digit phone number`;
     }
+    
+    if (!/^\d{6}$/.test(addressInfo.zipCode)) {
+      invalidObj.zipCode = "Zipcode should be exactly 6 digits";
+    }
 
     if (!imageUrl && !patientId) {
       invalidObj.image = "Please provide a patient photo";
