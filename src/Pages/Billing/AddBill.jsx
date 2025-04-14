@@ -114,41 +114,6 @@ const AddBill = () => {
     }
   }, [billIdFromUrl]);
 
-  // useEffect(() => {
-  //   if (!billIdFromUrl) return;
-    
-  //   dispatch(getBillingById(billIdFromUrl))
-  //     .unwrap()
-  //     .then((payload) => {
-  //       const { patientName, doctorName, phoneNumber, services, doctorFees, 
-  //               dueAmount, billId, patientId, doctorId, locationId } = payload;
-        
-  //       setSelectedPatient({
-  //         _id: patientId,
-  //         firstName: patientName.split(" ")[0],
-  //         lastName: patientName.split(" ")[1] || "",
-  //         phoneNumber
-  //       });
-        
-  //       setSelectedDoctor({
-  //         _id: doctorId,
-  //         firstName: doctorName.split(" ")[0],
-  //         lastName: doctorName.split(" ")[1] || "",
-  //       });
-        
-  //       const locationData = locations.find(loc => loc._id === locationId);
-  //       console.log(locationData)
-  //       if (locationData) setSelectedLocation(locationData);
-        
-  //       setBills(services || []);
-  //       setTotalAmount(services?.reduce((sum, service) => sum + (service.price * service.quantity), 0) || 0);
-  //       setDueAmount(dueAmount || 0);
-  //       setDoctorFees(doctorFees || 0);
-  //       setBillId(billId);
-  //     })
-  //     .catch((error) => toast.error(`Error fetching billing: ${error.message}`));
-  // }, [billIdFromUrl, dispatch, locations]);
-
   useEffect(() => {
     if (!billIdFromUrl) return;
     
@@ -157,7 +122,6 @@ const AddBill = () => {
       .then((response) => {
         console.log("Response received:", response);
         
-        // Extract the first item from the array
         const payload = Array.isArray(response) ? response[0] : response;
         
         if (!payload) {
