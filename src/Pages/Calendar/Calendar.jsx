@@ -63,10 +63,6 @@ const renderEventContent = (eventInfo) => {
               <p className="text-gray-600">{eventInfo.event.extendedProps.doctorName}</p>
             </div>
           </div>
-
-          <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 mt-3">
-            <p className="text-sm text-gray-500 italic">Please arrive 15 minutes before your scheduled appointment time.</p>
-          </div>
         </div>
         <DialogFooter className="flex sm:justify-between gap-3 border-t pt-4">
           <Badge variant="outline" className="bg-primary/10 text-primary">
