@@ -39,6 +39,7 @@ const VideoConsultation = ({ channelName,isSheetOpen,setIsSheetOpen,setChannelNa
   const {messages,sendMessage} = useAgoraRTM(APP_ID, channelName, rtmToken, chatuid.current);
 
   useEffect(() => {
+    console.log(isAudioMuted, "isAudioMuted");
     if (channelName) {
       document.body.style.overflow = "hidden"; 
     } else {
