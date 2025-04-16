@@ -10,7 +10,6 @@ import CustomButton from "../../Components/Common/CustomButton";
 import DoctorSearch from "./DoctorSearch";
 import PatientSearch from "./PatientSearch";
 import LocationSearch from "./LocationSearch";
-import Loader from "../../Components/Common/Loader";
 import { clearBillingError, createBilling, getAllLocationPractitioners, getBillingById, updateBilling } from "../../Store/billingSlice";
 import { updateMedicine, getAllMedicines } from "../../Store/MedicinesSlice";
 import { fetchPatients } from "../../Store/patientSlice";
@@ -81,7 +80,7 @@ const AddBill = () => {
         locationId: selectedLocation._id, 
         userType: "practitioner", 
       }));
-    }
+    }// eslint-disable-next-line
   },[selectedLocation])
 
   useEffect(() => {
@@ -287,6 +286,10 @@ const AddBill = () => {
         state: {
           billing: {
             ...result.payload,
+            billId: billId,
+            patientName: selectedPatient.name || selectedPatient.firstName + ' ' + selectedPatient.lastName,
+            doctorName: selectedDoctor.name || selectedDoctor.firstName + ' ' + selectedDoctor.lastName,
+            services: bills,
             gst: gstAmount,
             totalAmount,
             doctorFees,
