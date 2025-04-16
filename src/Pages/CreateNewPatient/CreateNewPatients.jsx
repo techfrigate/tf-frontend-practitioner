@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PersonalInfo from "./PersonalInfo";
 import AddressInfo from "./AddressInfo";
 import {
@@ -14,11 +14,8 @@ import {
   fetchPatientById,
   patchPatientById,
 } from "../../Store/patientSlice";
-import Loading from "../../Components/Common/Loading";
 import CustomImageInput from "../../Components/Common/CustomImageInput";
 import toast from "react-hot-toast";
-import Loader from "../../Components/Common/Loader";
-import { User } from "lucide-react";
 import CustomButton from "../../Components/Common/CustomButton";
 
 const CreateNewPatients = () => {
@@ -44,13 +41,13 @@ const CreateNewPatients = () => {
   const navigate = useNavigate();
   const [imageUrl, setImageUrl] = useState("");
   const [inValidObject, setInvalidObject] = useState({});
-  const { profileData, status } = useSelector((state) => state.profile);
+  const { profileData } = useSelector((state) => state.profile);
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const patientId = searchParams.get("id");
   const { patient, saveStatus } = useSelector((state) => state.patient);
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = useCallback(async (e) => {
     try {
       const url = await getImageUrl(e);
       setImageUrl(url);
@@ -58,9 +55,9 @@ const CreateNewPatients = () => {
     } catch (error) {
       console.error("Failed to upload image:", error);
     }
-  };
+  }, []);
 
-  const handlePersonalInfoChange = (e) => {
+  const handlePersonalInfoChange = useCallback((e) => {
     const { id, value } = e.target;
     setPersonalInfo((prevState) => ({
       ...prevState,
@@ -68,33 +65,38 @@ const CreateNewPatients = () => {
     }));
 
     setInvalidObject((pre) => ({ ...pre, [id]: "" }));
-  };
+  }, []);
 
-  const handleChange = (name, value) => {
+  const handleChange = useCallback((name, value) => {
     setPersonalInfo((prevState) => ({
       ...prevState,
       [name]: value,
     }));
     setInvalidObject((pre) => ({ ...pre, [name]: "" }));
-  };
+  }, []);
 
-  const handleDialCodeChange = (code) => {
+  const handleDialCodeChange = useCallback((code) => {
     setPersonalInfo((prevState) => ({
       ...prevState,
       dialCode: code,
     }));
-  };
+  }, []);
 
   const generateUHID = () => {
     const randomNumber = Math.floor(Math.random() * 1000000);
     return `UHI${randomNumber.toString().padStart(6, "0")}`;
   };
 
-  async function handleSavePatient() {
+  const validatePhoneNumber = (phoneNumber) => {
+    const phoneRegex = /^[0-9]{10}$/;
+    return phoneRegex.test(phoneNumber);
+  };
+
+  const handleSavePatient = useCallback(async () => {
     const validCheck = { ...personalInfo, ...addressInfo };
     const invalidObj = {};
 
-    Object.keys(validCheck).map((key) => {
+    Object.keys(validCheck).forEach((key) => {
       if (!validCheck[key] && key !== "address2" && validCheck[key] === "") {
         invalidObj[key] = `please provide ${key}`;
       }
@@ -124,7 +126,7 @@ const CreateNewPatients = () => {
     );
     const { phoneNumber, dialCode, ...rest } = personalInfo;
     const { address1, address2, ...restAddress } = addressInfo;
-    const { tenantName } = tenantObj;
+    const { tenantName } = tenantObj || {};
     const tenants = [
       {
         tenantId: Cookies.get("TenantId"),
@@ -164,12 +166,7 @@ const CreateNewPatients = () => {
     } catch (error) {
       toast.error(error);
     }
-  }
-
-  const validatePhoneNumber = (phoneNumber) => {
-    const phoneRegex = /^[0-9]{10}$/;
-    return phoneRegex.test(phoneNumber);
-  };
+  }, [personalInfo, addressInfo, imageUrl, patientId, profileData, patient, dispatch, navigate]);
 
   useEffect(() => {
     if (patientId) {
@@ -190,7 +187,7 @@ const CreateNewPatients = () => {
         email,
       } = patient;
 
-      setPersonalInfo(() => ({
+      setPersonalInfo({
         dialCode,
         phoneNumber: value,
         firstName,
@@ -198,7 +195,7 @@ const CreateNewPatients = () => {
         dob,
         gender,
         email,
-      }));
+      });
       setImageUrl(imageUrl);
       setAddressInfo({
         address1: addressLine1,
@@ -262,7 +259,7 @@ const CreateNewPatients = () => {
         </button>
         <CustomButton
           type="text"
-          text={ patientId ? "Update" : "Create"}
+          text={patientId ? "Update" : "Create"}
           onclick={handleSavePatient}
           loading={saveStatus}
         />
