@@ -31,6 +31,7 @@ const AddBill = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [doctorFees, setDoctorFees] = useState(0);
   const [paidAmount, setPaidAmount] = useState(0);
+  const [recievePayment, setRecievePayment] = useState(0);
   const [dueAmount, setDueAmount] = useState(0);
   const [billId, setBillId] = useState("");
   const [searchQueries, setSearchQueries] = useState({
@@ -156,6 +157,7 @@ const AddBill = () => {
         setBills(payload.services || []);
         setTotalAmount(payload.totalAmount || 0);
         setDueAmount(payload.dueAmount || 0);
+        setRecievePayment(payload.paidAmount || 0);
         setDoctorFees(payload.doctorFees || 0);
         setBillId(payload.billId || "");
       })
@@ -190,9 +192,17 @@ const AddBill = () => {
 
   const handlePaymentChange = useCallback((e) => {
     const paid = parseFloat(e.target.value) || 0;
+    console.log(paid);
+    
     setPaidAmount(paid);
-    setDueAmount(totalWithGST - paid);
-  }, [totalWithGST]);
+    if(!billIdFromUrl){
+      setDueAmount(totalWithGST - paid);
+    } else{
+      console.log("recievePayment", recievePayment);
+      console.log("pppppp", totalWithGST - recievePayment - paid);
+    setDueAmount(totalWithGST - recievePayment - paid);
+    }
+  }, [totalWithGST, billIdFromUrl, recievePayment]);
 
   const updateSearchQuery = useCallback((field, value) => {
     setSearchQueries(prev => ({ ...prev, [field]: value }));
@@ -274,6 +284,7 @@ const AddBill = () => {
         tenantId,
         paidAmount
       };
+      console.log(billingData, "billingData");
        const result = billIdFromUrl
         ? await dispatch(updateBilling({
             billId: billIdFromUrl,
@@ -366,6 +377,9 @@ const AddBill = () => {
   ), [totalAmount, gstAmount, doctorFees, totalWithGST, dueAmount]);
 
   const paymentSection = useMemo(() => (
+    console.log(paidAmount,"paidAmount"),
+    console.log(dueAmount, "dueAmount"),
+    console.log(totalWithGST, "totalWithGST"),
     <div className="space-y-1">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -377,7 +391,7 @@ const AddBill = () => {
           </div>
           <input
             type="number"
-            value={paidAmount}
+            value={paidAmount|| ""}
             onChange={handlePaymentChange}
             max={totalWithGST}
             className="pl-10 w-full h-12 bg-white border-2 border-gray-200 rounded-xl
@@ -385,7 +399,7 @@ const AddBill = () => {
               transition-all duration-200"
           />
         </div>
-        {paidAmount < totalWithGST && (
+        {paidAmount < (totalWithGST - recievePayment) && (
           <p className="mt-2 text-sm text-red-500">
             Remaining: ₹{dueAmount.toFixed(2)}
           </p>
