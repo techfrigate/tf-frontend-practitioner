@@ -155,28 +155,42 @@ useEffect(() => {
   const handleLocationSelect = async (location) => {
     handleChange("locationName", location);
     handleChange("pharmacyName", null);
-    getPharmacie(location._id)
+    
+    if (!location) {
+      setAvailablePharmacies([]);
+      return;
+    }
+        try {
+      await getPharmacie(location._id);
+    } catch (error) {
+      console.error("Error fetching pharmacies:", error);
+      toast.error("Failed to load pharmacies for this location");
+    }
   };
-
-  async function getPharmacie(id){
+  
+  async function getPharmacie(id) {
+    if (!id) return [];
+    
     try {
       const response = await dispatch(
         getAllPharmacies({
           locationId: id
         })
       ).unwrap();
-      const pharmacyOptions =
-      response?.map((p) => ({
+      
+      const pharmacyOptions = response?.map((p) => ({
         value: p._id,
         label: p.name,
         ...p,
       })) || [];
+      
       setAvailablePharmacies(pharmacyOptions);
-      return response
+      return response;
     } catch (error) {
-      console.log("Error fetching locations:", error);
+      console.error("Error fetching pharmacies:", error);
+      setAvailablePharmacies([]);
+      return [];
     }
-
   }
 
   const handlePharmacySelect = (selectedPharmacyId) => {
