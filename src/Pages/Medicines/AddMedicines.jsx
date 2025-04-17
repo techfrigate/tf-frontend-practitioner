@@ -102,7 +102,9 @@ useEffect(() => {
         ...medicineData,
         locationName: locationObj,
         pharmacyName: pharmacyObj,
-        expiryDate: dayjs(medicineData.expiryDate),
+        expiryDate: medicineData?.expiryDate
+        ? dayjs(medicineData.expiryDate)
+        : null,
         enable: medicineData.enable || false,
         prescriptionRequired: medicineData.prescriptionRequired || false,
       };
@@ -142,7 +144,7 @@ useEffect(() => {
 
 
   const handleDateChange = (name, value) => {
-    if (value && value.$d) {
+    if (value && dayjs(value).isValid()) {
       const formattedDate = value.toISOString();  
       setFormData((prev) => ({ ...prev, [name]: formattedDate }));  
       setInvalidFields((prev) => ({ ...prev, [name]: "" }));  
@@ -155,7 +157,7 @@ useEffect(() => {
   const handleLocationSelect = async (location) => {
     handleChange("locationName", location);
     handleChange("pharmacyName", null);
-    getPharmacie(location._id)
+    getPharmacie(location?._id)
   };
 
   async function getPharmacie(id){
@@ -210,6 +212,7 @@ useEffect(() => {
   };
 
   const handleSave = async (e) => {
+    // console.log("hello");
     e.preventDefault();
     if (!validateForm()) return;
 
@@ -265,8 +268,20 @@ useEffect(() => {
             inputFormat="DD-MM-YYYY"
             views={["year", "month", "day"]}
             openTo="day"
-            value={formData.expiryDate ? dayjs(formData.expiryDate) : null}
-            onChange={(date) => {handleDateChange(field.id, date)}}
+            value={formData.expiryDate && dayjs(formData.expiryDate).isValid()
+              ? dayjs(formData.expiryDate)
+              : null}
+            // onChange={(date) => {handleDateChange(field.id, date)}}
+            onChange={(newValue) => {
+              // Only update if valid
+              if (newValue && dayjs(newValue).isValid()) {
+                handleDateChange(field.id, newValue);
+              }
+            }}
+            onError={(reason, value) => {
+              // Optional: console log or track invalid date entries
+              if (reason) console.warn("Invalid date:", value);
+            }}
             renderInput={(params) => <CustomInput {...params} />}
             
             slotProps={{
@@ -323,7 +338,7 @@ useEffect(() => {
 
   return (
     <div className="h-full bg-gray-50 p-2 ">
-   {  isLoading ? <Loader/>:
+   {/* {  isLoading ? <Loader/>: */}
       <div className="mx-auto h-full bg-white rounded-lg shadow-sm p-2">
  
         <form className="space-y-4">
@@ -359,14 +374,13 @@ useEffect(() => {
             <CustomButton
               text={medicineId ? "Update" : "Save"}
               onclick={handleSave}
-              loading={isLoading}
             />
           </div>
         </form>
   
        
       </div>
-   }
+    {/* }  */}
     </div>
   );
 };
