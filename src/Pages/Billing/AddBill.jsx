@@ -129,8 +129,6 @@ const AddBill = () => {
           return;
         }
         
-        console.log("Processed payload:", payload);
-        
         setSelectedPatient({
           _id: payload.patientId,
           firstName: payload.patient?.firstName || "",
@@ -192,15 +190,11 @@ const AddBill = () => {
 
   const handlePaymentChange = useCallback((e) => {
     const paid = parseFloat(e.target.value) || 0;
-    console.log(paid);
-    
     setPaidAmount(paid);
     if(!billIdFromUrl){
       setDueAmount(totalWithGST - paid);
     } else{
-      console.log("recievePayment", recievePayment);
-      console.log("pppppp", totalWithGST - recievePayment - paid);
-    setDueAmount(totalWithGST - recievePayment - paid);
+      setDueAmount(totalWithGST - recievePayment - paid);
     }
   }, [totalWithGST, billIdFromUrl, recievePayment]);
 
@@ -284,7 +278,7 @@ const AddBill = () => {
         tenantId,
         paidAmount
       };
-      console.log(billingData, "billingData");
+      
        const result = billIdFromUrl
         ? await dispatch(updateBilling({
             billId: billIdFromUrl,
@@ -377,9 +371,6 @@ const AddBill = () => {
   ), [totalAmount, gstAmount, doctorFees, totalWithGST, dueAmount]);
 
   const paymentSection = useMemo(() => (
-    console.log(paidAmount,"paidAmount"),
-    console.log(dueAmount, "dueAmount"),
-    console.log(totalWithGST, "totalWithGST"),
     <div className="space-y-1">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
