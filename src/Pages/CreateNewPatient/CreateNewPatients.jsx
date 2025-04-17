@@ -106,7 +106,7 @@ const CreateNewPatients = () => {
     if (!validatePhoneNumber(personalInfo.phoneNumber)) {
       invalidObj.phoneNumber = `Please provide a valid 10-digit phone number`;
     }
-    
+
     if (!/^\d{6}$/.test(addressInfo.zipCode)) {
       invalidObj.zipCode = "Zipcode should be exactly 6 digits";
     }
@@ -166,7 +166,16 @@ const CreateNewPatients = () => {
     } catch (error) {
       toast.error(error);
     }
-  }, [personalInfo, addressInfo, imageUrl, patientId, profileData, patient, dispatch, navigate]);
+  }, [
+    personalInfo,
+    addressInfo,
+    imageUrl,
+    patientId,
+    profileData,
+    patient,
+    dispatch,
+    navigate,
+  ]);
 
   useEffect(() => {
     if (patientId) {
