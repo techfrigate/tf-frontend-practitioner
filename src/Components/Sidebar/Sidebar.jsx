@@ -1,15 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
-import {
-  FaUsers,
-  FaCalendarAlt,
-  FaListAlt,
-  FaFileInvoiceDollar,
-} from "react-icons/fa";
+import {FaUsers,FaCalendarAlt,FaListAlt,FaFileInvoiceDollar,} from "react-icons/fa";
 import { FaSuitcaseMedical } from "react-icons/fa6";
-import { MdKeyboardArrowUp } from "react-icons/md";
 import { AiOutlineClose } from "react-icons/ai";
- 
-import axios from "axios";
+ import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -90,20 +83,33 @@ const Sidebar = ({ isOpen, onClose }) => {
     fetchTenant();
   }, [tenantId, tenant]);
 
-  const handleSideClick = (index, elm) => {
+  function handleSideClick(index, elm, event) {
+    if (event.ctrlKey || event.metaKey || event.button === 2) {
+      event.preventDefault();
+      window.open(elm.route, '_blank');
+      return;
+    }
+    
     if (!elm.subLink) {
       setSelectedIndex(index);
       setOpenIndex(null);
       navigate(elm.route);
-    } else {
-      if (index !== openindex) {
-        setSubLinkindex(null);
-      }
-      setOpenIndex(openindex === index ? null : index);
     }
+    setOpenIndex(openindex === index ? null : index);
+  }
+
+  const handleContextMenu = (elm, event) => {
+    event.preventDefault();
+    window.open(elm.route, '_blank');
   };
 
-  const handleSubLinkClick = (index, subelm) => {
+  const handleSubLinkClick = (index, subelm, event) => {
+    if (event.type === 'contextmenu' && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      
+      window.open(subelm.route, '_blank');
+      return;
+    }
     setSubLinkindex(index);
     setSelectedIndex(null);
     navigate(subelm.route);
@@ -139,17 +145,16 @@ const Sidebar = ({ isOpen, onClose }) => {
               className="w-full h-full object-cover rounded-md"
             />
           </div>
-         
             <button className="lg:hidden" onClick={onClose}>
               <AiOutlineClose size={24} />
             </button>
-        
         </div>
         <nav className="flex-1 overflow-y-auto pr-4 pl-2 py-6 space-y-1 customScrollbar">
           {sidebarLinks.map((elm, index) => (
             <div key={index} className="space-y-1">
               <div
-                onClick={() => handleSideClick(index, elm)}
+                onClick={(e) => handleSideClick(index, elm, e)}
+                onContextMenu={(e) => handleContextMenu(elm, e)}
                 className={`cursor-pointer rounded-md px-4 py-2 ${
                   index === selectedIndex && !elm.subLink
                     ? "bg-[#FFFFFF] text-[#64C6B0]"
@@ -166,7 +171,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                   {elm.subLink.map((subelm, subIndex) => (
                     <div
                       key={subIndex}
-                      onClick={() => handleSubLinkClick(subIndex, subelm)}
+                      onClick={(e) => handleSubLinkClick(subIndex, subelm, e)}
+                      onContextMenu={(e) => handleContextMenu(subelm, e)}
                       className={`cursor-pointer rounded-md px-4 py-2 ${
                         subIndex === subLinkindex
                           ? "bg-[#FFFFFF] text-[#64C6B0]"
