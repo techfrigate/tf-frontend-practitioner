@@ -15,6 +15,7 @@ import {
 } from "../../Store/MedicinesSlice";
 import Cookies from "js-cookie";
 import Loader from "../../Components/Common/Loader";
+import { Search } from 'lucide-react';
 
 const STATUS_CONFIG = {
   full: { color: 'bg-green-500', label: 'Full (100+ units)' },
@@ -45,6 +46,7 @@ const MedicalRackApp = () => {
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const { profileData } = useSelector((state) => state.profile);
   const [filterStatus, setFilterStatus] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const determineStatus = units => {
     if (units === 0) return 'empty';
@@ -53,7 +55,7 @@ const MedicalRackApp = () => {
   };
 
   const handleError = error => error && toast.error(error);
-  
+
   useEffect(() => {
     if (!locations?.length) {
       dispatch(
@@ -70,7 +72,7 @@ const MedicalRackApp = () => {
 
   const fetchRacks = async () => {
     if (!selectedLocation?._id || !selectedPharmacy?._id) return;
-    
+
     try {
       await dispatch(getAllMedicines({
         locationId: selectedLocation._id,
@@ -85,14 +87,14 @@ const MedicalRackApp = () => {
 
   useEffect(() => {
     selectedPharmacy ? fetchRacks() : dispatch({ type: 'Medicines/clearMedicines' });
-     // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [selectedLocation, selectedPharmacy]);
 
   useEffect(() => {
     const fetchRackData = async () => {
       const rackId = searchParams.get("id");
       if (!rackId || !locations?.length) return;
-      
+
       try {
         const rackData = await dispatch(getMedicineById(rackId)).unwrap();
         if (!rackData?.locationId) throw new Error("Rack data not found");
@@ -101,23 +103,23 @@ const MedicalRackApp = () => {
         if (!locationObj) throw new Error("Location not found");
 
         setSelectedLocation(locationObj);
-        
-        const pharmacyResponse = await dispatch(getPharmacies({locationId: rackData.locationId})).unwrap();
-        
+
+        const pharmacyResponse = await dispatch(getPharmacies({ locationId: rackData.locationId })).unwrap();
+
         const pharmacyOptions = pharmacyResponse?.map((p) => ({
           value: p._id,
           label: p.name,
           ...p,
         })) || [];
-        
+
         setAvailablePharmacies(pharmacyOptions);
-        
+
         const pharmacyObj = pharmacyResponse.find(p => p._id === rackData.pharmacyId);
         if (!pharmacyObj) throw new Error("Pharmacy not found");
 
         setSelectedPharmacy(pharmacyObj);
-        setFormData({ 
-          ...rackData, 
+        setFormData({
+          ...rackData,
           type: 'rack',
           status: determineStatus(rackData.unit || 0)
         });
@@ -135,17 +137,17 @@ const MedicalRackApp = () => {
   const handleLocationSelect = async (location) => {
     setSelectedLocation(location);
     setSelectedPharmacy(null);
-    
+
     if (location?._id) {
       try {
-        const response = await dispatch(getPharmacies({locationId: location._id})).unwrap();
-        
+        const response = await dispatch(getPharmacies({ locationId: location._id })).unwrap();
+
         const pharmacyOptions = response?.map((p) => ({
           value: p._id,
           label: p.name,
           ...p,
         })) || [];
-        
+
         setAvailablePharmacies(pharmacyOptions);
       } catch (error) {
         console.log("Error fetching pharmacies:", error);
@@ -172,7 +174,7 @@ const MedicalRackApp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const rackData = {
       ...formData,
       locationId: selectedLocation._id,
@@ -182,11 +184,11 @@ const MedicalRackApp = () => {
       pharmacyId: selectedPharmacy._id,
       type: 'rack'
     };
-    
+
     try {
-      await dispatch(updateMedicine({ 
-        medId: currentRack._id, 
-        body: rackData 
+      await dispatch(updateMedicine({
+        medId: currentRack._id,
+        body: rackData
       })).unwrap();
       toast.success("Rack updated successfully!");
       setIsModalOpen(false);
@@ -198,9 +200,13 @@ const MedicalRackApp = () => {
   };
 
   const filteredRacks = medicines?.filter(rack => {
-    if (!selectedPharmacy) return false;
-    if (rack.pharmacyId !== selectedPharmacy._id) return false;
+    if (!selectedPharmacy || rack.pharmacyId !== selectedPharmacy?._id) return false;
     if (filterStatus && determineStatus(rack.unit || 0) !== filterStatus) return false;
+    if (searchTerm) {
+      const nameMatch = rack?.medicineName?.toLowerCase().includes(searchTerm.toLowerCase());
+      const rackNameMatch = rack?.rackName?.toLowerCase().includes(searchTerm.toLowerCase());
+      return nameMatch || rackNameMatch;
+    }
     return true;
   });
 
@@ -216,14 +222,14 @@ const MedicalRackApp = () => {
             <h3 className="font-semibold text-gray-900 text-lg">{rack.medicineName}</h3>
           </div>
           <div className="flex gap-2">
-            <button 
-              onClick={() => handleEditRack(rack)} 
+            <button
+              onClick={() => handleEditRack(rack)}
               className="p-2 hover:bg-blue-50 rounded-full text-blue-600 transition-colors duration-200"
               title="Edit Rack"
             >
               <Edit2 size={18} />
             </button>
-            <button 
+            <button
               onClick={() => {
                 if (window.confirm('Are you sure you want to delete this rack?')) {
                   dispatch(deleteMedicine(rack._id)).unwrap()
@@ -236,7 +242,7 @@ const MedicalRackApp = () => {
                       toast.error('Failed to delete rack');
                     });
                 }
-              }} 
+              }}
               className="p-2 hover:bg-red-50 rounded-full text-red-600 transition-colors duration-200"
               title="Delete Rack"
             >
@@ -259,7 +265,7 @@ const MedicalRackApp = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      {isLoading ? <div className="flex justify-center items-center h-64"><Loader /></div> : (
+      {/* {isLoading ? <div className="flex justify-center items-center h-64"><Loader /></div> : ( */}
         <div className="max-w-6xl mx-auto">
           <div className="bg-white rounded-xl shadow-sm border p-6 mb-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
@@ -284,13 +290,13 @@ const MedicalRackApp = () => {
               />
             </div>
           </div>
-          
+
           {selectedLocation && selectedPharmacy ? (
             <div className="bg-white rounded-xl shadow-sm border p-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div className="flex flex-wrap gap-3">
-                  <button 
-                    onClick={() => setFilterStatus(null)} 
+                  <button
+                    onClick={() => setFilterStatus(null)}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${!filterStatus ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'} transition-colors duration-200`}
                   >
                     All Racks
@@ -306,15 +312,25 @@ const MedicalRackApp = () => {
                     </button>
                   ))}
                 </div>
-                <button 
-                  onClick={fetchRacks} 
+                <div className="relative w-full max-w-xs">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5 pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder="Search rack name or medicine..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <button
+                  onClick={fetchRacks}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors duration-200"
                 >
                   <RefreshCw size={16} />
                   <span className="font-medium">Refresh</span>
                 </button>
               </div>
-              
+
               {filteredRacks?.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredRacks.map(rack => <RackCard key={rack._id} rack={rack} />)}
@@ -324,8 +340,8 @@ const MedicalRackApp = () => {
                   <Package size={48} className="mx-auto text-gray-400 mb-4" />
                   <h3 className="text-xl font-semibold text-gray-700 mb-2">No Racks Found</h3>
                   <p className="text-gray-500 mb-6">
-                    {filterStatus 
-                      ? `No ${filterStatus} racks found in this pharmacy.` 
+                    {filterStatus
+                      ? `No ${filterStatus} racks found in this pharmacy.`
                       : "There are no racks in this pharmacy yet."}
                   </p>
                 </div>
@@ -340,17 +356,17 @@ const MedicalRackApp = () => {
               </p>
             </div>
           )}
-          
+
           {isModalOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md animate-fadeIn">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-bold text-gray-900 flex items-center">
                     <Edit2 size={20} className="text-blue-600 mr-2" />
-                    {'Edit Rack' }
+                    {'Edit Rack'}
                   </h2>
-                  <button 
-                    onClick={() => setIsModalOpen(false)} 
+                  <button
+                    onClick={() => setIsModalOpen(false)}
                     className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-200"
                   >
                     <X size={20} />
@@ -434,7 +450,7 @@ const MedicalRackApp = () => {
             </div>
           )}
         </div>
-      )}
+      {/* )} */}
     </div>
   );
 };
