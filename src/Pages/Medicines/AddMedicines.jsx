@@ -102,9 +102,7 @@ useEffect(() => {
         ...medicineData,
         locationName: locationObj,
         pharmacyName: pharmacyObj,
-        expiryDate: medicineData?.expiryDate
-        ? dayjs(medicineData.expiryDate)
-        : null,
+        expiryDate: dayjs(medicineData.expiryDate),
         enable: medicineData.enable || false,
         prescriptionRequired: medicineData.prescriptionRequired || false,
       };
@@ -144,7 +142,7 @@ useEffect(() => {
 
 
   const handleDateChange = (name, value) => {
-    if (value && dayjs(value).isValid()) {
+    if (value && value.$d) {
       const formattedDate = value.toISOString();  
       setFormData((prev) => ({ ...prev, [name]: formattedDate }));  
       setInvalidFields((prev) => ({ ...prev, [name]: "" }));  
@@ -157,28 +155,42 @@ useEffect(() => {
   const handleLocationSelect = async (location) => {
     handleChange("locationName", location);
     handleChange("pharmacyName", null);
-    getPharmacie(location?._id)
+    
+    if (!location) {
+      setAvailablePharmacies([]);
+      return;
+    }
+        try {
+      await getPharmacie(location._id);
+    } catch (error) {
+      console.error("Error fetching pharmacies:", error);
+      toast.error("Failed to load pharmacies for this location");
+    }
   };
-
-  async function getPharmacie(id){
+  
+  async function getPharmacie(id) {
+    if (!id) return [];
+    
     try {
       const response = await dispatch(
         getAllPharmacies({
           locationId: id
         })
       ).unwrap();
-      const pharmacyOptions =
-      response?.map((p) => ({
+      
+      const pharmacyOptions = response?.map((p) => ({
         value: p._id,
         label: p.name,
         ...p,
       })) || [];
+      
       setAvailablePharmacies(pharmacyOptions);
-      return response
+      return response;
     } catch (error) {
-      console.log("Error fetching locations:", error);
+      console.error("Error fetching pharmacies:", error);
+      setAvailablePharmacies([]);
+      return [];
     }
-
   }
 
   const handlePharmacySelect = (selectedPharmacyId) => {
@@ -212,7 +224,6 @@ useEffect(() => {
   };
 
   const handleSave = async (e) => {
-    // console.log("hello");
     e.preventDefault();
     if (!validateForm()) return;
 
@@ -268,20 +279,8 @@ useEffect(() => {
             inputFormat="DD-MM-YYYY"
             views={["year", "month", "day"]}
             openTo="day"
-            value={formData.expiryDate && dayjs(formData.expiryDate).isValid()
-              ? dayjs(formData.expiryDate)
-              : null}
-            // onChange={(date) => {handleDateChange(field.id, date)}}
-            onChange={(newValue) => {
-              // Only update if valid
-              if (newValue && dayjs(newValue).isValid()) {
-                handleDateChange(field.id, newValue);
-              }
-            }}
-            onError={(reason, value) => {
-              // Optional: console log or track invalid date entries
-              if (reason) console.warn("Invalid date:", value);
-            }}
+            value={formData.expiryDate ? dayjs(formData.expiryDate) : null}
+            onChange={(date) => {handleDateChange(field.id, date)}}
             renderInput={(params) => <CustomInput {...params} />}
             
             slotProps={{
@@ -338,7 +337,7 @@ useEffect(() => {
 
   return (
     <div className="h-full bg-gray-50 p-2 ">
-   {/* {  isLoading ? <Loader/>: */}
+   {  isLoading ? <Loader/>:
       <div className="mx-auto h-full bg-white rounded-lg shadow-sm p-2">
  
         <form className="space-y-4">
@@ -374,13 +373,14 @@ useEffect(() => {
             <CustomButton
               text={medicineId ? "Update" : "Save"}
               onclick={handleSave}
+              loading={isLoading}
             />
           </div>
         </form>
   
        
       </div>
-    {/* }  */}
+   }
     </div>
   );
 };
