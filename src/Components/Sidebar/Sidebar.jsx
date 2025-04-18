@@ -135,8 +135,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       }`}
     >
-      <div className="flex flex-col h-full border-r border-gray-200 bg-white rounded-md">
-        
+      <div className="flex flex-col h-full border-r border-gray-200 bg-white rounded-md">       
         <div className="px-8 py-5 border-b border-gray-100 flex items-center justify-between gap-3">
           <div className="w-10 h-10">
             <img

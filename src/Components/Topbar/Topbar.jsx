@@ -150,13 +150,12 @@ const Topbar = ({ toggleCreateProviderForm, showForm,onMenuClick }) => {
 
   return (
     <div className="w-full p-2  ">
-      <div className="bg-white rounded-md lg:pl-10 pl-6 pr-10 py-2 flex justify-between items-center">
-       
+      <div className="bg-white rounded-md lg:pl-10 pl-6 pr-10 py-2 flex justify-between items-center">      
       <div className="flex items-center gap-4 justify-center">
       <button onClick={onMenuClick} className="lg:hidden">
             <HiOutlineMenuAlt2 size={25} />
           </button>
-        <div className="flex flex-col justify-center items-start gap-1">
+        <div className="flex flex-col justify-center items-start ">
           <HospitalModal
             selectedTenant={selectedTenant}
             handleHospitalChange={handleHospitalChange}

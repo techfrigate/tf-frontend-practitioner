@@ -62,7 +62,7 @@ const AddBill = () => {
   useEffect(() => {
     const fetchInitialData = async () => {
       await Promise.all([
-        dispatch(fetchPatients({ page: null, limit: 10 })),
+        dispatch(fetchPatients({ page: null, limit: 5 })),
         dispatch(fetchLocations({
           currentPage: null,
           itemsPerPage: null,
