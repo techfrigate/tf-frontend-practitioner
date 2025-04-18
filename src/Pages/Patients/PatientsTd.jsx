@@ -127,7 +127,7 @@ const PatientsTd = () => {
                 (tenant) =>
                   tenant.userType === "patient" &&
                   tenant.tenantId === tenantId && (
-                    <td className="py-3 px-6">
+                    <td className="py-4 px-6">
                       <label
                         htmlFor={`toggle-${item._id}-${tenant._id}`}
                         className="flex items-center gap-2 w-full max-w-full cursor-pointer"
