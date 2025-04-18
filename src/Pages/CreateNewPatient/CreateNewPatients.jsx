@@ -263,7 +263,8 @@ const CreateNewPatients = () => {
         setInvalidObject={setInvalidObject}
       />
       <div className="flex justify-center gap-2 mt-4">
-        <button className="px-4 pb-2 pt-1.5 text-[14px] border border-[#1e817e] hover:bg-[#239591] hover:text-white rounded">
+        <button className="px-4 pb-2 pt-1.5 text-[14px] border border-[#1e817e] hover:bg-[#239591] hover:text-white rounded"
+        onClick={() => navigate(-1)}>
           Cancel
         </button>
         <CustomButton
