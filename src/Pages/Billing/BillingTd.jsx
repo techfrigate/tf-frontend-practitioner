@@ -20,7 +20,7 @@ const BillingTd = () => {
           onClick={() => navigateToBill(item._id)}
           className="hover:bg-gray-100 bg-gray-50 border border-gray-300 hover:shadow-lg transition duration-300 ease-in-out cursor-pointer"
         >
-          <td className="py-3 w-[15%] px-6 font-medium">
+          <td className="py-4 w-[15%] px-6 font-medium">
             {item.patientName}
             <div className="text-xs text-gray-600 mt-1">
               {item.phoneNumber.dialCode} {item.phoneNumber.value}
