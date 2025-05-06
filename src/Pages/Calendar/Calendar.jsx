@@ -230,11 +230,6 @@ const Calendar = () => {
           )}
         </AnimatePresence>
       </div>
-      {rosterStatus !== "loading" && rosterStatus !== "failed" && (
-        <div className="border-t border-gray-200 p-3 bg-gray-50 flex justify-between items-center text-xs text-gray-500">
-          <div>Total appointments: {rosterData.length}</div>
-        </div>
-      )}
     </div>
   );
 };

@@ -16,8 +16,8 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
   
   const dispatch = useDispatch();
   
-  const { medicines ,isLoading,error} = useSelector((state) => state.medicines);
-  const {serviceData} = useSelector(state => state.billing);
+  const { medicines, isLoading, error } = useSelector((state) => state.medicines);
+  const { serviceData } = useSelector(state => state.billing);
  
   const categoryIcons = {
     package: <Package className="w-5 h-5" />,
@@ -44,15 +44,14 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
   const handleServiceTypeChange = async(e) => {
     const newCategory = e.target.value;
     try {
-      const resposne =  await dispatch(getservicesData({type:newCategory,locationId:selectedLocation._id})).unwrap()
+      const resposne = await dispatch(getservicesData({type:newCategory,locationId:selectedLocation._id})).unwrap()
       setCategory(newCategory);
-    setSelectedService("");
-    setQuantity(1);
-    setMaxAvailableQuantity(0);
+      setSelectedService("");
+      setQuantity(1);
+      setMaxAvailableQuantity(0);
     } catch (error) {
       console.log(error)
     }
-    
   };
 
   const handleServiceChange = (e) => {
@@ -105,18 +104,20 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
     setMaxAvailableQuantity(0);
   };
 
-
-
   const getServiceOptions = () => {
-    // const services = getServices(category);
+    // Filter out medicines with quantity 0 if the category is medicines
+    const filteredServiceData = category === "medicines" 
+      ? serviceData?.filter(service => parseInt(service.unit) > 0)
+      : serviceData;
   
-    return serviceData?.map(service => ({
-      value:  service._id,
+    return filteredServiceData?.map(service => ({
+      value: service._id,
       label: category === "medicines" ? 
              `${service.medicineName} (${service.unit} units available)` :
              category === "package" ? service.packageName : 
              service.name,
-      icon: categoryIcons[category]
+      icon: categoryIcons[category],
+      disabled: category === "medicines" && parseInt(service.unit) === 0
     }));
   };
 
@@ -129,7 +130,6 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
     }))
   ];
   
-
   useEffect(() => {
     if (error) {
      toast.error(error)
@@ -138,7 +138,6 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
      },2000)
     }
   }, [error]);
-
 
   return (
     <Card className="w-full mx-auto bg-white shadow-lg">
