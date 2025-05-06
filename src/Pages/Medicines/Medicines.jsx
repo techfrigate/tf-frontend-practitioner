@@ -65,6 +65,7 @@ const Medicines = () => {
             <MedicinesTd />
           </CustomTable>
           <ReactPaginate
+            forcePage={currentPage-1}
             previousLabel={"«"}
             nextLabel={"»"}
             breakLabel={"..."}

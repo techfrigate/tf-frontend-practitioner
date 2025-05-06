@@ -39,6 +39,8 @@ const INITIAL_FORM_STATE = {
   expiryDate: null,
 };
 
+const NUMERIC_FIELDS = ["minQuantity", "gstPercentage", "mrpPerUnit", "sale","unit"];
+
 const REQUIRED_FIELDS = [
   "locationName",
   "pharmacyName",
@@ -134,7 +136,16 @@ useEffect(() => {
 }, [medicineId, locations, dispatch, navigate]);
 
   const handleChange = (name, value) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (NUMERIC_FIELDS.includes(name)) {
+      if (value === "" || /^[0-9]*\.?[0-9]*$/.test(value)) {
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        if (value) {
+          setInvalidFields((prev) => ({ ...prev, [name]: "" }));
+        }
+      }
+      return;
+    }
+        setFormData((prev) => ({ ...prev, [name]: value }));
     if (value) {
       setInvalidFields((prev) => ({ ...prev, [name]: "" }));
     }
