@@ -68,8 +68,6 @@ console.log(patient.practitionerData)
               </div>
             </div>
           </div>
-
-          {/* Appointment Details */}
           <div className="bg-gray-50 px-4 py-3 border-t">
             <div className="space-y-2">
               <div className="flex items-center space-x-3">
@@ -100,12 +98,12 @@ console.log(patient.practitionerData)
           </div>
         </div>
       </div>
-      <PatientModal
+      {/* <PatientModal
         patient={patient}
         doctor={patient.practitionerData}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-      />
+      /> */}
     </>
   );
 };

@@ -16,12 +16,24 @@ const MedicinesTd = () => {
     return `${date.toLocaleDateString()}`;
   };
 
+  const getDaysUntilExpiry = (expiryDate) => {
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    const diffTime = expiry - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+  
+  const isExpiringWithinDays = (expiryDate, days = 15) => {
+    const daysLeft = getDaysUntilExpiry(expiryDate);
+    return daysLeft <= days && daysLeft >= 0;
+  };
+
   return (
     <>
       {medicines?.map((item) => (
         <tr
           key={item._id}
-          
           className={`hover:bg-gray-100 bg-gray-50 border border-gray-300 hover:shadow-lg transition duration-300 ease-in-out cursor-pointer relative group`}
         >
           <td className="py-4 w-[15%] px-6 font-medium">
@@ -32,7 +44,15 @@ const MedicinesTd = () => {
           <td className="py-4 px-6 font-medium">{item.medicineName}</td>
           <td className="py-4 px-6 font-medium">{item.manufacturedBy || "--"}</td>
           <td className="py-4 px-6 text-[13px] font-medium">
-            {formatDateTime(item.expiryDate)}
+            <span
+              className={`${
+                isExpiringWithinDays(item.expiryDate)
+                  ? 'text-white bg-orange-600 px-3 py-1 rounded-xl font-medium'
+                  : 'text-black bg-transparent'
+              }`}
+            >
+              {formatDateTime(item.expiryDate)}
+            </span>
           </td>
           <td className="py-4 px-6 text-[13px]">{item.mrpPerUnit}/Unit</td>
           <td className="py-4 px-6 text-[13px]">
@@ -46,7 +66,6 @@ const MedicinesTd = () => {
               {item.unit}
             </span>
           </td>
-
           <style jsx>{`
             tr:hover {
               z-index: 20;
@@ -57,20 +76,26 @@ const MedicinesTd = () => {
               transition: filter 0.3s ease-in-out;
             }
           `}</style>
-{item.unit <= item.minQuantity && (
-  <div className="absolute invisible group-hover:visible bg-red-500 text-white px-3 py-1.5 text-sm rounded shadow-lg -top-10 left-1/2 transform -translate-x-1/2 w-64 z-50">
-    Low stock warning: Units below or at minimum quantity
-    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-red-500 rotate-45"></div>
-  </div>
-)}
-<td className="flex flex-flow-col gap-6 text-xl text-[#64c6b0] py-5 px-7 text-[13px]">
-                <div
-                  className="hover:bg-gray-300 rounded-full p-2"
-                  onClick={() => navigateToBill(item._id)}
-                >
-                  <MdModeEdit />
-                </div>
-              </td>
+                    {item.unit <= item.minQuantity && (
+            <div className="absolute invisible group-hover:visible bg-red-500 text-white px-3 py-1.5 text-sm rounded shadow-lg -top-10 left-1/2 transform -translate-x-1/2 w-64 z-50">
+              Low stock warning: Units below or at minimum quantity
+              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-red-500 rotate-45"></div>
+            </div>
+          )}
+           {isExpiringWithinDays(item.expiryDate) && (
+            <div className="absolute invisible group-hover:visible bg-orange-500 text-white px-3 py-1.5 text-sm rounded shadow-lg -top-10 left-1/2 transform -translate-x-1/2 w-64 z-50">
+              Expiry warning: This medicine will expire in {getDaysUntilExpiry(item.expiryDate)} days
+              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-orange-500 rotate-45"></div>
+            </div>
+          )}
+          <td className="flex flex-flow-col gap-6 text-xl text-[#64c6b0] py-5 px-7 text-[13px]">
+            <div
+              className="hover:bg-gray-300 rounded-full p-2"
+              onClick={() => navigateToBill(item._id)}
+            >
+              <MdModeEdit />
+            </div>
+          </td>
         </tr>
       ))}
     </>

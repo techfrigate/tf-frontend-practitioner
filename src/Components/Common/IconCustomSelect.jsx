@@ -31,7 +31,7 @@ const IconCustomSelect = ({
       </div>
 
       {isOpen && !disabled && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 ">
+        <div className="absolute z-50 w-full mt-1 bg-white border  overflow-y-auto border-gray-200 rounded-xl shadow-lg max-h-60 ">
           {options?.length && options.map((option, index) => (
             <div
               key={index}

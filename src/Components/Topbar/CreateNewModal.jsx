@@ -23,7 +23,7 @@ const CreateNewModal = ({ onClose }) => {
   return (
     <div
       ref={modalRef}
-      className="absolute z-20 top-12 right-0 bg-white border border-gray-200 rounded-lg shadow-lg w-50 p-4"
+      className="absolute z-40 top-12 right-0 bg-white border border-gray-200 rounded-lg shadow-lg w-50 p-4"
     >
       <div className="flex flex-col space-y-1 text-gray-600 text-sm">
         <div

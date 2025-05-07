@@ -31,7 +31,7 @@ const Billing = () => {
       dispatch(fetchLocationById({ locationsId: profileData.locations }));
     }// eslint-disable-next-line
   }, [profileData]);
-  console.log(locationId);
+  
   useEffect(() => {
     if (locationId) {
       fetchBillings();
@@ -113,6 +113,7 @@ const Billing = () => {
           )}
           {billings.length > 0 && (
             <ReactPaginate
+            forcePage={currentPage-1} 
               previousLabel={"«"}
               nextLabel={"»"}
               breakLabel={"..."}
