@@ -43,6 +43,12 @@ const EditProfileModal = ({
     }
   };
 
+  useEffect(() => {
+    if (profileImageUrl) {
+      setImageUrl(profileImageUrl);
+    }
+  }, [profileImageUrl]);
+
   const handleImageChange = async (e) => {
     try {
       setIsLoading(true);
