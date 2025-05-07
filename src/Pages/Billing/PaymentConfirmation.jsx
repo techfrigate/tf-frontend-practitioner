@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Receipt, ArrowLeft, Printer } from 'lucide-react';
+import { ReceiptIndianRupee, ArrowLeft, Printer } from 'lucide-react';
 import BillPDF from './BillPDF';
 
 const PaymentConfirmation = () => {
@@ -36,7 +36,7 @@ const PaymentConfirmation = () => {
     dueAmount = 0,
     status
   } = billing;
-
+console.log(billing)
   const totalWithGST = totalAmount + gst + doctorFees;
   const paidAmount = totalWithGST - dueAmount;
 
@@ -49,12 +49,12 @@ const PaymentConfirmation = () => {
     : [];
 
   return (
-    <div className="customScrollbar max-h-full bg-gray-100 p-6">
-      <div className="max-w-3xl mx-auto">
+    <div className="customScrollbar max-h-full w-full bg-gray-100 p-6">
+      <div className=" mx-auto">
         <div className="bg-white rounded-xl shadow-lg p-8">
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center space-x-3">
-              <Receipt className="w-8 h-8 text-[#00A182]" />
+              <ReceiptIndianRupee className="w-8 h-8 text-[#00A182]" />
               <h1 className="text-2xl font-bold text-gray-800">Payment Confirmation</h1>
             </div>
             <div className="flex items-center space-x-2">

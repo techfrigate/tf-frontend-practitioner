@@ -5,8 +5,10 @@ import { Badge } from "../../Components/ui/badge";
 import { Video } from "lucide-react";
 import GlobalTable from "../../Components/Common/GlobalTable";
 import { TableCell, TableRow } from "../../Components/ui/table";
-import {calculateAge} from "../../util/patientUtil.js"
-function PatientTableContent({ patients ,setChannelName ,setStatus }) {
+import { calculateAge } from "../../util/patientUtil.js";
+import { FaVideoSlash } from "react-icons/fa";
+
+function PatientTableContent({ patients, setChannelName, setStatus }) {
   const formatTime = (dateString) => {
     const utcDate = parseISO(dateString);
     const localDate = new Date(
@@ -14,6 +16,7 @@ function PatientTableContent({ patients ,setChannelName ,setStatus }) {
     );
     return format(localDate, "hh:mm a");
   };
+  
   const formatDateRange = (startDateTime, endDateTime) => {
     const startDate = new Date(startDateTime);
     const formattedDate = format(startDate, "MMMM dd, yyyy");
@@ -48,14 +51,12 @@ function PatientTableContent({ patients ,setChannelName ,setStatus }) {
     } else if (bookingStatus.booked) {
       status = "Scheduled";
     }
-   if(status === "Checked In"){
-    setChannelName((patient.channelName).slice(0, 16));
-    setStatus(status);
-   }
-     
+    
+    if(status === "Checked In"){
+      setChannelName((patient.channelName).slice(0, 16));
+      setStatus(status);
+    }
   };
- 
-
 
   return (
     <GlobalTable headers={tableHeaders}>
@@ -64,10 +65,9 @@ function PatientTableContent({ patients ,setChannelName ,setStatus }) {
           const { date, timeRange } = formatDateRange(
             patient.startDateTime,
             patient.endDateTime
-          );
-          
+          );          
           return (
-            patient.visitType === "Online"&&
+            patient.visitType === "Online" &&
             <TableRow key={index} className={`text-center`}>
               <TableCell>
                 {`${patient.patientData.firstName} ${patient.patientData.lastName}`}
@@ -76,7 +76,7 @@ function PatientTableContent({ patients ,setChannelName ,setStatus }) {
               <TableCell>{patient.visitType}</TableCell>
 
               <TableCell>
-                {date  + "   " + timeRange}
+                {date + "   " + timeRange}
               </TableCell>
               <TableCell
                 className={`${
@@ -100,15 +100,22 @@ function PatientTableContent({ patients ,setChannelName ,setStatus }) {
               <TableCell>
                 <Badge variant="forestLight">Appointment</Badge>
               </TableCell>
-              <TableCell className="flex items-center justify-center gap-2 " onClick={() => handleTaskClick(patient)}>
-              {patient?.bookingStatus?.checkIn && !patient.bookingStatus?.checkOut && !patient?.bookingStatus?.closed && 
-                <CustomTooltip content={`Video call`}>
-                  <Video
-                    className="text-green-500 hover:text-green-600 transition-colors cursor-pointer"
-                    size={20}
-                  />
-                </CustomTooltip>
-              }
+              <TableCell className="flex items-center justify-center gap-2" onClick={() => handleTaskClick(patient)}>
+                {patient?.bookingStatus?.checkIn && !patient.bookingStatus?.checkOut && !patient?.bookingStatus?.closed ? (
+                  <CustomTooltip content={`Video call`}>
+                    <Video
+                      className="text-green-500 hover:text-green-600 transition-colors cursor-pointer"
+                      size={20}
+                    />
+                  </CustomTooltip>
+                ) : (
+                  <CustomTooltip  content={`Video call`}>
+                    <FaVideoSlash  
+                      className="text-red-500 hover:text-red-600 transition-colors cursor-pointer"
+                      size={20}
+                    />
+                  </CustomTooltip>
+                )}
               </TableCell>
             </TableRow>
           );
@@ -116,7 +123,7 @@ function PatientTableContent({ patients ,setChannelName ,setStatus }) {
       ) : (
         <TableRow>
           <TableCell
-            colSpan="5"
+            colSpan="7"
             className="py-4 text-center text-gray-500 text-sm"
           >
             No appointment found.

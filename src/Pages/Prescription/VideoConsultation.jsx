@@ -91,7 +91,7 @@ const VideoConsultation = ({ channelName,isSheetOpen,setIsSheetOpen,setChannelNa
       if (result.isConfirmed) {
         requestPermissions();
       } else {
-        navigate('/Dashboard');
+        navigate('/worklist');
       }
     });
   };
@@ -181,7 +181,7 @@ const VideoConsultation = ({ channelName,isSheetOpen,setIsSheetOpen,setChannelNa
 
   return (
 
-      <div className="h-full w-full border border-red-400 absolute left-0 bottom-0 right-0 top-0  z-50">
+      <div className="h-full w-full  absolute left-0 bottom-0 right-0 top-0  z-50">
         <div
           className={`flex flex-col h-full w-full  ${
             isMinimized ? 'fixed bottom-4 right-4 h-48 w-80 rounded-lg shadow-lg' : ''
