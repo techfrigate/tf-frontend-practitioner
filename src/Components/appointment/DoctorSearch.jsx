@@ -64,7 +64,7 @@ const DoctorSearch = ({ handleDoctorSelect }) => {
   return (
     <Autocomplete
       sx={{ 
-        width: "100%", 
+        width: "25%", 
         "& .MuiOutlinedInput-root": {
           borderRadius: "20px",
         },

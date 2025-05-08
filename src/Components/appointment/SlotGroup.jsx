@@ -9,36 +9,35 @@ const formatTime = (dateString) => {
   return format(localDate, "hh:mm a");
 };
 const SlotGroup = ({title,slots,selectedTimeSlot,handleTimeSlotSelect}) => {
-  console.log(slots);
-  return (
-    <div className="mb-6">
-      <h1 className="text-md font-semibold text-gray-600 mb-3">{title}</h1>
-      <div className="flex flex-wrap gap-3">
+return (
+  <div className="mb-6">
+    <h1 className="text-md font-semibold text-gray-600 mb-3">{title}</h1>  
+    <div className="overflow-x-auto whitespace-nowrap no-scrollbar">
+      <div className="flex gap-3">
         {slots.map((time, index) => (
           <div
-            className={`rounded-sm px-6 py-1 mb-2 transition-colors duration-200 border-2 ${
-              (time.status === "booked")
-                ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                : selectedTimeSlot?.startDateTime === time.startDateTime
-                ? "bg-gray-200 border-gray-700 "
-                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 cursor-pointer"
-            }`}
-            onClick={!(time.status === "booked") ? () => handleTimeSlotSelect(time) : null}
-          >
-            <p
-              className={`text-center ${
-                ( time.status === "booked") ? "text-gray-400" : "text-gray-700"
+            key={index}
+            className={`rounded-sm px-6 py-1 mb-2 transition-colors duration-200 border-2
+              ${
+                time.status === "booked"
+                  ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                  : selectedTimeSlot?.startDateTime === time.startDateTime
+                  ? "bg-gray-200 border-gray-700"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 cursor-pointer"
               }`}
-            >
-              {`${formatTime(time.startDateTime)} - ${formatTime(
-                time.endDateTime
-              )}`}
+            onClick={
+              !(time.status === "booked") ? () => handleTimeSlotSelect(time) : null
+            }
+          >
+            <p className="text-center text-sm font-semibold">
+              {`${formatTime(time.startDateTime)} - ${formatTime(time.endDateTime)}`}
             </p>
           </div>
         ))}
       </div>
     </div>
-  );
-};
+  </div>
+);
+}
 
 export default SlotGroup;

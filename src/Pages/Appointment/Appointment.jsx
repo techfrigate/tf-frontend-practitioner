@@ -14,6 +14,7 @@ import Loader from "../../Components/Common/Loader";
 import { AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import CustomButton from "../../Components/Common/CustomButton";
+import { useNavigate } from "react-router-dom";
 
 const Appointment = () => {
   const [searchDoctor, setSearchDoctor] = useState("");
@@ -27,7 +28,8 @@ const Appointment = () => {
   const [showPayment, setShowPayment] = useState(false);
   const [noSlotsAvailable, setNoSlotsAvailable] = useState(false);  
 
-  
+  const navigate = useNavigate();
+
   const { isLoading, error } = useSelector((state) => state.appointment);
  
   const dispatch = useDispatch();
@@ -70,6 +72,7 @@ const Appointment = () => {
     if (!selectedSlot?.slotsDetail?.length) return;
 
     const categorizedSlots = categorizeSlots(selectedSlot.slotsDetail);
+
     
    const findSlot =  categorizedSlots.morningSlots.find(
       (slot) => slot.status ==="available"
@@ -83,6 +86,9 @@ const Appointment = () => {
     setSelectedTimeSlot(findSlot);
   }, [selectedDate, selectedDoctor]);
 
+  const handleCancel = () => {
+    navigate("/worklist");
+  };
  
   const categorizeSlots = useCallback((slotsDetail) => {
     return slotsDetail.reduce(
@@ -243,7 +249,7 @@ if(error){
   if (isLoading) return <Loader />;
  
   return (
-    <div className="px-3 py-3 h-[100%] customScrollbar">
+    <div className="px-3 py-3 h-[100%] w-full customScrollbar">
       {showPayment ? (
         <Payment setShowPayment={setShowPayment}/>
       ) : (
@@ -273,37 +279,43 @@ if(error){
           )}
 
           {selectedDoctor && selectedPatient && !noSlotsAvailable && (
-            <div>
+          <div className="flex flex-col">
+            <div className="flex justify-between items-start">
               <ConsultationType
                 consultationType={consultationType}
-                 handleConsultationChange={handleConsultationChange}
+                handleConsultationChange={handleConsultationChange}
                 selectedDoctor={selectedDoctor}
               />
               {consultationDateshow && (
-                <ScheduleSelector
-                  selectedDoctor={selectedDoctor}
-                  consultationType={consultationType}
-                  handleDateSelect={setSelectedDate}
-                  selectedDate={selectedDate}
-                />
+                <div className="self-start -mt-[6%]">
+                  <ScheduleSelector
+                    selectedDoctor={selectedDoctor}
+                    consultationType={consultationType}
+                    handleDateSelect={setSelectedDate}
+                    selectedDate={selectedDate}
+                  />
+                </div>
               )}
-              {consultationDateshow && (
-                <AvailableSlots
-                   {...categorizedSlotsForDate}
-                  selectedTimeSlot={selectedTimeSlot}
-                  handleTimeSlotSelect={setSelectedTimeSlot}
-                />
-              )}
-              <div className="flex gap-4 justify-end pb-5">
-            <button className="border border-slate-300 py-2 px-6 rounded-md hover:scale-110 shadow-md">
-              Cancel
-            </button>
-            <CustomButton text={"Book Appointment"} onclick={handleBookAppointment} loading={isLoading}/>
-           
-          </div>
             </div>
-          )}
-          
+            {consultationDateshow && (
+              <AvailableSlots
+                {...categorizedSlotsForDate}
+                selectedTimeSlot={selectedTimeSlot}
+                handleTimeSlotSelect={setSelectedTimeSlot}
+              />
+            )}
+          <div className="flex gap-4 justify-end pb-5">
+              <button className="border border-slate-300 py-2 px-6 rounded-md hover:scale-110 shadow-md" onClick={handleCancel}              >
+                Cancel
+              </button>
+              <CustomButton
+                text={"Book Appointment"}
+                onclick={handleBookAppointment}
+                loading={isLoading}
+              />
+            </div>
+          </div>
+          )}          
         </div>
       )}
     </div>

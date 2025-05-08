@@ -34,6 +34,10 @@ const handlePayment = async()=>{
   }
 }
 
+const handleCancel = () => {
+  navigate("/worklist");
+};
+
   return (
     <div className="p-8 bg-gray-100 min-h-screen flex flex-col items-center">
       <h1 className="text-2xl font-bold mb-8">Select a Payment Method</h1>
@@ -99,7 +103,7 @@ const handlePayment = async()=>{
           </div>
         </div>
         <div className="flex justify-end mt-6 gap-4">
-          <button className="bg-gray-500 text-white py-2 px-6 rounded-md transition transform hover:scale-105 hover:bg-gray-600 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+          <button className="bg-gray-500 text-white py-2 px-6 rounded-md transition transform hover:scale-105 hover:bg-gray-600 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" onClick={handleCancel}>
             Cancel
           </button>
           <CustomButton text={"Add Payment"} onclick={handlePayment} loading={isLoading}/>
