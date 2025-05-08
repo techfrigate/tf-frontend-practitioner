@@ -14,7 +14,6 @@ const PatientSearch = ({ handlePatientSelect }) => {
     const ageInMilliseconds = today - dob;
     const millisecondsInYear = 1000 * 60 * 60 * 24 * 365.25;  
     const preciseAge = ageInMilliseconds / millisecondsInYear;
-    console.log(preciseAge, "precise age");
     return preciseAge.toFixed(1);
   };
 
@@ -34,7 +33,7 @@ const PatientSearch = ({ handlePatientSelect }) => {
 
   return (
     <Autocomplete
-    sx={{ width: "100%", "& .MuiOutlinedInput-root": {
+    sx={{ width: "25%", "& .MuiOutlinedInput-root": {
       borderRadius: "20px",
     },
     "& .MuiAutocomplete-paper": {

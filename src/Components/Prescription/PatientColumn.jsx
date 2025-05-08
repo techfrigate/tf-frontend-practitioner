@@ -9,7 +9,6 @@ import PatientModal from "./PatientModal.jsx"
 
 const PatientColumn = ({ patient, setChannelName, setStatus }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-console.log(patient.practitionerData)
   const { date, timeRange } = formatDateRange(patient.startDateTime, patient.endDateTime);
 
   const onTaskDragStart = (event, patientId) => {

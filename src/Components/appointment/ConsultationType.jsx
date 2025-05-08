@@ -13,7 +13,7 @@ const ConsultationType = ({ consultationType, handleConsultationChange, selected
   }, [selectedDoctor]);
 
   return (
-    <div className="mt-5 w-full">
+    <div className="mt-5 w-[52%]">
       <h2 className="text-base font-semibold text-gray-800 mb-4">
         Consultation Type
       </h2>
