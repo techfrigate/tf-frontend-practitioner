@@ -11,6 +11,7 @@ import { type } from "@testing-library/user-event/dist/type";
 import FHIRFormComponent from "./FHIRFormComponent";
 import {ProcedureData}  from "../../util/prescriptionData";
 // Field configurations
+ import toast from "react-hot-toast";
  
 const formatDate = (date) => new Date(date).toISOString();
 const createProcedureResource = (formData) => {
@@ -120,7 +121,7 @@ const Procedure = ({closeSheet}) => {
       `${FHIR_BASE_URL}/fhir-core/create-resource`,
       { ...procedureResource, tenantId: "6721a71bba60e77ed113c3b8" }
     );
-    alert("Procedure recorded successfully!");
+    toast.success("Procedure recorded successfully!");
   };
 
   const searchCallback = async (term, ecl) => {

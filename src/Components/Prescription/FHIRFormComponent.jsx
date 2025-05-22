@@ -6,6 +6,7 @@ import CustomInput from "../Common/CustomInput";
 import { useDispatch } from "react-redux";
 import Loader from "../Common/Loader";
 import CutomInputDropdown from "../Common/CutomInputDropdown";
+import toast from "react-hot-toast";
 
 const FHIRFormComponent = ({
   formFields = [],
@@ -61,16 +62,16 @@ const FHIRFormComponent = ({
       try {
         setIsLoading((prev) => ({ ...prev, [field.name]: true }));
         const data = await searchCallback(term, field.ecl);
-        setSearchCache((prev) => ({ ...prev, [cacheKey]: data.items }));
+        setSearchCache((prev) => ({ ...prev, [cacheKey]: data?.items }));
         setSearchResults((prev) => ({
           ...prev,
-          [field.name]: data.items,
+          [field.name]: data?.items,
         }));
       } catch (error) {
         console.error(`Error searching ${field}:`, error);
         setSearchResults((prev) => ({ ...prev, [field.name]: [] }));
       } finally {
-        setIsLoading((prev) => ({ ...prev, [field.name]: false }));
+        setIsLoading((prev) => ({ ...prev, [field?.name]: false }));
       }
     }, 500),
     []
@@ -130,7 +131,7 @@ const FHIRFormComponent = ({
       setFormData(initialFormState);
       setSearchTerms({});
     } catch (error) {
-      console.error("Error submitting form:", error);
+      toast.error("Error submitting form:", error);
     } finally {
       setIsLoading((prev) => ({ ...prev, submit: false }));
     }

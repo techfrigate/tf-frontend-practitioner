@@ -4,6 +4,7 @@ import axios from "axios";
 import FHIRFormComponent from "./FHIRFormComponent";
 import { searchIllness } from "../../Store/fhirSlice";
 import {MedicalHistoryData} from "../../util/prescriptionData";
+ import toast from "react-hot-toast";
  
 const formatDate = (date) => new Date(date).toISOString();
 const createConditionResource = (formData) => {
@@ -91,7 +92,7 @@ const MedicalHistory = ({closeSheet}) => {
         tenantId: "6721a71bba60e77ed113c3b8"
       }
     );
-    alert("Resource created successfully!");
+    toast.success("Resource created successfully!");
   };
 
   const searchCallback = async (term, ecl) => {
