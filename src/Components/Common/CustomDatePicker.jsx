@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 
 const CustomDatePicker = ({id,label,value,isInvalid,errorMessage,onChange,required}) => {
   return (
-    <div className="grid w-full max-w-sm items-center gap-1 ">
+    <div className="grid w-full max-w-sm items-center gap-1 z-30">
       <label htmlFor={id} className="block text-sm font-semibold text-gray-700">
         {label} {required &&<span className="text-red-500">*</span>}
       </label>
