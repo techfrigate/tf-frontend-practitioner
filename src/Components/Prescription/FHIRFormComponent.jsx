@@ -140,8 +140,6 @@ const FHIRFormComponent = ({
   return (
     <div className="w-full relative px-6 py-3 h-fit mx-auto bg-white rounded-lg customScrollbar">
       <form onSubmit={handleSubmit} className="space-y-3">
-        {/* Search Fields */}
-
         {formFields.map((field) => {
           if (field.fieldType === "textArea") {
             return (

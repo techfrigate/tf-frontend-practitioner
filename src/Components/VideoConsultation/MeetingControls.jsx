@@ -5,9 +5,7 @@ export const MeetingControls = ({isAudioMuted,isVideoMuted,isScreenSharing,onAud
   isSheetOpen,setIsSheetOpen}) => {
   return (
     <div className="mx-auto flex max-w-4xl items-center justify-between">
-      {/* Left Controls */}
       <div className="flex gap-4">
-        {/* Audio Toggle */}
         <button
           onClick={onAudioToggle}
           className={`flex items-center gap-2 rounded-full px-4 py-2 ${
@@ -19,8 +17,6 @@ export const MeetingControls = ({isAudioMuted,isVideoMuted,isScreenSharing,onAud
         >
           {isAudioMuted ? <MicOff size={20} /> : <Mic size={20} />}
         </button>
-
-        {/* Video Toggle */}
         <button
           onClick={onVideoToggle}
           className={`flex items-center gap-2 rounded-full px-4 py-2 ${
@@ -32,8 +28,6 @@ export const MeetingControls = ({isAudioMuted,isVideoMuted,isScreenSharing,onAud
         >
           {isVideoMuted ? <VideoOff size={20} /> : <Video size={20} />}
         </button>
-
-        {/* Screen Share Toggle */}
         <button
           onClick={onScreenShare}
           className={`flex items-center gap-2 rounded-full px-4 py-2 ${
@@ -45,8 +39,6 @@ export const MeetingControls = ({isAudioMuted,isVideoMuted,isScreenSharing,onAud
         >
           {isScreenSharing ? <MonitorOff size={20} /> : <Monitor size={20} />}
         </button>
-
-           {/* ClipboardPenLine */}
               <button
           onClick={()=>setIsSheetOpen(!isSheetOpen)}
           className={`flex items-center gap-2 rounded-full px-4 py-2 ${
@@ -60,10 +52,7 @@ export const MeetingControls = ({isAudioMuted,isVideoMuted,isScreenSharing,onAud
         </button>
          
       </div>
-
-      {/* Right Controls */}
       <div className="flex gap-4">
-        {/* Chat */}
         <button
           onClick={onChatToggle}
           className="flex items-center gap-2 rounded-full bg-gray-200 px-4 py-2 hover:bg-gray-300"
@@ -71,8 +60,6 @@ export const MeetingControls = ({isAudioMuted,isVideoMuted,isScreenSharing,onAud
         >
           <MessageCircle size={20} />
         </button>
-
-        {/* Participants */}
         <button
           onClick={onParticipantsToggle}
           className="flex items-center gap-2 rounded-full bg-gray-200 px-4 py-2 hover:bg-gray-300"
@@ -81,7 +68,6 @@ export const MeetingControls = ({isAudioMuted,isVideoMuted,isScreenSharing,onAud
           <Users size={20} />
         </button>
 
-        {/* Minimize */}
         <button
           onClick={onMinimize}
           className="flex items-center gap-2 rounded-full bg-gray-200 px-4 py-2 hover:bg-gray-300"
@@ -89,8 +75,6 @@ export const MeetingControls = ({isAudioMuted,isVideoMuted,isScreenSharing,onAud
         >
           <Minimize2 size={20} />
         </button>
-
-        {/* Settings */}
         <button
           onClick={onSettingsToggle}
           className="flex items-center gap-2 rounded-full bg-gray-200 px-4 py-2 hover:bg-gray-300"
@@ -99,7 +83,6 @@ export const MeetingControls = ({isAudioMuted,isVideoMuted,isScreenSharing,onAud
           <Settings size={20} />
         </button>
 
-        {/* Leave Meeting */}
         <button
           onClick={onLeave}
           className="flex items-center gap-2 rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-600"
