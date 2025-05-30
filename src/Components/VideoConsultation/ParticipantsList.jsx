@@ -22,23 +22,18 @@ export const ParticipantsList = ({ isOpen, onClose, participants }) => {
             ×
           </button>
         </div>
-
-        {/* Participant List */}
         <div className="flex-1 overflow-y-auto p-4">
           {participants.map((participant) => (
             <div
               key={participant.uid}
               className="mb-3 flex items-center justify-between rounded-lg bg-gray-100 p-3"
             >
-              {/* Avatar and Name */}
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-white">
                   {participant.name[0].toUpperCase()}
                 </div>
                 <span className="font-medium">{participant.name}</span>
               </div>
-
-              {/* Status Icons */}
               <div className="flex gap-2">
                 {participant.isAudioMuted && (
                   <span className="text-red-500" title="Audio Muted">
