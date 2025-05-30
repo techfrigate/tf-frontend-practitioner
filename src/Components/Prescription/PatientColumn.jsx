@@ -6,6 +6,7 @@ import { Badge } from "../../Components/ui/badge";
 import { Video, Phone, Calendar, Clock } from "lucide-react";
 import { calculateAge } from "../../util/patientUtil.js";
 import PatientModal from "./PatientModal.jsx"
+import { Flame } from 'lucide-react';
 
 const PatientColumn = ({ patient, setChannelName, setStatus, setCurrentPatientId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,8 +33,8 @@ const PatientColumn = ({ patient, setChannelName, setStatus, setCurrentPatientId
     if (status === "Checked In") {
       setChannelName(patient.channelName.slice(0, 16));
       setStatus(status);
-      setCurrentPatientId(patient._id); // ADD THIS LINE - Set the current patient ID
-      console.log("Starting video call for patient:", patient._id); // Debug log
+      setCurrentPatientId(patient._id);
+      console.log("Starting video call for patient:", patient._id); 
     }
 
     setIsModalOpen(true);
@@ -46,7 +47,6 @@ const PatientColumn = ({ patient, setChannelName, setStatus, setCurrentPatientId
         className="py-2 mb-1 "
         draggable
         onDragStart={(event) => onTaskDragStart(event, patient._id)}
-        onClick={() => handleTaskClick(patient)}
       >
         <div className="bg-white rounded-xl shadow-lg w-full max-w-[30rem] overflow-hidden hover:bg-gray-50 transition-all">
           <div className="px-4 py-3">
@@ -90,9 +90,19 @@ const PatientColumn = ({ patient, setChannelName, setStatus, setCurrentPatientId
                 {patient?.bookingStatus?.checkIn &&
                   !patient.bookingStatus?.checkOut &&
                   !patient?.bookingStatus?.closed && patient.visitType === "Online" && (
-                    <CustomTooltip content={`Video call`}>
-                      <Video className="text-green-500 hover:text-green-600 transition-colors cursor-pointer" size={22} />
+                    <>
+                    <div className=" flex items-center justify-between gap-4">
+                      <CustomTooltip content={`Fhir Detailes`}>
+                  <Flame 
+                  className="text-green-500 hover:text-green-600 transition-colors cursor-pointer"
+                      size={22} />                    
                     </CustomTooltip>
+                    <CustomTooltip content={`Video call`}>
+                      <Video className="text-green-500 hover:text-green-600 transition-colors cursor-pointer" size={22} 
+                        onClick={() => handleTaskClick(patient)}/>
+                    </CustomTooltip>
+                    </div>
+                    </>
                   )}
               </div>
             </div>
