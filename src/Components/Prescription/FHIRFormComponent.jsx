@@ -119,7 +119,7 @@ const FHIRFormComponent = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data:", formData);
+    console.log("Form Data:", formData);    
     if(!ValidationFields()){
       return
     }

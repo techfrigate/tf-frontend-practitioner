@@ -7,7 +7,7 @@ import { Video, Phone, Calendar, Clock } from "lucide-react";
 import { calculateAge } from "../../util/patientUtil.js";
 import PatientModal from "./PatientModal.jsx"
 
-const PatientColumn = ({ patient, setChannelName, setStatus }) => {
+const PatientColumn = ({ patient, setChannelName, setStatus, setCurrentPatientId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { date, timeRange } = formatDateRange(patient.startDateTime, patient.endDateTime);
 
@@ -32,6 +32,8 @@ const PatientColumn = ({ patient, setChannelName, setStatus }) => {
     if (status === "Checked In") {
       setChannelName(patient.channelName.slice(0, 16));
       setStatus(status);
+      setCurrentPatientId(patient._id); // ADD THIS LINE - Set the current patient ID
+      console.log("Starting video call for patient:", patient._id); // Debug log
     }
 
     setIsModalOpen(true);
