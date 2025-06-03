@@ -1,7 +1,7 @@
 import React from 'react';
 import {Mic,MicOff,Video,VideoOff,Monitor,MonitorOff,MessageCircle,Users,PhoneOff,Minimize2,Settings, ClipboardPenLine, ClipboardPen} from 'lucide-react';
 
-export const MeetingControls = ({isAudioMuted,isVideoMuted,isScreenSharing,onAudioToggle,onVideoToggle,onScreenShare,onChatToggle,onParticipantsToggle,onLeave,onMinimize,onSettingsToggle,
+export const MeetingControls = ({currentPatientId,isAudioMuted,isVideoMuted,isScreenSharing,onAudioToggle,onVideoToggle,onScreenShare,onChatToggle,onParticipantsToggle,onLeave,onMinimize,onSettingsToggle,
   isSheetOpen,setIsSheetOpen}) => {
   return (
     <div className="mx-auto flex max-w-4xl items-center justify-between">

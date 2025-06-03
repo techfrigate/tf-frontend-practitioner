@@ -19,6 +19,7 @@ const HumanBody = lazy(() => import("../Pages/WorkList/HumanBody"));
 const Medicines = lazy(() => import("../Pages/Medicines/Medicines"));
 const AddMedicines = lazy(() => import("../Pages/Medicines/AddMedicines"));
 const MedicalRackApp = lazy(() => import("../Pages/Medicines/MedicalShopRack"));
+const Fhirdetails = lazy(() => import("../Components/Prescription/Fhirdetails"))
 
 const routes = [
     { path: "/", component: <Navigate to="worklist"/> },
@@ -31,6 +32,7 @@ const routes = [
     { path: "/HumanBody", component: <ProtectedRoute><HumanBody/></ProtectedRoute> },
     { path: "/medicines", component: <ProtectedRoute><Medicines/></ProtectedRoute> },
     { path: "/add-medicine", component: <ProtectedRoute><AddMedicines/></ProtectedRoute> },
+    { path: "/fhirdetails", component: <ProtectedRoute><Fhirdetails/></ProtectedRoute> },
     { path: "/MedicalRackApp", component: <ProtectedRoute><MedicalRackApp/></ProtectedRoute> },
     { path: "/paymentconfirmation", component: <ProtectedRoute><BillPage/></ProtectedRoute> },
     { path: "/appointment", component: <ProtectedRoute><Appointment/></ProtectedRoute> },

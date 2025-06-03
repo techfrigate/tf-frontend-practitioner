@@ -7,6 +7,7 @@ import { Video, Phone, Calendar, Clock } from "lucide-react";
 import { calculateAge } from "../../util/patientUtil.js";
 import PatientModal from "./PatientModal.jsx"
 import { Flame } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const PatientColumn = ({ patient, setChannelName, setStatus, setCurrentPatientId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,6 +16,16 @@ const PatientColumn = ({ patient, setChannelName, setStatus, setCurrentPatientId
   const onTaskDragStart = (event, patientId) => {
     event.dataTransfer.setData("text/plain", patientId.toString());
   };
+
+  const navigate = useNavigate();
+  const handleFlameClick = () => {
+  // const patientId = patient._id;
+  // const tenantId = patient.patientData?.tenants[0].tenantId; 
+  // if (patientId && tenantId) {
+    // navigate(`/fhirdetails/pid=${patientId}/tid=${tenantId}`);
+    navigate(`/fhirdetails`);
+  // }
+}
 
   const handleTaskClick = (patient) => {
     const { bookingStatus } = patient;
@@ -92,10 +103,10 @@ const PatientColumn = ({ patient, setChannelName, setStatus, setCurrentPatientId
                   !patient?.bookingStatus?.closed && patient.visitType === "Online" && (
                     <>
                     <div className=" flex items-center justify-between gap-4">
-                      <CustomTooltip content={`Fhir Detailes`}>
+                      <CustomTooltip content={`fhir-details`}>
                   <Flame 
                   className="text-green-500 hover:text-green-600 transition-colors cursor-pointer"
-                      size={22} />                    
+                      size={22}     onClick={handleFlameClick}/>                    
                     </CustomTooltip>
                     <CustomTooltip content={`Video call`}>
                       <Video className="text-green-500 hover:text-green-600 transition-colors cursor-pointer" size={22} 

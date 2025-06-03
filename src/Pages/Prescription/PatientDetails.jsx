@@ -194,7 +194,6 @@ function PatientDetails() {
     }
   };
 
-  // Function to update patient status to Checked Out
   const updatePatientToCheckedOut = async (patientId) => {
     if (!patientId) {
       console.log("No patient ID provided for checkout");
@@ -203,14 +202,12 @@ function PatientDetails() {
     
     console.log("Updating patient to checked out:", patientId);
     
-    // Find the current patient to check their current status
     const patient = prescriptionData.find((item) => item._id === patientId);
     if (!patient) {
       console.error("Patient not found in prescriptionData");
       return;
     }
 
-    // Follow the same pattern as onTaskDrop for "Checked Out"
     const updatedStatus = {
       checkOut: new Date(),
     };

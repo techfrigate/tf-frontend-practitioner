@@ -124,10 +124,7 @@ const VideoConsultation = ({
         setIsMinimized(false);
         setChannelName('');
         
-        // Automatically update patient status to Checked Out
-        console.log("Attempting to update patient status. Patient ID:", currentPatientId);
         if (currentPatientId && updatePatientToCheckedOut) {
-          console.log("Calling updatePatientToCheckedOut for patient:", currentPatientId);
           await updatePatientToCheckedOut(currentPatientId);
         } else {
           console.log("Missing currentPatientId or updatePatientToCheckedOut function");
@@ -178,8 +175,8 @@ const VideoConsultation = ({
         channelName={channelName}
         isAudioMuted={isAudioMuted}
         isVideoMuted={isVideoMuted}
-         isSheetOpen={isSheetOpen}
-                setIsSheetOpen={setIsSheetOpen}
+        isSheetOpen={isSheetOpen}
+        setIsSheetOpen={setIsSheetOpen}
         onMaximize={handleMaximize}
       />
     );
@@ -191,7 +188,7 @@ const VideoConsultation = ({
       name: userName,
       isAudioMuted,
       isVideoMuted,
-      isScreenSharing
+      isScreenSharing,
     },
     ...remoteUsers
   ];
@@ -209,6 +206,7 @@ const VideoConsultation = ({
             <div className="bg-black/40 backdrop-blur-sm rounded-full p-2">
               <MeetingControls
                 isAudioMuted={isAudioMuted}
+                currentPatientId={currentPatientId}
                 isVideoMuted={isVideoMuted}
                 isScreenSharing={isScreenSharing}
                 onAudioToggle={handleAudioToggle}

@@ -74,15 +74,15 @@ import {
       backgroundImage: "https://plus.unsplash.com/premium_vector-1682269359035-d0de2962d5f9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8bWVkaWNpbmV8ZW58MHx8MHx8fDA%3D",
       resourceType:"Procedure"
     },
-    {
-      name: "Medical History",
-      description: "Overall health history of the patient",
-      icon: <BriefcaseIcon className="w-4 h-4" />, 
-      gradient: "from-teal-100 via-teal-100 to-teal-300",
-      buttonColor: "text-teal-900 border-teal-900",
-      backgroundImage: "https://plus.unsplash.com/premium_vector-1682269359035-d0de2962d5f9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8bWVkaWNpbmV8ZW58MHx8MHx8fDA%3D",
-      resourceType:"Condition"
-    },
+    // {
+    //   name: "Medical History",
+    //   description: "Overall health history of the patient",
+    //   icon: <BriefcaseIcon className="w-4 h-4" />, 
+    //   gradient: "from-teal-100 via-teal-100 to-teal-300",
+    //   buttonColor: "text-teal-900 border-teal-900",
+    //   backgroundImage: "https://plus.unsplash.com/premium_vector-1682269359035-d0de2962d5f9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8bWVkaWNpbmV8ZW58MHx8MHx8fDA%3D",
+    //   resourceType:"Condition"
+    // },
     {
       name: "Family History",
       description: "Hereditary conditions and history",
