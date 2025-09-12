@@ -5,6 +5,7 @@ import { AiOutlineClose } from "react-icons/ai";
  import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate, useLocation } from "react-router-dom";
+import { MdContactEmergency } from "react-icons/md";
 
 
 const sidebarLinks = [
@@ -12,6 +13,11 @@ const sidebarLinks = [
     name: "Worklist",
     icon: <FaListAlt size={21} />,
     route: "/worklist",
+  },
+  {
+    name: "Ward",
+    icon: <MdContactEmergency size={21} />,
+    route: "/ward",
   },
   {
     name: "Patients",

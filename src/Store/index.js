@@ -10,6 +10,7 @@ import medicinesReducer from "./MedicinesSlice"
 import formDataReducer from "./prescriptionformDataSlice"
 import fhirReducer from "./fhirSlice"
 import statusFailReducer from "./statusFailSlice"
+import wardReducer from "./wardSlice"
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     formData: formDataReducer,
     fhir:fhirReducer,
     statusFail: statusFailReducer,
+    ward: wardReducer
    },
 });
 
