@@ -15,8 +15,11 @@ export const getImageUrl = async (e) => {
     const data = new FormData();
     data.append('file', sanitizedFile);
 
+    let image_url = "https://static.investindia.gov.in/s3fs-public/2024-12/image-13_1.png"
+
     const response = await axios.post(`${ACCOUNTS_URL}/auth/upload-image`, data);
-    return response.data.imageUrl;
+    // return response.data.imageUrl;
+    return image_url;
   } catch (error) {
     toast.error(error.response?.data?.message || 'An error occurred');
     throw error; 
