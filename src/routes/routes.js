@@ -20,10 +20,12 @@ const Medicines = lazy(() => import("../Pages/Medicines/Medicines"));
 const AddMedicines = lazy(() => import("../Pages/Medicines/AddMedicines"));
 const MedicalRackApp = lazy(() => import("../Pages/Medicines/MedicalShopRack"));
 const Fhirdetails = lazy(() => import("../Components/Prescription/Fhirdetails"))
+const Ward = lazy(() => import("../Pages/Ward/Ward"));    
 
 const routes = [
     { path: "/", component: <Navigate to="worklist"/> },
     { path: "/worklist", component: <ProtectedRoute><WorkList/></ProtectedRoute> },
+    { path: "/ward", component: <ProtectedRoute><Ward/></ProtectedRoute> },
     { path: "/patients", component: <ProtectedRoute><Patients/></ProtectedRoute> },
     { path: "/calendar", component: <ProtectedRoute><Calendar/></ProtectedRoute> },
     { path: "/billing", component: <ProtectedRoute><Billing/></ProtectedRoute> },

@@ -16,6 +16,7 @@ function handleDocumentTitle(location) {
   const ports = {
     '/': 'Home - Practitoner',
     '/worklist': 'Work List - Practitoner',
+    '/ward': 'Ward - Practitoner',
     '/patients': 'Patients - Practitoner',
     '/calendar': 'Calendar - Practitoner',
     '/billing': 'Billing - Practitoner',
