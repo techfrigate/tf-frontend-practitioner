@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { setStatusFail } from './statusFailSlice';
 
 // Base URL for FHIR APIs
 const BASE_URL = process.env.REACT_APP_FHIR_URL;
@@ -7,7 +8,7 @@ const BASE_URL = process.env.REACT_APP_FHIR_URL;
 // Async Thunk for creating a resource
 export const createResource = createAsyncThunk(
   'fhir/createResource',
-  async ({ resourceType, data }, thunkAPI) => {
+  async ({ resourceType, data }, {rejectWithValue,dispatch}) => {
     try {
       const response = await axios.post(`${BASE_URL}/fhir-core/${resourceType}`, data, {
         headers: {
@@ -17,7 +18,11 @@ export const createResource = createAsyncThunk(
 
       return response.data; // Return the response data
     } catch (error) {
-      return thunkAPI.rejectWithValue(
+       if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+              const route = "/status-failed"
+              await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+            }
+      return rejectWithValue(
         error.response?.data?.message || error.message || 'Failed to create resource'
       );
     }
@@ -27,14 +32,19 @@ export const createResource = createAsyncThunk(
 // Async Thunk for searching illness
 export const searchIllness = createAsyncThunk(
   'fhir/searchIllness',
-  async ({term,ecl}, thunkAPI) => {
+  async ({term,ecl}, {rejectWithValue,dispatch
+  }) => {
     console.log(term,ecl)
     try {
       const response = await axios.get(`${BASE_URL}/fhir-core/snowstorm/illness?term=${term}&ecl=${ecl}`);
       console.log(response.data,"Search results");
       return response.data; // Return the response data
     } catch (error) {
-      return thunkAPI.rejectWithValue(
+      if(error.response.data.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(
         error.response?.data?.message || error.message || 'Failed to search illness'
       );
     }

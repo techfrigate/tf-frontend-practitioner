@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { setStatusFail } from './statusFailSlice';
 
 const initialState = {
   profileData: null,
@@ -16,7 +17,10 @@ const ADMIN_URL =  process.env.REACT_APP_ADMIN_URL
 // Async thunk for fetching user profile
 export const fetchUserProfile = createAsyncThunk(
   'profile/fetchUserProfile',
-  async ({ userId, accessToken, tenantId }, {rejectWithValue}) => {
+  async ({ userId, accessToken, tenantId,navigate }, {rejectWithValue,dispatch}) => {
+    Cookies.set("Token",accessToken);
+    Cookies.set("UserId",userId);
+    Cookies.set("TenantId", tenantId);
     try {
       const response = await axios.get(`${ACCOUNTS_URL}/profiles/user-profile/${userId}`, {
           headers: {
@@ -26,18 +30,27 @@ export const fetchUserProfile = createAsyncThunk(
           tenantId
           },
       });
-      Cookies.set("Token", response.data.access_token);
+      Cookies.set("Token", response.data.data.access_token);
       Cookies.set("TenantId", tenantId);
       Cookies.set("UserId", userId);
 
       localStorage.setItem(
         "admin_profile",
-        JSON.stringify(response.data.profile)
+        JSON.stringify(response.data.data.profile)
       );
-      return response.data.profile;
+      return response.data.data.profile;
     } catch (error) {
-      console.log("practitioner error", error);
-      return rejectWithValue(error.response.data);
+    let message=  error?.response?.data?.error?.message || "Something went wrong"
+      let route=  "/unauthorized"
+
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }else{
+        navigate(route)
+      }
+      
+      return rejectWithValue(message);
     }
   }
 );
@@ -45,7 +58,7 @@ export const fetchUserProfile = createAsyncThunk(
 
 export const fetchLocationProfiles = createAsyncThunk(
   'profile/fetchLocationProfiles',
-  async ({ tenantId, locationId, userType, accessToken }, { rejectWithValue }) => {
+  async ({ tenantId, locationId, userType, accessToken }, { rejectWithValue, dispatch }) => {
     try {
       const headers = {
         'Content-Type': 'application/json',
@@ -66,11 +79,14 @@ export const fetchLocationProfiles = createAsyncThunk(
         Cookies.set('UserType', userType);
       }
 
-      localStorage.setItem('location_profiles', JSON.stringify(response.data));
-      return response.data;
+      localStorage.setItem('location_profiles', JSON.stringify(response.data.data));
+      return response.data.data;
     } catch (error) {
-      console.error('Error fetching location profiles:', error);
-      return rejectWithValue(error.response?.data || 'An error occurred');
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || 'Something went wrong');
     }
   }
 );
@@ -92,7 +108,11 @@ export const updateLastApp =
 const profileSlice = createSlice({
   name: 'profile',
   initialState,
-  reducers: {},
+  reducers: {
+    updateUserProfileImage:(state,action)=>{
+      state.profileData.imageUrl = action.payload
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUserProfile.pending, (state) => {
@@ -122,4 +142,5 @@ const profileSlice = createSlice({
   },
 });
 
+export const {updateUserProfileImage} = profileSlice.actions
 export default profileSlice.reducer;

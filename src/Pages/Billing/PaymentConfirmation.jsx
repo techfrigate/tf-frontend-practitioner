@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Receipt, ArrowLeft, Printer } from 'lucide-react';
+import { ReceiptIndianRupee, ArrowLeft, Printer } from 'lucide-react';
 import BillPDF from './BillPDF';
 
 const PaymentConfirmation = () => {
@@ -29,30 +29,32 @@ const PaymentConfirmation = () => {
     billId,
     patientName,
     doctorName,
-    services,
-    totalAmount,
-    gst,
-    doctorFees,
-    dueAmount,
+    services = [],
+    totalAmount = 0,
+    gst = 0,
+    doctorFees = 0,
+    dueAmount = 0,
     status
   } = billing;
-
+console.log(billing)
   const totalWithGST = totalAmount + gst + doctorFees;
   const paidAmount = totalWithGST - dueAmount;
 
-  const formattedBills = services.map(service => ({
-    serviceType: 'Medical Service',
-    name: service.name,
-    amount: (service.price * service.quantity).toLocaleString()
-  }));
+  const formattedBills = services && services.length > 0 
+    ? services.map(service => ({
+        serviceType: 'Medical Service',
+        name: service.name,
+        amount: (service.price * service.quantity).toLocaleString()
+      }))
+    : [];
 
   return (
-    <div className=" customScrollbar  max-h-full bg-gray-100 p-6">
-      <div className="max-w-3xl mx-auto">
+    <div className="customScrollbar max-h-full w-full bg-gray-100 p-6">
+      <div className=" mx-auto">
         <div className="bg-white rounded-xl shadow-lg p-8">
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center space-x-3">
-              <Receipt className="w-8 h-8 text-[#00A182]" />
+              <ReceiptIndianRupee className="w-8 h-8 text-[#00A182]" />
               <h1 className="text-2xl font-bold text-gray-800">Payment Confirmation</h1>
             </div>
             <div className="flex items-center space-x-2">
@@ -68,27 +70,31 @@ const PaymentConfirmation = () => {
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Bill ID</h3>
-                <p className="mt-1 text-lg font-semibold">{billId}</p>
+                <p className="mt-1 text-lg font-semibold">{billId || 'N/A'}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Patient Name</h3>
-                <p className="mt-1 text-lg font-semibold">{patientName}</p>
+                <p className="mt-1 text-lg font-semibold">{patientName || 'N/A'}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Doctor Name</h3>
-                <p className="mt-1 text-lg font-semibold">{doctorName}</p>
+                <p className="mt-1 text-lg font-semibold">{doctorName || 'N/A'}</p>
               </div>
             </div>
             <div className="border-t border-gray-200 pt-6">
               <h3 className="text-lg font-semibold mb-4">Services</h3>
-              <div className="space-y-3">
-                {services.map((service, index) => (
-                  <div key={index} className="flex justify-between items-center">
-                    <span className="text-gray-600">{service.name} × {service.quantity}</span>
-                    <span className="font-medium">₹{(service.price * service.quantity).toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
+              {services && services.length > 0 ? (
+                <div className="space-y-3">
+                  {services.map((service, index) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <span className="text-gray-600">{service.name} × {service.quantity}</span>
+                      <span className="font-medium">₹{(service.price * service.quantity).toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500">No services found</p>
+              )}
             </div>
             <div className="border-t border-gray-200 pt-6">
               <div className="space-y-3">

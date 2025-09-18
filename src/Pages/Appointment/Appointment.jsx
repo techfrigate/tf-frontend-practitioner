@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSlots } from "../../Store/slotsSlice";
-import { fetchPatients } from "../../Store/patientSlice";
-import { createAppointment } from "../../Store/appointmentSlice";
+import { clearError, fetchPatients } from "../../Store/patientSlice";
+import { clearAppointmentError, createAppointment } from "../../Store/appointmentSlice";
 import { isAfter, isToday, parseISO } from "date-fns";
 import DoctorSearch from "../../Components/appointment/DoctorSearch";
 import PatientSearch from "../../Components/appointment/PatientSearch";
@@ -12,6 +12,9 @@ import AvailableSlots from "../../Components/appointment/AvailableSlots";
 import Payment from "../../Components/Payment/Payment";
 import Loader from "../../Components/Common/Loader";
 import { AlertCircle } from "lucide-react";
+import toast from "react-hot-toast";
+import CustomButton from "../../Components/Common/CustomButton";
+import { useNavigate } from "react-router-dom";
 
 const Appointment = () => {
   const [searchDoctor, setSearchDoctor] = useState("");
@@ -25,55 +28,82 @@ const Appointment = () => {
   const [showPayment, setShowPayment] = useState(false);
   const [noSlotsAvailable, setNoSlotsAvailable] = useState(false);  
 
-  const {
-    slots: { slotsData },
-    patient: { patients, slotsStatus },
-  } = useSelector((state) => state);
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
+  const { isLoading, error } = useSelector((state) => state.appointment);
+ 
+  const dispatch = useDispatch();
+ 
   useEffect(() => {
     dispatch(getSlots());
-    dispatch(fetchPatients({ page: null, limit: null }));
+    dispatch(fetchPatients({ page: null, limit: null,sortBy:null,order:null }));
   }, [dispatch]);
 
-  useEffect(() => {
-    if (consultationDateshow && selectedDoctor?.slots?.length) {
-      const futureSlots = selectedDoctor.slots.filter(
-        (slot) =>
-          isAfter(parseISO(slot.startDate), new Date()) ||
-          isToday(parseISO(slot.startDate)) && slot.visitType===consultationType
 
-      );
-      
-      if (futureSlots.length) {
-        setSelectedDate({
-          startDate: futureSlots[0].startDate,
-          slotId: futureSlots[0]._id,
-        });
-      } else {
-        setSelectedDate({});
-      }
+  const filteredSlots = useMemo(() => {
+    if (!selectedDoctor?.slots?.length) return [];
+    return selectedDoctor.slots.filter(
+      (slot) =>
+        (isAfter(parseISO(slot.startDate), new Date()) ||
+        isToday(parseISO(slot.startDate))) && 
+        (slot.visitType === consultationType || slot.visitType === "Both")
+    );
+  }, [selectedDoctor, consultationType]);
+
+
+  useEffect(() => {
+    if (consultationDateshow && filteredSlots.length) {
+      setSelectedDate({
+        startDate: filteredSlots[0].startDate,
+        slotId: filteredSlots[0]._id,
+      });
     } else {
       setSelectedDate({});
     }
-  }, [consultationDateshow, selectedDoctor]);
+  }, [consultationDateshow, filteredSlots]);
 
   useEffect(() => {
-    if (!selectedDoctor || !selectedDoctor.slots) return;
+    if (!selectedDoctor || !selectedDate.slotId) return;
+    
     const selectedSlot = selectedDoctor.slots.find(
       (slot) => slot._id === selectedDate.slotId
     );
-    if (!selectedSlot) return;
+    
+    if (!selectedSlot?.slotsDetail?.length) return;
 
     const categorizedSlots = categorizeSlots(selectedSlot.slotsDetail);
-    setSelectedTimeSlot(
-      categorizedSlots.eveningSlots[0] ||
-        categorizedSlots.afternoonSlots[0] ||
-        categorizedSlots.morningSlots[0]
-    );
+
+    
+   const findSlot =  categorizedSlots.morningSlots.find(
+      (slot) => slot.status ==="available"
+   ) || categorizedSlots.afternoonSlots.find(
+      (slot) => slot.status ==="available"
+   ) || categorizedSlots.eveningSlots.find(
+      (slot) => slot.status ==="available"
+   ) 
+
+   
+    setSelectedTimeSlot(findSlot);
   }, [selectedDate, selectedDoctor]);
 
-  const handleDoctorSelect = (doctor) => {
+  const handleCancel = () => {
+    navigate("/worklist");
+  };
+ 
+  const categorizeSlots = useCallback((slotsDetail) => {
+    return slotsDetail.reduce(
+      (acc, slot) => {
+        const hour = new Date(slot.startDateTime).getUTCHours();
+        if (hour < 12) acc.morningSlots.push(slot);
+        else if (hour < 18) acc.afternoonSlots.push(slot);
+        else acc.eveningSlots.push(slot);
+        return acc;
+      },
+      { morningSlots: [], afternoonSlots: [], eveningSlots: [] }
+    );
+  }, []);
+ 
+  const handleDoctorSelect = useCallback((doctor) => {
     if (!doctor?.slots?.length) {
       setSelectedDoctor(null);
       setConsultationDateshow(false);
@@ -83,7 +113,7 @@ const Appointment = () => {
 
     const futureSlots = doctor.slots.filter(
       (slot) =>
-        isAfter(parseISO(slot.startDate), new Date()) ||
+        isAfter(parseISO(slot.startDate), new Date())||
         isToday(parseISO(slot.startDate))
     );
 
@@ -99,7 +129,7 @@ const Appointment = () => {
       futureSlots[0].visitType === "Both" ? "Online" : futureSlots[0].visitType
     );
     setSearchDoctor(
-      `${futureSlots[0].practitionerData.firstName} ${futureSlots[0].practitionerData.lastName} - ${futureSlots[0].practitionerData.speciality}`
+      `${doctor.practitionerData.firstName} ${doctor.practitionerData.lastName} - ${doctor.practitionerData.speciality}`
     );
     setSelectedDate({
       startDate: futureSlots[0].startDate,
@@ -107,44 +137,64 @@ const Appointment = () => {
     });
     setConsultationDateshow(true);
     setNoSlotsAvailable(false);  
-  };
+  }, []);
 
-  const handlePatientSelect = (patient) => {
-    if (!patient) return setSearchPatient(""), setSelectedPatient(null);
+  const handlePatientSelect = useCallback((patient) => {
+    if (!patient) {
+      setSearchPatient("");
+      setSelectedPatient(null);
+      return;
+    }
     setSelectedPatient(patient);
     setSearchPatient(`${patient.firstName} ${patient.lastName}`);
-  };
+  }, []);
 
-  const categorizeSlots = (slotsDetail) => {
-    return slotsDetail.reduce(
-      (acc, slot) => {
-        const hour = new Date(slot.startDateTime).getUTCHours();
-        if (hour < 12) acc.morningSlots.push(slot);
-        else if (hour < 18) acc.afternoonSlots.push(slot);
-        else acc.eveningSlots.push(slot);
-        return acc;
-      },
-      { morningSlots: [], afternoonSlots: [], eveningSlots: [] }
+ 
+  const handleConsultationChange = useCallback((type) => {
+    setConsultationType(type);
+
+    if (!selectedDoctor?.slots?.length) return;
+
+    const filteredSlots = selectedDoctor.slots.filter(
+      (slot) => slot.visitType === type || slot.visitType === "Both"
     );
-  };
 
-  const handleBookAppointment = () => {
-    const slotSelected = selectedDoctor?.slots.find(
+    if (filteredSlots.length) {
+      setSelectedDate({ 
+        startDate: filteredSlots[0].startDate, 
+        slotId: filteredSlots[0]._id 
+      });
+      setNoSlotsAvailable(false);
+    } else {
+      setSelectedDate({});
+      setNoSlotsAvailable(true);
+    }
+  }, [selectedDoctor]);
+
+  const handleBookAppointment =  () => {
+    if (!selectedDoctor || !selectedPatient || !selectedTimeSlot || !selectedDate.slotId) return;
+    
+    const slotSelected = selectedDoctor.slots.find(
       (elm) => elm._id === selectedDate.slotId
     );
-    const patientId = selectedPatient?._id;
+    
+    if (!slotSelected) return;
+    
+    const patientId = selectedPatient._id;
     const amount =
       consultationType === "Online"
-        ? selectedDoctor?.slots[0]?.practitionerData?.onlineFees
-        : selectedDoctor?.slots[0]?.practitionerData?.inPersonFees;
+        ? selectedDoctor.practitionerData?.work.online
+        : selectedDoctor.practitionerData?.work.inPerson;
+    
+    if (!amount) return;
 
     const body = {
       slotId: selectedDate.slotId,
       patientId,
-      locationId: slotSelected.locationId,
-      practitionerId: slotSelected.practitionerId,
+      locationId: selectedDoctor.locationData._id,
+      practitionerId: selectedDoctor.practitionerData._id,
       channelName:
-        patientId + slotSelected.practitionerId + selectedDate.slotId,
+        patientId + selectedDoctor.practitionerData._id + selectedDate.slotId,
       amountDetails: {
         amount,
         gst: 18,
@@ -156,45 +206,50 @@ const Appointment = () => {
       bookingStatus: { pending: new Date() },
       startDateTime: selectedTimeSlot.startDateTime,
       endDateTime: selectedTimeSlot.endDateTime,
-      visitType: slotSelected.visitType,
+      visitType: consultationType,
       duration: slotSelected.duration,
-      practitionerData: { ...slotSelected.practitionerData },
-      locationData: { ...slotSelected.locationData },
     };
-
+ 
     dispatch(
-      createAppointment({
-        body,
-        slotDetailSlotId: selectedTimeSlot._id,
-        slotId: selectedDate.slotId,
-        setShowPayment,
-      })
-    );
+    createAppointment({
+      body,
+      slotDetailSlotId: selectedTimeSlot._id,
+      slotId: selectedDate.slotId,
+      setShowPayment,
+    })
+  );
+ 
   };
 
-  const handleConsultationChange = (type) => {
-    setConsultationType(type);
+ 
+ const currentSelectedSlot = useMemo(() => {
+  if (!selectedDoctor?.slots || !selectedDate.slotId) return null;
+  return selectedDoctor.slots.find(slot => slot._id === selectedDate.slotId);
+}, [selectedDoctor, selectedDate.slotId]);
 
-    if (!selectedDoctor) return;
-
-    const filteredSlots = selectedDoctor.slots.filter(
-      (slot) => slot.visitType === type || slot.visitType === "Both"
-    );
-
-    if (filteredSlots.length) {
-      setSelectedDate({ startDate: filteredSlots[0].startDate, slotId: filteredSlots[0]._id });
-      setNoSlotsAvailable(false);
-    } else {
-      setSelectedDate({});
-      setNoSlotsAvailable(true);
-    }
+// Memoize categorized slots for the selected date
+const categorizedSlotsForDate = useMemo(() => {
+  if (!currentSelectedSlot?.slotsDetail) return { 
+    morningSlots: [], 
+    afternoonSlots: [], 
+    eveningSlots: [] 
   };
+  return categorizeSlots(currentSelectedSlot.slotsDetail);
+}, [currentSelectedSlot, categorizeSlots]);
 
+useEffect(()=>{
+if(error){
+  toast.error(error);
+  setTimeout(() => {
+    dispatch(clearAppointmentError())
+  },2000)
+}
+},error)
 
-  if (slotsStatus === "loading") return <Loader />;
-
+  if (isLoading) return <Loader />;
+ 
   return (
-    <div className="px-3 py-3 h-[100%] customScrollbar">
+    <div className="px-3 py-3 h-[100%] w-full customScrollbar">
       {showPayment ? (
         <Payment setShowPayment={setShowPayment}/>
       ) : (
@@ -203,11 +258,9 @@ const Appointment = () => {
             <DoctorSearch
               searchDoctor={searchDoctor}
               handleDoctorSelect={handleDoctorSelect}
-              slotsData={slotsData}
             />
             <PatientSearch
               searchPatient={searchPatient}
-              patientsData={patients}
               handlePatientSelect={handlePatientSelect}
             />
           </div>
@@ -226,49 +279,47 @@ const Appointment = () => {
           )}
 
           {selectedDoctor && selectedPatient && !noSlotsAvailable && (
-            <div>
+          <div className="flex flex-col">
+            <div className="flex justify-between items-start">
               <ConsultationType
                 consultationType={consultationType}
-                 handleConsultationChange={handleConsultationChange}
+                handleConsultationChange={handleConsultationChange}
                 selectedDoctor={selectedDoctor}
               />
               {consultationDateshow && (
-                <ScheduleSelector
-                  selectedDoctor={selectedDoctor}
-                  consultationType={consultationType}
-                  handleDateSelect={setSelectedDate}
-                  selectedDate={selectedDate}
-                />
+                <div className="self-start -mt-[6%]">
+                  <ScheduleSelector
+                    selectedDoctor={selectedDoctor}
+                    consultationType={consultationType}
+                    handleDateSelect={setSelectedDate}
+                    selectedDate={selectedDate}
+                  />
+                </div>
               )}
-              {consultationDateshow && (
-                <AvailableSlots
-                  {...categorizeSlots(
-                    selectedDoctor?.slots?.find(
-                      (slot) => slot._id === selectedDate.slotId
-                    )?.slotsDetail || []
-                  )}
-                  selectedTimeSlot={selectedTimeSlot}
-                  handleTimeSlotSelect={setSelectedTimeSlot}
-                />
-              )}
-              <div className="flex gap-4 justify-end pb-5">
-            <button className="border border-slate-300 py-2 px-6 rounded-md hover:scale-110 shadow-md">
-              Cancel
-            </button>
-            <button
-              className="bg-[#00A182] text-white py-2 px-6 rounded-md hover:scale-110"
-              onClick={handleBookAppointment}
-            >
-              Book Appointment
-            </button>
-          </div>
             </div>
-          )}
-          
+            {consultationDateshow && (
+              <AvailableSlots
+                {...categorizedSlotsForDate}
+                selectedTimeSlot={selectedTimeSlot}
+                handleTimeSlotSelect={setSelectedTimeSlot}
+              />
+            )}
+          <div className="flex gap-4 justify-end pb-5">
+              <button className="border border-slate-300 py-2 px-6 rounded-md hover:scale-110 shadow-md" onClick={handleCancel}              >
+                Cancel
+              </button>
+              <CustomButton
+                text={"Book Appointment"}
+                onclick={handleBookAppointment}
+                loading={isLoading}
+              />
+            </div>
+          </div>
+          )}          
         </div>
       )}
     </div>
   );
 };
 
-export default Appointment;
+export default memo(Appointment);

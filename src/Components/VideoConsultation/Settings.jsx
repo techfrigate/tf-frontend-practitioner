@@ -28,9 +28,7 @@ export const Settings = ({
           >
             ×
           </button>
-        </div>
-
-        
+        </div>       
         <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-6">
         
@@ -49,9 +47,7 @@ export const Settings = ({
                   </option>
                 ))}
               </select>
-            </div>
-
-   
+            </div>   
             <div>
               <div className="mb-2 flex items-center gap-2">
                 <Mic className="h-5 w-5" />

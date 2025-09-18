@@ -1,20 +1,24 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { setStatusFail } from "./statusFailSlice";
 
 const initialState = {
   medicine: {},        
-  medicines: [],       
+  medicines: [], 
+  locationPharmacy:[],      
   totalPages: 1,       
   error: null,         
   medicineStatus: "idle",
+  isLoading: false,
+  pharmacies:null
 };
 
 const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
 
 export const createMedicine = createAsyncThunk(
   "medicines/createMedicine",
-  async (body, { rejectWithValue }) => {
+  async (body, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.post(
         `${ADMIN_URL}/medicines`,
@@ -26,16 +30,20 @@ export const createMedicine = createAsyncThunk(
           },
         }
       );
-      return response.data;
+      return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "An error occurred");
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
 
 export const getAllMedicines = createAsyncThunk(
   "medicines/getAllMedicines",
-  async ({ currentPage, itemsPerPage, sortBy, order,doctorId }, { rejectWithValue }) => {
+  async ({ currentPage, itemsPerPage, sortBy, order,doctorId }, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.get(`${ADMIN_URL}/medicines`, {
         params: {
@@ -51,16 +59,20 @@ export const getAllMedicines = createAsyncThunk(
           doctorId:doctorId,
         },
       });
-      return response.data; 
+      return response.data.data; 
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "An error occurred");
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
 
 export const getMedicineById = createAsyncThunk(
   "medicines/getMedicineById",
-  async (medId, { rejectWithValue }) => {
+  async (medId, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.get(`${ADMIN_URL}/medicines/${medId}`, {
         headers: {
@@ -68,16 +80,21 @@ export const getMedicineById = createAsyncThunk(
           Authorization: `Bearer ${Cookies.get("Token")}`,
         },
       });
-      return response.data; 
+    
+      return response.data.data; 
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "An error occurred");
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
 
 export const updateMedicine = createAsyncThunk(
   "medicines/updateMedicine",
-  async ({ medId, body }, { rejectWithValue }) => {
+  async ({ medId, body }, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.patch(
         `${ADMIN_URL}/medicines/${medId}`,
@@ -89,16 +106,20 @@ export const updateMedicine = createAsyncThunk(
           },
         }
       );
-      return response.data;  
+      return response.data.data;  
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "An error occurred");
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
 
 export const deleteMedicine = createAsyncThunk(
   "medicines/deleteMedicine",
-  async (medId, { rejectWithValue }) => {
+  async (medId, { rejectWithValue ,dispatch}) => {
     try {
       // eslint-disable-next-line
       const response = await axios.delete(`${ADMIN_URL}/medicines/${medId}`, {
@@ -109,7 +130,54 @@ export const deleteMedicine = createAsyncThunk(
       });
       return medId;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "An error occurred");
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
+    }
+  }
+);
+
+
+export const getAllPharmacies = createAsyncThunk(
+  "medicines/getAllPharmacies",
+  async ({locationId}, { rejectWithValue,dispatch }) => {
+    try {
+      const response = await axios.get(`${ADMIN_URL}/pharmacy`, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("Token")}`,
+          'location-id':locationId,
+          tenantId: Cookies.get("TenantId"),
+        },
+      });
+      return response.data.data.data;
+    } catch (error) {
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
+    }
+  }
+);
+export const getPharmacies = createAsyncThunk(
+  "medicines/getPharmacies",
+  async ({locationId}, { rejectWithValue,dispatch }) => {
+    try {
+      const response = await axios.get(`${ADMIN_URL}/pharmacy/pharmacy-by-location-id/${locationId}`, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("Token")}`,
+          tenantId: Cookies.get("TenantId"),
+        },
+      });
+      return response.data.data;
+    } catch (error) {
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -117,56 +185,60 @@ export const deleteMedicine = createAsyncThunk(
 const medicinesSlice = createSlice({
   name: "medicines",
   initialState,
-  reducers: {},
+  reducers: {
+    clearMadicinesError:(state)=>{
+      state.error=null
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createMedicine.pending, (state) => {
-        state.medicineStatus = "loading";
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(createMedicine.fulfilled, (state, action) => {
-        state.medicineStatus = "succeeded";
+        state.isLoading =false;
         state.medicine = action.payload;
       })
       .addCase(createMedicine.rejected, (state, action) => {
-        state.medicineStatus = "failed";
+        state.isLoading = false;
         state.error = action.payload;
       })
       .addCase(getAllMedicines.pending, (state) => {
-        state.medicineStatus = "loading";
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(getAllMedicines.fulfilled, (state, action) => {
-        state.medicineStatus = "succeeded";
+        state.isLoading =false;
         state.medicines = action.payload.data;
         state.totalPages = action.payload.totalPages;
       })
       .addCase(getAllMedicines.rejected, (state, action) => {
-        state.medicineStatus = "failed";
+        state.isLoading = false;
         state.error = action.payload;
       })
       .addCase(getMedicineById.pending, (state) => {
-        state.medicineStatus = "loading";
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(getMedicineById.fulfilled, (state, action) => {
-        state.medicineStatus = "succeeded";
+        state.isLoading = false;
         state.medicine = action.payload;
       })
       .addCase(getMedicineById.rejected, (state, action) => {
-        state.medicineStatus = "failed";
+        state.isLoading = false;
         state.error = action.payload;
       })
       .addCase(updateMedicine.pending, (state) => {
-        state.medicineStatus = "loading";
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(updateMedicine.fulfilled, (state, action) => {
-        state.medicineStatus = "succeeded";
+        state.isLoading = false;
         state.medicine = action.payload;
       })
       .addCase(updateMedicine.rejected, (state, action) => {
-        state.medicineStatus = "failed";
+        state.isLoading = false;
         state.error = action.payload;
       })
       .addCase(deleteMedicine.pending, (state) => {
@@ -182,8 +254,34 @@ const medicinesSlice = createSlice({
       .addCase(deleteMedicine.rejected, (state, action) => {
         state.medicineStatus = "failed";
         state.error = action.payload;
-      });
+      })
+      .addCase(getAllPharmacies.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getAllPharmacies.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.pharmacies = action.payload;
+      })
+      .addCase(getAllPharmacies.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(getPharmacies.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getPharmacies.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.locationPharmacy = action.payload;
+      })
+      .addCase(getPharmacies.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      ;
   },
 });
 
+export const {clearMadicinesError} = medicinesSlice.actions
 export default medicinesSlice.reducer;

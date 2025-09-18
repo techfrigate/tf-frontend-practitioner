@@ -4,6 +4,7 @@ import CustomSelect from "../Common/CustomSelect";
 import CustomInput from "../Common/CustomInput";
 import axios from "axios";
 import {VitalSignsData} from "../../util/prescriptionData";
+import toast from "react-hot-toast";
 const { vitalSignFields, statusOptions } = VitalSignsData;
 
 const formatDate = (date) => new Date(date).toISOString();
@@ -207,10 +208,10 @@ const VitalSigns = ({closeSheet}) => {
       
       closeSheet();
       setFormData(initialFormState);
-      alert("Vital signs recorded successfully!");
+      toast.success("Vital signs recorded successfully!");
     } catch (error) {
       console.error("Error creating vital signs:", error);
-      alert("Failed to record vital signs. Please try again.");
+      toast.error("Failed to record vital signs. Please try again.");
     } finally {
       setIsLoading(false);
     }

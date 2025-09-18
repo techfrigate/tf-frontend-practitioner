@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useLocation, useSearchParams } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Suspense, useEffect, useState } from "react";
 import Cookies from 'js-cookie';
 import { useDispatch, useSelector } from "react-redux";
@@ -16,6 +16,7 @@ function handleDocumentTitle(location) {
   const ports = {
     '/': 'Home - Practitoner',
     '/worklist': 'Work List - Practitoner',
+    '/ward': 'Ward - Practitoner',
     '/patients': 'Patients - Practitoner',
     '/calendar': 'Calendar - Practitoner',
     '/billing': 'Billing - Practitoner',
@@ -36,7 +37,7 @@ function handleDocumentTitle(location) {
 function App() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
@@ -47,10 +48,10 @@ function App() {
   const tenantId = searchParams.get("ti") ||  Cookies.get("TenantId");
 
  const {profileData}  =  useSelector((state)=>state.profile)
- 
+ const navigate = useNavigate();
   useEffect(() => {
     if (userId && accessToken && tenantId && !profileData) {
-      dispatch(fetchUserProfile({ userId, accessToken, tenantId }));
+      dispatch(fetchUserProfile({ userId, accessToken, tenantId, navigate}));
     }
 
     setTimeout(() => {
@@ -62,6 +63,19 @@ function App() {
   useEffect(()=>{
    handleDocumentTitle(location)
   },[location])
+
+  
+  useEffect(() => {
+    const handleRouteChange = () => {
+      navigate(window.location.pathname);  
+    };
+
+    window.addEventListener("customRouteChange", handleRouteChange);
+
+    return () => {
+      window.removeEventListener("customRouteChange", handleRouteChange);
+    };
+  }, [navigate]);
   
   const toggleCreateProviderForm = () => {
     setShowForm((prevShowForm) => !prevShowForm);
@@ -74,9 +88,9 @@ function App() {
 
   return (
     <div className="flex bg-gray-200 h-[100vh] ">
-      <Sidebar />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}/>
       <div className="flex flex-col w-full h-[100vh] box-border overflow-hidden">
-        <Topbar toggleCreateProviderForm={toggleCreateProviderForm} />
+        <Topbar toggleCreateProviderForm={toggleCreateProviderForm}  onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}/>
         <div className="px-2 pb-3 h-full w-full overflow-y-hidden">
           <div className={`w-full h-full customScrollbar rounded-md bg-white`}>
             <Suspense fallback={<Loader/>}>

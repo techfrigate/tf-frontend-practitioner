@@ -2,11 +2,12 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { editSlotStatus, getSlots } from "./slotsSlice";
 import Cookies from "js-cookie";
+import { setStatusFail } from "./statusFailSlice";
 
 const initialState = {
   appointment: {},
   error: null,
-  appointmentStatus: "idle",
+  isLoading: false,
   prescriptionData: [],
  
 };
@@ -29,13 +30,15 @@ export const createAppointment = createAsyncThunk(
           },
         }
       );
-      console.log(response.data, "appointment data");
-      dispatch(editSlotStatus({ slotDetailSlotId, slotId }));
+     await dispatch(editSlotStatus({ slotDetailSlotId, slotId }));
       setShowPayment(true);
-      return response.data;
+      return response.data.data;
     } catch (error) {
-      console.log(error);
-      return rejectWithValue(error.response.data.message);
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -43,7 +46,7 @@ export const createAppointment = createAsyncThunk(
 // Get Prescriptions
 export const getPrescriptions = createAsyncThunk(
   "prescription/getPrescriptions",
-  async ({ practitionerId }, { rejectWithValue }) => {
+  async ({ practitionerId }, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.get(
         `${ADMIN_URL}/appointments/practitioner-appointments`,
@@ -56,10 +59,13 @@ export const getPrescriptions = createAsyncThunk(
           },
         }
       );
-      return response.data;
+      return response.data.data;
     } catch (error) {
-      console.log(error, "get Prescriptions error");
-      return rejectWithValue(error.response?.data?.message || "An error occurred");
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -79,11 +85,14 @@ export const updateAppointment = createAsyncThunk(
           },
         }
       );
-      console.log(response.data);
-      return response.data;
+       
+      return response.data.data;
     } catch (error) {
-      console.log(error);
-      return rejectWithValue(error.response?.data?.message || "An error occurred");
+      if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
+        const route = "/status-failed"
+        await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -94,53 +103,57 @@ export const updateAppointment = createAsyncThunk(
 const appointmentSlice = createSlice({
   name: "appointment",
   initialState,
-  reducers: {},
+  reducers: {
+    clearAppointmentError:(state)=>{
+      state.error=null
+    }
+  },
   extraReducers: (builder) => {
     builder
       // createAppointment
       .addCase(createAppointment.pending, (state) => {
-        state.appointmentStatus = "loading";
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(createAppointment.fulfilled, (state, action) => {
-        state.appointmentStatus = "succeeded";
+        state.isLoading = false;
         state.appointment = action.payload;
       })
       .addCase(createAppointment.rejected, (state, action) => {
-        state.appointmentStatus = "failed";
+        state.isLoading = false;
         state.error = action.payload;
       })
 
       // getPrescriptions
       .addCase(getPrescriptions.pending, (state) => {
-        state.appointmentStatus = "loading";
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(getPrescriptions.fulfilled, (state, action) => {
-        state.appointmentStatus = "succeeded";
+        state.isLoading = false;
         state.prescriptionData = action.payload;
       })
       .addCase(getPrescriptions.rejected, (state, action) => {
-        state.appointmentStatus = "failed";
+        state.isLoading = false;
         state.error = action.payload;
       })
 
       // updateAppointment
       .addCase(updateAppointment.pending, (state) => {
-        state.appointmentStatus = "loading";
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(updateAppointment.fulfilled, (state, action) => {
-        state.appointmentStatus = "succeeded";
+        state.isLoading = false;
         state.appointment = action.payload;
       })
       .addCase(updateAppointment.rejected, (state, action) => {
-        state.appointmentStatus = "failed";
+        state.isLoading = false;
         state.error = action.payload;
       })
 
     
   },
 });
-
+export const{clearAppointmentError} =  appointmentSlice.actions
 export default appointmentSlice.reducer;

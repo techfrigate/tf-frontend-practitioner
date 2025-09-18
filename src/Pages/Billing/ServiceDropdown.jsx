@@ -1,19 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {Zap,ReceiptText,Package,Stethoscope,Briefcase,Pill,} from "lucide-react";
 import { Card, CardHeader, CardContent } from "../../Components/ui/card";
 import IconCustomSelect from "../../Components/Common/IconCustomSelect";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
+import { clearMadicinesError } from "../../Store/MedicinesSlice";
+import { useDispatch } from "react-redux";
+import { getservicesData } from "../../Store/billingSlice";
 
-const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl, medicines }) => {
+const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl }) => {
   const [category, setCategory] = useState("");
   const [selectedService, setSelectedService] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [maxAvailableQuantity, setMaxAvailableQuantity] = useState(0);
-
+  
+  const dispatch = useDispatch();
+  
+  const { medicines, isLoading, error } = useSelector((state) => state.medicines);
+  const { serviceData } = useSelector(state => state.billing);
+ 
   const categoryIcons = {
-    Packages: <Package className="w-5 h-5" />,
-    Diagnostic: <Stethoscope className="w-5 h-5" />,
-    Service: <Briefcase className="w-5 h-5" />,
-    Medicine: <Pill className="w-5 h-5" />
+    package: <Package className="w-5 h-5" />,
+    diagnostics: <Stethoscope className="w-5 h-5" />,
+    service: <Briefcase className="w-5 h-5" />,
+    medicines: <Pill className="w-5 h-5" />
   };
 
   const getServices = (category) => {
@@ -31,42 +41,43 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
     return (serviceMap[category] || []).filter(item => item.status || category === "Medicine");
   };
 
-  const handleServiceTypeChange = (e) => {
+  const handleServiceTypeChange = async(e) => {
     const newCategory = e.target.value;
-    setCategory(newCategory);
-    setSelectedService("");
-    setQuantity(1);
-    setMaxAvailableQuantity(0);
+    try {
+      const resposne = await dispatch(getservicesData({type:newCategory,locationId:selectedLocation._id})).unwrap()
+      setCategory(newCategory);
+      setSelectedService("");
+      setQuantity(1);
+      setMaxAvailableQuantity(0);
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   const handleServiceChange = (e) => {
     const value = e.target.value;
     setSelectedService(value);
-    
-    if (category === "Medicine") {
-      const medicine = getServices(category).find(med => med._id === value);
+    if (category === "medicines") {
+      const medicine = serviceData.find(med => med._id === value);
       setMaxAvailableQuantity(medicine ? parseInt(medicine.unit) : 0);
     }
-    
     setQuantity(1);
   };
 
   const handleAddService = () => {
     if (!category || !selectedService) return;
 
-    const services = getServices(category);
-    const serviceItem = services.find(item => 
-      category === "Medicine" ? item._id === selectedService : 
-      category === "Packages" ? item.packageName === selectedService : 
-      item.name === selectedService
+    const serviceItem = serviceData.find(item => 
+      item._id === selectedService
     );
 
     if (!serviceItem) return;
 
-    const serviceData = {
-      category,
-      quantity,
-      ...(category === "Medicine" ? {
+    const serviceDatatoAdd = {
+        category,
+        quantity,
+        itemId:serviceItem._id,
+      ...(category === "medicines" ? {
         medicineId: serviceItem._id,
         name: serviceItem.medicineName,
         genericName: serviceItem.genericName,
@@ -74,9 +85,9 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
         gstPercentage: parseFloat(serviceItem.gstPercentage),
         maxQuantity: serviceItem.maxQuantity,
         currentStock: serviceItem.unit
-      } : category === "Packages" ? {
+      } : category === "package" ? {
         name: serviceItem.packageName,
-        price: calculatePackagePrice(serviceItem),
+        price:  serviceItem.totalAmount,
         packageDetails: {
           diagnostics: serviceItem.diagnostics || [],
           services: serviceItem.services || []
@@ -84,34 +95,29 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
       } : {
         name: serviceItem.name,
         price: serviceItem.price
-      })
-    };
-
-    onAddService(serviceData);
+      }
+    )};
+    
+    onAddService(serviceDatatoAdd);
     setSelectedService("");
     setQuantity(1);
     setMaxAvailableQuantity(0);
   };
 
-  const calculatePackagePrice = (package_) => {
-    const diagnosticsTotal = (package_.diagnostics || []).reduce((sum, item) => 
-      sum + (parseFloat(item.price) || 0), 0);
-    const servicesTotal = (package_.services || []).reduce((sum, item) => 
-      sum + (parseFloat(item.price) || 0), 0);
-    return diagnosticsTotal + servicesTotal;
-  };
-
   const getServiceOptions = () => {
-    const services = getServices(category);
-    return services.map(service => ({
-      value: category === "Medicine" ? service._id : 
-             category === "Packages" ? service.packageName : 
-             service.name,
-      label: category === "Medicine" ? 
+    // Filter out medicines with quantity 0 if the category is medicines
+    const filteredServiceData = category === "medicines" 
+      ? serviceData?.filter(service => parseInt(service.unit) > 0)
+      : serviceData;
+  
+    return filteredServiceData?.map(service => ({
+      value: service._id,
+      label: category === "medicines" ? 
              `${service.medicineName} (${service.unit} units available)` :
-             category === "Packages" ? service.packageName : 
+             category === "package" ? service.packageName : 
              service.name,
-      icon: categoryIcons[category]
+      icon: categoryIcons[category],
+      disabled: category === "medicines" && parseInt(service.unit) === 0
     }));
   };
 
@@ -119,10 +125,19 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
     { value: "", label: "Select Service Type", icon: null },
     ...Object.entries(categoryIcons).map(([value, icon]) => ({
       value,
-      label: value,
+      label: value[0].toUpperCase() + value.slice(1),
       icon
     }))
   ];
+  
+  useEffect(() => {
+    if (error) {
+     toast.error(error)
+     setTimeout(() => {
+      dispatch(clearMadicinesError())
+     },2000)
+    }
+  }, [error]);
 
   return (
     <Card className="w-full mx-auto bg-white shadow-lg">
@@ -179,15 +194,15 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
                   value={quantity}
                   onChange={(e) => {
                     const newQuantity = parseInt(e.target.value) ;
-                    setQuantity(category === "Medicine" 
+                    setQuantity(category === "medicines" 
                       ? Math.min(maxAvailableQuantity, newQuantity)
                       : newQuantity
                     );
                   }}
                   min="0"
-                  max={category === "Medicine" ? maxAvailableQuantity : undefined}
+                  max={category === "medicines" ? maxAvailableQuantity : undefined}
                 />
-                {category === "Medicine" && maxAvailableQuantity > 0 && (
+                {category === "medicines" && maxAvailableQuantity > 0 && (
                   <p className="absolute -bottom-6 left-0 text-sm text-gray-500">
                     Max available: {maxAvailableQuantity} units
                   </p>

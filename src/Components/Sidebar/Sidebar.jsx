@@ -1,22 +1,23 @@
-import React, { useEffect, useState } from "react";
-import {
-  FaUsers,
-  FaCalendarAlt,
-  FaListAlt,
-  FaFileInvoiceDollar,
-} from "react-icons/fa";
+import React, { useEffect, useState, useRef } from "react";
+import {FaUsers,FaCalendarAlt,FaListAlt,FaFileInvoiceDollar,} from "react-icons/fa";
 import { FaSuitcaseMedical } from "react-icons/fa6";
-import styles from "../../Css/Sidebar/Sidebar.module.css";
-
-import { useNavigate } from "react-router-dom";
-import { MdKeyboardArrowUp } from "react-icons/md";
-import axios from "axios";
+import { AiOutlineClose } from "react-icons/ai";
+ import axios from "axios";
 import Cookies from "js-cookie";
+import { useNavigate, useLocation } from "react-router-dom";
+import { MdContactEmergency } from "react-icons/md";
+
+
 const sidebarLinks = [
   {
     name: "Worklist",
     icon: <FaListAlt size={21} />,
     route: "/worklist",
+  },
+  {
+    name: "Ward",
+    icon: <MdContactEmergency size={21} />,
+    route: "/ward",
   },
   {
     name: "Patients",
@@ -41,33 +42,31 @@ const sidebarLinks = [
 ];
 
 const ACCOUNTS_URL = process.env.REACT_APP_ACCOUNTS_URL;
-const Sidebar = () => {
+
+const Sidebar = ({ isOpen, onClose }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [subLinkindex, setSubLinkindex] = useState(null);
   const [openindex, setOpenIndex] = useState(null);
   const [tenant, setTenant] = useState(null);
   const navigate = useNavigate();
-  function handleSideClick(index, elm) {
-    if (!elm.subLink) {
-      setSelectedIndex(() => index);
-      setOpenIndex(() => null);
-      navigate(elm.route);
-    } else {
-      if (index !== openindex) {
-        setSubLinkindex(null);
-      }
-      setOpenIndex(() => (openindex === index ? null : index));
-    }
-  }
-
-  function handleSubLinkClick(index, subelm, elm) {
-    setSubLinkindex(() => index);
-    setSelectedIndex(() => null);
-    navigate(subelm.route);
-  }
-
+  const sidebarRef = useRef(null);
   const tenantId = Cookies.get("TenantId") || null;
 
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const mainIndex = sidebarLinks.findIndex(link => link.route === currentPath);
+    if (mainIndex !== -1) {
+      setSelectedIndex(mainIndex);
+      setOpenIndex(null);
+    } else {
+      setSelectedIndex(null);
+      setOpenIndex(null);
+    }
+  }, [location.pathname]);
+  
   useEffect(() => {
     const fetchTenant = async () => {
       if (tenantId && !tenant) {
@@ -80,79 +79,112 @@ const Sidebar = () => {
               },
             }
           );
-          console.log(response.data,"responsedata")
-          setTenant(response.data);
+          setTenant(response.data.data);
         } catch (error) {
-          console.log(error);
+          console.error(error);
         }
       }
     };
-  
+
     fetchTenant();
-  }, [tenantId, tenant]); 
-  
+  }, [tenantId, tenant]);
 
+  function handleSideClick(index, elm, event) {
+    if (event.ctrlKey || event.metaKey || event.button === 2) {
+      event.preventDefault();
+      window.open(elm.route, '_blank');
+      return;
+    }
+    
+    if (!elm.subLink) {
+      setSelectedIndex(index);
+      setOpenIndex(null);
+      navigate(elm.route);
+    }
+    setOpenIndex(openindex === index ? null : index);
+  }
+
+  const handleContextMenu = (elm, event) => {
+    event.preventDefault();
+    window.open(elm.route, '_blank');
+  };
+
+  const handleSubLinkClick = (index, subelm, event) => {
+    if (event.type === 'contextmenu' && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      
+      window.open(subelm.route, '_blank');
+      return;
+    }
+    setSubLinkindex(index);
+    setSelectedIndex(null);
+    navigate(subelm.route);
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen, onClose]);
+
+ 
   return (
-    <div className="pb-3 pt-[9px] h-full w-[16%] ">
-      <div className="bg-gray-50 pl-[8px]   h-[100%] rounded-md  ">
-        <div className="flex items-center gap-2 pt-[10px] pb-[12px] px-[10px]   ">
-          <img
-            src={tenant?.businessInformation?.displayImage}
-            alt="tenant Name"
-            className="w-8 h-8 object-cover"
-          />
-          <div className="flex items-center justify-between gap-10">
-            <h2 className="text-[20px] font-bold">CareDr</h2>
+    <aside
+      ref={sidebarRef}
+      className={`w-60 min-w-60 h-full pl-2 pt-2 pb-3 fixed z-50 lg:z-0 top-0 left-0 lg:static lg:block transition-transform duration-300 ${
+        isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      }`}
+    >
+      <div className="flex flex-col h-full border-r border-gray-200 bg-white rounded-md">       
+        <div className="px-8 py-5 border-b border-gray-100 flex items-center justify-between gap-3">
+          <div className="w-10 h-10">
+            <img
+              src={tenant?.businessInformation?.displayImage}
+              alt="Tenant Logo"
+              className="w-full h-full object-cover rounded-md"
+            />
           </div>
+            <button className="lg:hidden" onClick={onClose}>
+              <AiOutlineClose size={24} />
+            </button>
         </div>
-
-        <div
-          className={`pr-[5px] mt-3 h-[83%] w-full ${styles.customScrollbar}`}
-        >
+        <nav className="flex-1 overflow-y-auto pr-4 pl-2 py-6 space-y-1 customScrollbar">
           {sidebarLinks.map((elm, index) => (
-            <div
-              key={index}
-              className={`${
-                index === selectedIndex && !elm.subLink
-                  ? "text-[#64C6B0] bg-[#FFFFFF]"
-                  : "text-black opacity-60"
-              } w-[190px] rounded-md mb-2 cursor-pointer ${
-                !elm.subLink ? "hover:bg-gray-200" : ""
-              }`}
-            >
+            <div key={index} className="space-y-1">
               <div
-                className="flex justify-between w-full pl-6 py-[9px] hover:bg-gray-200 h-full rounded-md"
-                onClick={() => handleSideClick(index, elm)}
+                onClick={(e) => handleSideClick(index, elm, e)}
+                onContextMenu={(e) => handleContextMenu(elm, e)}
+                className={`cursor-pointer rounded-md px-4 py-2 ${
+                  index === selectedIndex && !elm.subLink
+                    ? "bg-[#FFFFFF] text-[#64C6B0]"
+                    : "text-black font-thin opacity-60 hover:bg-gray-200"
+                }`}
               >
-                <div className="flex gap-3 items-center ">
+                <div className="flex items-center gap-3">
                   {elm.icon}
-                  <h2 className="text-base font-medium">{elm.name}</h2>
+                  <h2 className="text-base font-semibold">{elm.name}</h2>
                 </div>
-                {elm.subLink && (
-                  <MdKeyboardArrowUp
-                    className={`mr-4 mt-1 transition-transform ${
-                      index === openindex ? "rotate-180" : ""
-                    }`}
-                  />
-                )}
               </div>
               {index === openindex && elm.subLink && (
-                <div className="flex flex-col gap-2 w-[75%] mt-2 box-border ml-auto">
-                  {elm.subLink.map((subelm, indexlink) => (
+                <div className="ml-4 mt-1 space-y-1 border-l-2 border-[#c6f2e9] pl-3">
+                  {elm.subLink.map((subelm, subIndex) => (
                     <div
-                      className={`py-[8px]  ${
-                        indexlink === subLinkindex
-                          ? "text-[#64C6B0] bg-[#FFFFFF]"
-                          : "text-black  font-thin"
-                      } hover:bg-gray-200 pl-4 rounded-md`}
+                      key={subIndex}
+                      onClick={(e) => handleSubLinkClick(subIndex, subelm, e)}
+                      onContextMenu={(e) => handleContextMenu(subelm, e)}
+                      className={`cursor-pointer rounded-md px-4 py-2 ${
+                        subIndex === subLinkindex
+                          ? "bg-[#FFFFFF] text-[#64C6B0]"
+                          : "text-black opacity-60 hover:bg-gray-200"
+                      }`}
                     >
-                      <h2
-                        key={indexlink}
-                        onClick={() =>
-                          handleSubLinkClick(indexlink, subelm, elm)
-                        }
-                        className="text-base font-semibold"
-                      >
+                      <h2 className="text-base font-semibold">
                         {subelm.name}
                       </h2>
                     </div>
@@ -161,9 +193,9 @@ const Sidebar = () => {
               )}
             </div>
           ))}
-        </div>
+        </nav>
       </div>
-    </div>
+    </aside>
   );
 };
 

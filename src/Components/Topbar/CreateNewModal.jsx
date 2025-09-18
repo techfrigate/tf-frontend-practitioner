@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { FaCalendarPlus, FaUserInjured } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { IoBody } from "react-icons/io5";
 
 const CreateNewModal = ({ onClose }) => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const CreateNewModal = ({ onClose }) => {
   return (
     <div
       ref={modalRef}
-      className="absolute z-20 top-12 right-0 bg-white border border-gray-200 rounded-lg shadow-lg w-50 p-4"
+      className="absolute z-40 top-12 right-0 bg-white border border-gray-200 rounded-lg shadow-lg w-50 p-4"
     >
       <div className="flex flex-col space-y-1 text-gray-600 text-sm">
         <div
@@ -45,6 +46,16 @@ const CreateNewModal = ({ onClose }) => {
         >
           <FaUserInjured size={16} />
           <p>Patient</p>
+        </div>
+        <div
+          onClick={() => {
+            navigate("/humanbody");
+            onClose();
+          }}
+          className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
+        >
+          <IoBody size={16} />
+          <p>Human Body</p>
         </div>
       </div>
     </div>

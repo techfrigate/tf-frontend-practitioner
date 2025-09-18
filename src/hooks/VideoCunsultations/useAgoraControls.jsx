@@ -7,13 +7,13 @@ export const useAgoraControls = (client, localTracks, screenTrack, setIsScreenSh
 
   const handleAudioToggle = async () => {
     if (!localTracks.current.audioTrack) return;
-    await localTracks.current.audioTrack.setEnabled(!isAudioMuted);
+    await localTracks.current.audioTrack.setEnabled(isAudioMuted);
     setIsAudioMuted(!isAudioMuted);
   };
 
   const handleVideoToggle = async () => {
     if (!localTracks.current.videoTrack) return;
-    await localTracks.current.videoTrack.setEnabled(!isVideoMuted);
+    await localTracks.current.videoTrack.setEnabled(isVideoMuted);
     setIsVideoMuted(!isVideoMuted);
   };
 

@@ -2,36 +2,44 @@ import React, { useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import Avatar from "@mui/material/Avatar";
-
-const PatientSearch = ({ patientsData, handlePatientSelect }) => {
+import Cookies from "js-cookie";
+import { useSelector } from "react-redux";
+const PatientSearch = ({ handlePatientSelect }) => {
   const [patientOptions, setPatientOptions] = useState([]);
-
-  const calculateAge = (dobString) => {
+  const { patients:patientsData,isLoading,error} = useSelector((state) => state.patient);
+  const calculatePreciseAge = (dobString) => {
     const dob = new Date(dobString);
     const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const monthDifference = today.getMonth() - dob.getMonth();
-    const dayDifference = today.getDate() - dob.getDate();
-    if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
-      age--;
-    }
-    return age;
+  
+    const ageInMilliseconds = today - dob;
+    const millisecondsInYear = 1000 * 60 * 60 * 24 * 365.25;  
+    const preciseAge = ageInMilliseconds / millisecondsInYear;
+    return preciseAge.toFixed(1);
   };
 
   useEffect(() => {
-    const patients = patientsData.map((patient) => ({
-      name: `${patient?.firstName} ${patient?.lastName}`,
-      age: calculateAge(patient.dob),
-      image:
-        "https://icons.veryicon.com/png/o/miscellaneous/user-avatar/user-avatar-male-5.png",
-      data: patient,
-    }));
+    const patients = patientsData
+      .filter(patient => patient.tenants.find(tenant => tenant.status && tenant.tenantId === Cookies.get("TenantId") && tenant.userType === "patient"))
+      .map((patient) => ({
+        name: `${patient?.firstName} ${patient?.lastName}`,
+        age: calculatePreciseAge(patient.dob),
+        image: patient.imageUrl || "https://icons.veryicon.com/png/o/miscellaneous/user-avatar/user-avatar-male-5.png",
+        data: patient,
+      }));
     setPatientOptions(patients);
   }, [patientsData]);
 
+
+
   return (
     <Autocomplete
-      sx={{ width: "100%" }}
+    sx={{ width: "25%", "& .MuiOutlinedInput-root": {
+      borderRadius: "20px",
+    },
+    "& .MuiAutocomplete-paper": {
+      borderRadius: "20px", 
+      marginTop: "8px"
+    } }}
       disablePortal
       options={patientOptions}
       getOptionLabel={(option) => option.name || ""}
@@ -56,6 +64,9 @@ const PatientSearch = ({ patientsData, handlePatientSelect }) => {
           </div>
         </li>
       )}
+      loading={isLoading}
+      loadingText="Loading patinets..."
+      noOptionsText={isLoading ? "Loading..." : "No patients found"}
     />
   );
 };

@@ -1,35 +1,27 @@
 import React, { useState, useMemo } from 'react';
 import { MapPin, Search, X } from 'lucide-react';
-import { useSelector } from 'react-redux';
 
-const CommonLocationSelect = ({ locations, value, onChange, onClear }) => {
+const CommonLocationSelect = ({ locations, value, onChange, onClear,isInvalid }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showLocationList, setShowLocationList] = useState(false);
-  const { profileData } = useSelector((state) => state.profile);
+
+  const suggestedLocations = useMemo(() => {
+    return locations?.filter(location => location.status === true)
+      .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0))
+      .slice(0, 5);
+  }, [locations]);
 
   const filteredLocations = useMemo(() => {
-    const baseFilter = locations
-      .filter(location => location.status !== false)
-      .filter(location => 
-        profileData?.locations?.includes(location.id) || 
-        profileData?.locations?.includes(location._id)
-      );
-
-    if (searchQuery.trim() === "") return baseFilter;
-
-    return baseFilter.filter((location) => {
-      const searchLower = searchQuery.toLowerCase();
-      const name = location.name?.toLowerCase() || "";
-      const city = location.address?.city?.toLowerCase() || "";
-      const state = location.address?.state?.toLowerCase() || "";
-      
-      return (
-        name.includes(searchLower) ||
-        city.includes(searchLower) ||
-        state.includes(searchLower)
-      );
-    });
-  }, [locations, searchQuery, profileData]);
+    if (!searchQuery) return suggestedLocations;
+    
+    return locations?.filter(
+      ({displayName, name, address, status }) =>
+        status === true &&
+        [displayName,name, address.city, address.state].some((field) =>
+          field?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    );
+  }, [locations, searchQuery, suggestedLocations]);
 
   const handleLocationSelect = (location) => {
     onChange(location);
@@ -47,7 +39,7 @@ const CommonLocationSelect = ({ locations, value, onChange, onClear }) => {
 
   return (
     <div>
-      <label className="block text-sm font-medium mb-1">Location*</label>
+      <label className="block text-sm font-medium mb-1">Location {<span className="text-red-500">*</span>}</label>
       {value ? (
         <div className="flex items-center max-w-sm space-x-2 p-2 border border-gray-300 rounded-lg">
           <MapPin className="h-5 w-5 text-gray-500" />
@@ -58,23 +50,46 @@ const CommonLocationSelect = ({ locations, value, onChange, onClear }) => {
           />
         </div>
       ) : (
-        <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <div className={`relative max-w-sm `}>
+          <Search className={`absolute left-3 ${isInvalid ? 'top-1/3' : 'top-1/2'} transform -translate-y-1/2 text-gray-400` }/>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setShowLocationList(true)}
-            className="pl-10 pr-4 w-full border border-gray-300 rounded-lg py-2 focus:outline-none"
+            className={`pl-10 pr-4 w-full border ${isInvalid ? 'border-red-500' : 'border-gray-300'} rounded-lg py-2 focus:outline-none`}
             placeholder="Search locations by name, city, or state..."
           />
+          {isInvalid && <p className="text-[12px] text-red-700  mt-1">{isInvalid}</p>}
         </div>
       )}
       {showLocationList && !value && (
         <div className="absolute w-[24rem] overflow-auto bg-white border border-gray-300 rounded-lg shadow-lg mt-2 z-50" style={{ maxHeight: '300px' }}>
-          {filteredLocations.length > 0 ? (
+          {searchQuery ? (
+            filteredLocations.length > 0 ? (
+              <div>
+                {filteredLocations.map((location) => (
+                  <div
+                    key={location._id}
+                    className="flex items-center p-4 cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleLocationSelect(location)}
+                  >
+                    <MapPin className="h-5 w-5 text-indigo-500 mr-3" />
+                    <div>
+                      <h3 className="font-medium text-gray-900">{location.displayName}</h3>
+                      <p className="text-sm text-gray-500">
+                        {location.address.city}, {location.address.state}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-gray-500">No locations found</div>
+            )
+          ) : (
             <div>
-              {filteredLocations.map((location) => (
+              {suggestedLocations && suggestedLocations.length && suggestedLocations?.map((location) => (
                 <div
                   key={location._id}
                   className="flex items-center p-4 cursor-pointer hover:bg-gray-50"
@@ -82,7 +97,7 @@ const CommonLocationSelect = ({ locations, value, onChange, onClear }) => {
                 >
                   <MapPin className="h-5 w-5 text-indigo-500 mr-3" />
                   <div>
-                    <h3 className="font-medium text-gray-900">{location.name}</h3>
+                    <h3 className="font-medium text-gray-900">{location.displayName}</h3>
                     <p className="text-sm text-gray-500">
                       {location.address.city}, {location.address.state}
                     </p>
@@ -90,8 +105,6 @@ const CommonLocationSelect = ({ locations, value, onChange, onClear }) => {
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="text-center py-4 text-gray-500">No locations found</div>
           )}
         </div>
       )}

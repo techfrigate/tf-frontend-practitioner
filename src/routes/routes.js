@@ -1,6 +1,8 @@
 import { Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute"
 import { lazy } from "react";
+import StatusFail from "../Components/Common/StatusFail";
+ 
 const WorkList  =  lazy(()=>import("../Pages/WorkList/WorkList"))
 const Calendar  =  lazy(()=>import("../Pages/Calendar/Calendar"))
 const Billing  =  lazy(()=>import("../Pages/Billing/Billing"))
@@ -17,24 +19,29 @@ const HumanBody = lazy(() => import("../Pages/WorkList/HumanBody"));
 const Medicines = lazy(() => import("../Pages/Medicines/Medicines"));
 const AddMedicines = lazy(() => import("../Pages/Medicines/AddMedicines"));
 const MedicalRackApp = lazy(() => import("../Pages/Medicines/MedicalShopRack"));
+const Fhirdetails = lazy(() => import("../Components/Prescription/Fhirdetails"))
+const Ward = lazy(() => import("../Pages/Ward/Ward"));    
 
 const routes = [
     { path: "/", component: <Navigate to="worklist"/> },
     { path: "/worklist", component: <ProtectedRoute><WorkList/></ProtectedRoute> },
+    { path: "/ward", component: <ProtectedRoute><Ward/></ProtectedRoute> },
     { path: "/patients", component: <ProtectedRoute><Patients/></ProtectedRoute> },
     { path: "/calendar", component: <ProtectedRoute><Calendar/></ProtectedRoute> },
     { path: "/billing", component: <ProtectedRoute><Billing/></ProtectedRoute> },
     { path: "/new-patient", component: <ProtectedRoute><CreateNewPatients/></ProtectedRoute> },
-    { path: "/AddBill", component: <ProtectedRoute><CreateBill/></ProtectedRoute> },
+    { path: "/add-bill", component: <ProtectedRoute><CreateBill/></ProtectedRoute> },
     { path: "/HumanBody", component: <ProtectedRoute><HumanBody/></ProtectedRoute> },
     { path: "/medicines", component: <ProtectedRoute><Medicines/></ProtectedRoute> },
-    { path: "/AddMedicine", component: <ProtectedRoute><AddMedicines/></ProtectedRoute> },
+    { path: "/add-medicine", component: <ProtectedRoute><AddMedicines/></ProtectedRoute> },
+    { path: "/fhirdetails", component: <ProtectedRoute><Fhirdetails/></ProtectedRoute> },
     { path: "/MedicalRackApp", component: <ProtectedRoute><MedicalRackApp/></ProtectedRoute> },
     { path: "/paymentconfirmation", component: <ProtectedRoute><BillPage/></ProtectedRoute> },
     { path: "/appointment", component: <ProtectedRoute><Appointment/></ProtectedRoute> },
     { path: "/payment", component: <ProtectedRoute><Payment/></ProtectedRoute> },
     { path: "/fillDetails",component: <ProtectedRoute><PatientInfoCategories /> </ProtectedRoute>},
     { path: "/unauthorized", component: <UnauthorizedModal/>},
+    { path: "/status-failed", component: <StatusFail/> },
     { path: "*", component: <NotFound/>},
     
 ]

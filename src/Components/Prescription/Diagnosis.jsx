@@ -9,6 +9,7 @@ import Loader from "../Common/Loader";
 import axios from "axios";
 import FHIRFormComponent from "./FHIRFormComponent";
 import {DiagnosisData} from "../../util/prescriptionData";
+ import toast from "react-hot-toast";
  
 const formatDate = (date) => new Date(date).toISOString();
 const createDiagnosisResource = (formData) => {
@@ -138,7 +139,7 @@ const Diagnosis = ({closeSheet}) => {
       `${FHIR_BASE_URL}/fhir-core/create-resource`,
       { ...diagnosisResource, tenantId: "6721a71bba60e77ed113c3b8" }
     );
-    alert("Diagnosis recorded successfully!");
+    toast.success("Diagnosis recorded successfully!");
   };
 
   const searchCallback = async (term, ecl) => {

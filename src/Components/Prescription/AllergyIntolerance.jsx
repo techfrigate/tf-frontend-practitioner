@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import axios from "axios";
 import FHIRFormComponent from "./FHIRFormComponent";
 import {AllergenData} from "../../util/prescriptionData";
-
+import toast from "react-hot-toast";
 const formatDate = (date) => new Date(date).toISOString();
 
 const createAllergyResource = (formData) => {
@@ -157,7 +157,7 @@ const AllergyIntolerance = ({closeSheet}) => {
         tenantId: "6721a71bba60e77ed113c3b8",
       }
     );
-    alert("Resource created successfully!");
+    toast.success("Resource created successfully!");
   };
 
   const searchCallback = async (term, ecl) => {

@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 
 const CustomDatePicker = ({id,label,value,isInvalid,errorMessage,onChange,required}) => {
   return (
-    <div className="grid w-full max-w-sm items-center gap-1.5 ">
+    <div className="grid w-full max-w-sm items-center gap-1 z-30">
       <label htmlFor={id} className="block text-sm font-semibold text-gray-700">
         {label} {required &&<span className="text-red-500">*</span>}
       </label>
@@ -23,7 +23,15 @@ const CustomDatePicker = ({id,label,value,isInvalid,errorMessage,onChange,requir
             '& .MuiOutlinedInput-root': {
               height: '40px',
               borderRadius: 2,
-              border:"1px soild gray"
+              '& fieldset': {
+                borderColor: isInvalid ? 'red !important' : '#ccc',
+                borderWidth: '0.5px',
+                boxShadow: isInvalid ? '0 0.5px 0 red !important' : '0 0.5px 0 transparent',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#64c6b0 !important',
+                boxShadow: '0 0.5px 0 #64c6b0 !important',
+              },
             },
           }}
           renderInput={(params) => (
@@ -42,6 +50,9 @@ const CustomDatePicker = ({id,label,value,isInvalid,errorMessage,onChange,requir
           openTo="day"
         />
       </LocalizationProvider>
+      {
+        isInvalid && <p className="text-[12px] text-red-700">{isInvalid}</p>
+      }
     </div>
   );
 };

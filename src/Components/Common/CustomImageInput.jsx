@@ -27,7 +27,7 @@ const CustomImageInput = ({
               <img 
                 src={imageUrl} 
                 alt="Preview" 
-                className="w-full h-48 object-cover rounded-lg border border-gray-200 shadow-sm"
+                className="w-full h-48 object-contain rounded-lg border border-gray-200 shadow-sm"
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                 <p className="text-white text-sm font-medium flex items-center gap-2">

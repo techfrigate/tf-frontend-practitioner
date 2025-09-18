@@ -10,7 +10,7 @@ const IconCustomSelect = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const selectedOption = options.find((option) => option.value === value);
+  const selectedOption = options?.length && options.find((option) => option.value === value);
 
   return (
     <div className="relative">
@@ -31,8 +31,8 @@ const IconCustomSelect = ({
       </div>
 
       {isOpen && !disabled && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 ">
-          {options.map((option, index) => (
+        <div className="absolute z-50 w-full mt-1 bg-white border  overflow-y-auto border-gray-200 rounded-xl shadow-lg max-h-60 ">
+          {options?.length && options.map((option, index) => (
             <div
               key={index}
               className="flex items-center space-x-3 p-3 hover:bg-gray-50 cursor-pointer"

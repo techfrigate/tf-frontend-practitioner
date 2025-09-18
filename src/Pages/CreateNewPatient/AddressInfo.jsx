@@ -4,10 +4,11 @@ import CustomInput from "../../Components/Common/CustomInput";
 import CustomSelect from "../../Components/Common/CustomSelect";
 import { MapPin } from "lucide-react";
 
-const AddressInfo = ({ addressFormData, addressInfo, inValidObject,setAddressInfo }) => {
+const AddressInfo = ({ addressFormData, addressInfo, inValidObject,setAddressInfo,setInvalidObject }) => {
   const [stats, setStats] = useState(State);
   const [cities, setCities] = useState(City); 
-  const [invalidObject, setInvalidObject] = useState(inValidObject);
+ 
+
   const handleAddressInfoChange = (e) => {
     let { name, value} = e.target;
     if (name === "zipCode") {
@@ -31,7 +32,7 @@ const AddressInfo = ({ addressFormData, addressInfo, inValidObject,setAddressInf
       }
     }
   };
-
+ 
   return (
     <div className="rounded-xl border bg-white text-gray-900 shadow-md mt-3 p-6 hover:shadow-lg transition-shadow duration-300">
     <div className="flex items-center gap-2 border-b pb-2 mb-4">
@@ -49,7 +50,7 @@ const AddressInfo = ({ addressFormData, addressInfo, inValidObject,setAddressInf
               value={addressInfo[elem.id] || ""} 
               onChange={handleAddressInfoChange}
               options={elem.id === "country" ? Country : elem.id === 'state' ? stats : cities || []}
-              isInvalid={invalidObject[elem.id]}
+              isInvalid={inValidObject[elem.id]}
               required={elem.required}
             />
           );
@@ -63,7 +64,7 @@ const AddressInfo = ({ addressFormData, addressInfo, inValidObject,setAddressInf
               placeholder={elem.placeholder}
               value={addressInfo[elem.id]} 
               onChange={handleAddressInfoChange}
-              isInvalid={invalidObject[elem.id]}
+              isInvalid={inValidObject[elem.id]}
               required={elem.required}
             />
           );

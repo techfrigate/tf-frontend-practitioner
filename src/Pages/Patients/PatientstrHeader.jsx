@@ -1,22 +1,60 @@
+import { ArrowUp } from "lucide-react";
 import React from "react";
 import { IoArrowUpSharp } from "react-icons/io5";
 
-const PatientsttrHeader = (
+const PatientsttrHeader = ({sortBy, setSortBy, setOrder, order})=>{
+  
+
+  function handleSortClick(field){
+    if(sortBy===field){
+      setOrder(order === "asc" ? "desc" : "asc")
+    }else{
+      setSortBy(field);
+      setOrder("desc");
+    }
+  }
+    
+    
+    function returnSortIcon(field){
+      if(field===sortBy){
+        return (
+          <ArrowUp
+      className={`inline ml-1 transform transition-transform duration-300 ${
+       order === "desc" ? "rotate-180" : ""
+      }`} 
+      size={16} 
+    />
+        )
+      }
+     return <ArrowUp 
+      className={`inline ml-1 transform transition-transform duration-300`} 
+      size={16} 
+    />
+    }
+  
+  
+  
+  
+  return (
   <tr className="text-white text-left">
-    <th className="py-4 px-6">
+    <th className="py-4 px-6 cursor-pointer" onClick={() => handleSortClick("firstName")}>
       Patient
-      <IoArrowUpSharp className="inline ml-1" size={16} />
+    {returnSortIcon("firstName")}
     </th>
     <th className="py-4 px-6">UHID</th>
     <th className="py-4 px-6">
       Status
-      <IoArrowUpSharp className="inline ml-1" size={16} />
+     
     </th>   
     <th className="py-4 px-6">DOB</th>
-    <th className="py-4 px-6">
-      Last Visit <IoArrowUpSharp className="inline ml-1" size={16} />
+    <th className="py-4 px-6 cursor-pointer" onClick={() => handleSortClick("createdAt")}>
+      Created At 
+       {returnSortIcon("createdAt")}
     </th>
     <th className="py-4 px-6">Phone</th>
+    <th className="py-4 px-6">Edit</th>
+    <th className="py-4 px-6">Toggle Status</th>
   </tr>
 );
+}
 export default PatientsttrHeader;

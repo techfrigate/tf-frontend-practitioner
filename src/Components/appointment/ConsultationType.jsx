@@ -13,7 +13,7 @@ const ConsultationType = ({ consultationType, handleConsultationChange, selected
   }, [selectedDoctor]);
 
   return (
-    <div className="mt-5 w-full">
+    <div className="mt-5 w-[52%]">
       <h2 className="text-base font-semibold text-gray-800 mb-4">
         Consultation Type
       </h2>
@@ -22,7 +22,7 @@ const ConsultationType = ({ consultationType, handleConsultationChange, selected
         {availableConsultationTypes.includes("Offline") && (
           <div
             onClick={() => handleConsultationChange("Offline")}
-            className={`flex items-center justify-between p-3 border-2 rounded-lg cursor-pointer transition-colors duration-300 ${
+            className={`flex items-center justify-between p-3 border-2 rounded-2xl cursor-pointer transition-colors duration-300 ${
               consultationType === "Offline"
                 ? "bg-gray-200 border-gray-700"
                 : "bg-white border-gray-300"
@@ -33,7 +33,7 @@ const ConsultationType = ({ consultationType, handleConsultationChange, selected
               <p className="text-gray-800 font-medium">In-person Consultation</p>
             </div>
             <p className="text-gray-800 font-medium">
-              ₹{selectedDoctor.slots[0]?.practitionerData?.inPersonFees || "0"}
+              ₹{selectedDoctor.practitionerData?.work.inPerson || "0"}
             </p>
           </div>
         )}
@@ -42,7 +42,7 @@ const ConsultationType = ({ consultationType, handleConsultationChange, selected
         {availableConsultationTypes.includes("Online") && (
           <div
             onClick={() => handleConsultationChange("Online")}
-            className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors duration-300 ${
+            className={`flex items-center justify-between p-4 border-2 rounded-2xl cursor-pointer transition-colors duration-300 ${
               consultationType === "Online"
                 ? "bg-gray-200 border-gray-700"
                 : "bg-white border-gray-300"
@@ -53,7 +53,7 @@ const ConsultationType = ({ consultationType, handleConsultationChange, selected
               <p className="text-gray-800 font-medium">Online Consultation</p>
             </div>
             <p className="text-gray-800 font-medium">
-              ₹{selectedDoctor.slots[0]?.practitionerData?.onlineFees || "0"}
+              ₹{selectedDoctor.practitionerData?.work.online || "0"}
             </p>
           </div>
         )}

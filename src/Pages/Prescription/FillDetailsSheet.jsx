@@ -30,7 +30,7 @@ const FillDetailsSheet = ({isDialogOpen,selectedCategory,closeSheet}) => {
     Diagnosis:<Diagnosis closeSheet={closeSheet}/>,
     "Family History":<FamilyHistory closeSheet={closeSheet}/>,
      "Surgical History":<SurgicalHistory closeSheet={closeSheet}/>,
-    "Medical History":<MedicalHistory closeSheet={closeSheet}/>
+    // "Medical History":<MedicalHistory closeSheet={closeSheet}/>
   }
   return (
     <div className="fixed h-screen  inset-0 z-50 flex justify-end  ">
@@ -39,8 +39,6 @@ const FillDetailsSheet = ({isDialogOpen,selectedCategory,closeSheet}) => {
         className="fixed inset-0 bg-black bg-opacity-10"
         onClick={closeSheet}
       ></div>
-
-      
        <div className="bg-white w-full max-w-2xl h-full flex flex-col gap-6 p-4  shadow-lg transform transition-transform translate-x-0 ease-in-out duration-300">
        
         <div className="flex justify-between items-center border-b pb-4">

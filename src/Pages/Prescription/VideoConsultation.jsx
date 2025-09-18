@@ -1,4 +1,4 @@
- import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Cookies from 'js-cookie';
@@ -14,10 +14,18 @@ import { Settings } from '../../Components/VideoConsultation/Settings';
 import { useAgoraRTM } from '../../hooks/VideoCunsultations/useAgoraRTM';
 import { ParticipantsList } from '../../Components/VideoConsultation/ParticipantsList';
 import { useSelector } from 'react-redux';
+
 const APP_ID = "b7e860008eb7454d8a6eb53957ba3952";
 const ACCOUNTS_URL = process.env.REACT_APP_ACCOUNTS_URL;
 
-const VideoConsultation = ({ channelName,isSheetOpen,setIsSheetOpen,setChannelName }) => {
+const VideoConsultation = ({ 
+  channelName,
+  isSheetOpen,
+  setIsSheetOpen,
+  setChannelName,
+  currentPatientId,
+  updatePatientToCheckedOut
+}) => {
   const navigate = useNavigate();
   const devices = useDevices();
   const { isMinimized, setIsMinimized, setInMeeting } = useMeeting();
@@ -28,17 +36,29 @@ const VideoConsultation = ({ channelName,isSheetOpen,setIsSheetOpen,setChannelNa
   const [rtcToken, setRtcToken] = useState('');
   const [rtmToken, setRtmToken] = useState('');
   const uidRef = useRef(Cookies.get('uid') || Math.floor(Math.random() * 10000).toString());
-   const chatuid =  useRef(Cookies.get('uidRtm') || Math.floor(Math.random() * 10000).toString())
+  const chatuid = useRef(Cookies.get('uidRtm') || Math.floor(Math.random() * 10000).toString())
 
- const{profileData} = useSelector((state)=>state.profile)
- const userName = `${profileData?.firstName || ''} ${profileData?.lastName || ''}`.trim() || 'You';
+  const{profileData} = useSelector((state)=>state.profile)
+  const userName = `${profileData?.firstName || ''} ${profileData?.lastName || ''}`.trim() || 'You';
+  
   const {client,localTracks,screenTrack,remoteUsers,isScreenSharing,setIsScreenSharing,initializeClient,cleanup} = useAgoraClient(APP_ID, channelName, rtcToken, uidRef.current);
 
   const {isAudioMuted,isVideoMuted,handleAudioToggle,handleVideoToggle,toggleScreenShare} = useAgoraControls(client, localTracks, screenTrack, setIsScreenSharing,isScreenSharing);
 
   const {messages,sendMessage} = useAgoraRTM(APP_ID, channelName, rtmToken, chatuid.current);
 
+  useEffect(() => {
+    console.log(isAudioMuted, "isAudioMuted");
+    if (channelName) {
+      document.body.style.overflow = "hidden"; 
+    } else {
+      document.body.style.overflow = "auto";  
+    }
 
+    return () => {
+      document.body.style.overflow = "auto";  
+    };
+  }, [channelName]);
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -80,7 +100,7 @@ const VideoConsultation = ({ channelName,isSheetOpen,setIsSheetOpen,setChannelNa
       if (result.isConfirmed) {
         requestPermissions();
       } else {
-        navigate('/Dashboard');
+        navigate('/worklist');
       }
     });
   };
@@ -102,7 +122,13 @@ const VideoConsultation = ({ channelName,isSheetOpen,setIsSheetOpen,setChannelNa
         await cleanup();
         setInMeeting(false);
         setIsMinimized(false);
-        setChannelName('')
+        setChannelName('');
+        
+        if (currentPatientId && updatePatientToCheckedOut) {
+          await updatePatientToCheckedOut(currentPatientId);
+        } else {
+          console.log("Missing currentPatientId or updatePatientToCheckedOut function");
+        }
       } catch (error) {
         console.error('Error handling leave:', error);
       }
@@ -132,9 +158,7 @@ const VideoConsultation = ({ channelName,isSheetOpen,setIsSheetOpen,setChannelNa
         localTracks.current.videoTrack.play(videoContainer);
       }
     }, 0);
-
   };
-
 
   const handleMaximize = () => {
     setIsMinimized(false);
@@ -145,13 +169,14 @@ const VideoConsultation = ({ channelName,isSheetOpen,setIsSheetOpen,setChannelNa
     },0)
   };
 
- 
   if (isMinimized) {
     return (
       <MinimizedMeeting
         channelName={channelName}
         isAudioMuted={isAudioMuted}
         isVideoMuted={isVideoMuted}
+        isSheetOpen={isSheetOpen}
+        setIsSheetOpen={setIsSheetOpen}
         onMaximize={handleMaximize}
       />
     );
@@ -163,25 +188,25 @@ const VideoConsultation = ({ channelName,isSheetOpen,setIsSheetOpen,setChannelNa
       name: userName,
       isAudioMuted,
       isVideoMuted,
-      isScreenSharing
+      isScreenSharing,
     },
     ...remoteUsers
   ];
 
   return (
-
-      <div className="h-full w-full absolute top-0 left-0 customScrollbar z-50">
-        <div
-          className={`flex flex-col h-full w-full  ${
-            isMinimized ? 'fixed bottom-4 right-4 h-48 w-80 rounded-lg shadow-lg' : ''
-          }`}
-        >
-          <main className="flex-1 overflow-hidden ">
-            <VideoGrid participants={participants} />
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-4xl px-4">
+    <div className="h-full w-full  absolute left-0 bottom-0 right-0 top-0  z-50">
+      <div
+        className={`flex flex-col h-full w-full  ${
+          isMinimized ? 'fixed bottom-4 right-4 h-48 w-80 rounded-lg shadow-lg' : ''
+        }`}
+      >
+        <main className="flex-1 overflow-hidden ">
+          <VideoGrid participants={participants} />
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-4xl px-4">
             <div className="bg-black/40 backdrop-blur-sm rounded-full p-2">
               <MeetingControls
                 isAudioMuted={isAudioMuted}
+                currentPatientId={currentPatientId}
                 isVideoMuted={isVideoMuted}
                 isScreenSharing={isScreenSharing}
                 onAudioToggle={handleAudioToggle}
@@ -197,31 +222,32 @@ const VideoConsultation = ({ channelName,isSheetOpen,setIsSheetOpen,setChannelNa
               />
             </div>
           </div>
-          </main>
- 
-          <Chat 
+        </main>
+
+        <Chat 
           isOpen={isChatOpen} 
           onClose={() => setIsChatOpen(false)}
           messages={messages}
           onSendMessage={sendMessage}
         />
 
-          <ParticipantsList
-            isOpen={isParticipantsOpen}
-            onClose={() => setIsParticipantsOpen(false)}
-            participants={participants}
-          />
-          <Settings
-            isOpen={isSettingsOpen}
-            onClose={() => setIsSettingsOpen(false)}
-            onDeviceChange={() => {}}
-            audioInputDevices={devices.audioInput}
-            audioOutputDevices={devices.audioOutput}
-            videoDevices={devices.video}
-          />
-        </div>
-        </div>
-      );
+        <ParticipantsList
+          isOpen={isParticipantsOpen}
+          onClose={() => setIsParticipantsOpen(false)}
+          participants={participants}
+        />
+        
+        <Settings
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          onDeviceChange={() => {}}
+          audioInputDevices={devices.audioInput}
+          audioOutputDevices={devices.audioOutput}
+          videoDevices={devices.video}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default VideoConsultation;

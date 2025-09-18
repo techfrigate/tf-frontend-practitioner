@@ -5,12 +5,34 @@ import WorkListTd from "./WorkListTd";
 import WorkListtrHeader from "./WorkListtrHeader";
 import PatientDetails from "../Prescription/PatientDetails";
 import CustomTable from "../../Components/Common/CustomTable";
+
+// Function to check if the appointment time has passed
+// Function to check if appointment can be checked-in
+const canCheckIn = (appointmentTime) => {
+  const now = new Date();
+  const appointmentDate = new Date(appointmentTime);
+
+  // 5 minutes before appointment
+  const checkInAllowedTime = new Date(appointmentDate.getTime() - 5 * 60000);
+
+  return now >= checkInAllowedTime; 
+};
+
+
 const WorkList = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [showPatientDetail, setShowPatientDetail] = useState(true);
   const itemsPerPage = 5;
 
-  const pageCount = Math.ceil(data.length / itemsPerPage);
+  // Filter the data to show only scheduled appointments after their time
+  const filteredData = data.filter((appointment) => {
+  return (
+    appointment.status === "Scheduled" && canCheckIn(appointment.appointmentTime)
+  );
+});
+
+
+  const pageCount = Math.ceil(filteredData.length / itemsPerPage);
   const offset = currentPage * itemsPerPage;
 
   const handlePageClick = ({ selected }) => {
@@ -22,16 +44,18 @@ const WorkList = () => {
   };
 
   return (
-    <div className="sm:rounded-lg h-[100%] p-2">
+    <div className="sm:rounded-lg h-[100%]">
       {showPatientDetail ? (
-        <PatientDetails/>
+        <PatientDetails />
       ) : (
         <div>
           <CustomTable trHeader={WorkListtrHeader}>
+            {/* Pass the filtered data slice to WorkListTd */}
             <WorkListTd
               offset={offset}
               itemsPerPage={itemsPerPage}
               handlePrescription={handlePrescription}
+              data={filteredData} // Pass the filtered data to the component
             />
           </CustomTable>
           <ReactPaginate

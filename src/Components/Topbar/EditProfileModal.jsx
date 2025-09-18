@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { patchPatientById } from "../../Store/patientSlice";
 import { useNavigate } from "react-router-dom";
+import { updateUserProfileImage } from  "../../Store/profileSlice";
 
 const EditProfileModal = ({
   isOpen,
@@ -16,7 +17,7 @@ const EditProfileModal = ({
   patient,
   setIsOpen,
 }) => {
-  const [imageUrl, setImageUrl] = useState(profileImageUrl);
+  const [imageUrl, setImageUrl] = useState();
   const [isInvalid, setIsInvalid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
@@ -42,6 +43,12 @@ const EditProfileModal = ({
     }
   };
 
+  useEffect(() => {
+    if (profileImageUrl) {
+      setImageUrl(profileImageUrl);
+    }
+  }, [profileImageUrl]);
+
   const handleImageChange = async (e) => {
     try {
       setIsLoading(true);
@@ -64,21 +71,19 @@ const EditProfileModal = ({
   
     try {
       setIsLoading(true);
-            const updatePayload = {
+      const updatePayload = {
         id: patientId,         
         userId: patient.userId, 
         updates: {
           imageUrl
         }
-      };
-  
-      console.log('Sending update payload:', updatePayload);
-  
+      };  
       const result = await dispatch(patchPatientById(updatePayload)).unwrap();
       
       if (result) {
+        await dispatch(updateUserProfileImage(imageUrl));
         toast.success("Profile image updated successfully");
-        onClose();
+        handleClose();
         navigate("/patients");
       }
     } catch (error) {
@@ -88,7 +93,14 @@ const EditProfileModal = ({
       setIsLoading(false);
     }
   };
+
+  function  handleClose(){
+onClose();
+setImageUrl(null);
+  }
   if (!isOpen) return null;
+
+
 
   return (
     <div className="fixed z-10 inset-0 overflow-y-auto">
@@ -105,7 +117,7 @@ const EditProfileModal = ({
         <div className="inline-block align-bottom bg-white shadow-lg p-6 text-left rounded-xl transform transition-all sm:my-8 sm:align-middle w-[100%] max-w-[36rem]">
           <div className="relative bg-white rounded-xl" ref={modalRef}>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="absolute top-2 right-2 text-2xl text-gray-600 font-semibold rounded px-3 py-2"
             >
               <AiOutlineClose />
@@ -121,11 +133,11 @@ const EditProfileModal = ({
             <div className="mt-6 flex justify-end gap-3">
               <CustomButton 
                 onclick={handleSave} 
-                text={isLoading ? "Saving..." : "Save"}
+                text={"Save"}
                 disabled={isLoading}
               />
               <CustomButton 
-                onclick={onClose} 
+                onclick={handleClose} 
                 text="Cancel" 
                 disabled={isLoading}
               />
