@@ -75,17 +75,34 @@ export const fetchWards = createAsyncThunk(
 
 export const fetchBeds = createAsyncThunk(
   "ward/fetchBeds",
-  async (wardId, { rejectWithValue, dispatch }) => {
+  async ({ wardId, currentPage, itemsPerPage, sortBy, order }, { rejectWithValue, dispatch }) => {
     try {
       const response = await axios.get(
         `${API_BASE_URL}/buildings/wards/${wardId}/beds`,
         {
+          params: {
+            page:currentPage,
+            limit:itemsPerPage,
+            sortBy,
+            order,
+          },
           headers: {
             Authorization: `Bearer ${Cookies.get("Token")}`,
           },
         }
       );
-      return { wardId, data: response.data.data };
+      console.log("👉 Beds API response:", response.data);
+      const { data, totalCount, totalPages, page, limit, sortBy: resSortBy, order: resOrder } = response.data.data;
+      return {
+        wardId,
+        data,
+        totalCount,
+        totalPages,
+        page,
+        limit,
+        sortBy: resSortBy,
+        order: resOrder,
+      };
     } catch (error) {
       if (error.response?.data?.errorCode === "STATUS_CHECK_TENANT_DENIED") {
         const route = "/status-failed";
@@ -182,6 +199,24 @@ export const updateBedStatus = createAsyncThunk(
   }
 );
 
+export const fetchAllBookedBeds = createAsyncThunk(
+  'bed/fetchAllBookedBeds',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/booked-beds/fetchAll`, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("Token")}`,
+        },
+      });
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.error?.message || 'Something went wrong while fetching booked beds.'
+      );
+    }
+  }
+);
+
 const wardSlice = createSlice({
   name: 'ward',
   initialState: {
@@ -190,6 +225,16 @@ const wardSlice = createSlice({
     selectedFloor: null,
     selectedWard: null,
     selectedBed: null,
+    bookedBed: [],
+    beds: {
+      data: [],
+      totalCount: 50,
+      totalPages: 5,   
+      currentPage: 1,  
+      limit: 10,
+      sortBy: "createdAt",
+      order: "desc",
+    },
     loading: false,
     error: null
   },
@@ -270,7 +315,7 @@ const wardSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchBeds.fulfilled, (state, action) => {
-        const { wardId, data } = action.payload;
+        const { wardId, data, totalCount, totalPages, page, limit, sortBy, order } = action.payload;
         state.buildings.forEach((b) =>
           (b.floors || []).forEach(f =>
             (f.wards || []).forEach(w => {
@@ -278,6 +323,15 @@ const wardSlice = createSlice({
             })
           )
         );
+        state.beds = {
+          data: data || [],
+          totalCount: totalCount || 0,
+          totalPages: totalPages || 0,
+          currentPage: page || 1,
+          limit: limit || 10,
+          sortBy: sortBy || "number",
+          order: order || "asc",
+        };
         state.loading = false;
       })
       .addCase(updateBed.fulfilled, (state, action) => {
@@ -333,6 +387,18 @@ const wardSlice = createSlice({
         state.selectedBed = null;
       })
       .addCase(updateBedStatus.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      .addCase(fetchAllBookedBeds.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllBookedBeds.fulfilled, (state, action) => {
+        state.loading = false;
+        state.bookedBed = action.payload;
+      })
+      .addCase(fetchAllBookedBeds.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload;
       });
     },
