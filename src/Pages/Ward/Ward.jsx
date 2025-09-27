@@ -584,7 +584,6 @@ const Ward = () => {
 
   return (
     <div className="flex gap-6">
-      {/* Sidebar */}
       <div className="w-[350px] pb-5 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl flex-shrink-0 min-h-[150px] sticky top-0 max-h-[80vh] customScrollbar border border-gray-100 overflow-hidden">
         <div className="space-y-4 h-full w-full">
           <div className="flex items-center justify-between mb-6 px-5 pt-5">
@@ -618,7 +617,6 @@ const Ward = () => {
             </div>
           </div>
 
-          {/* Buildings + Floors + Wards */}
           <div className="px-5">
             {buildings?.length > 0 ? (
               <div className="space-y-3 mt-6 w-full">
@@ -715,7 +713,6 @@ const Ward = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 bg-white rounded-2xl shadow-md p-6">
         {selectedWardData ? (
           <>
@@ -723,19 +720,20 @@ const Ward = () => {
               <h2 className="text-lg font-semibold">{selectedWardData.name}</h2>
             </div>
             <div className="grid grid-cols-5 gap-6">
-              {beds.data?.map((bed) => {
+              {beds?.data?.map((bed) => {
                 const bookedInfo = bookedBed.find((b) => b.bed?._id === bed._id);
                 return (
                   <WardBed
                     key={bed._id}
                     bed={{
                       ...bed,
-                      status: bookedInfo ? "booked" : bed.status,
-                      patient: bookedInfo?.patient || null,
+                      status: bookedInfo?.bedStatus=== 'Assign' ? "booked" : bed.status,
+                      patient: bookedInfo?.patient,
+                      wardId: selectedWardData._id 
                     }}
                     bookedInfo={bookedInfo}
-                    onClick={(b) =>
-                      handleBedClick(b, selectedWardData._id, selectedWardData.floor, selectedWardData.building)
+                    onClick={() =>
+                      handleBedClick( selectedWardData._id, selectedWardData.floor, selectedWardData.building)
                     }
                   />
                 );

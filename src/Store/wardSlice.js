@@ -91,7 +91,6 @@ export const fetchBeds = createAsyncThunk(
           },
         }
       );
-      console.log("👉 Beds API response:", response.data);
       const { data, totalCount, totalPages, page, limit, sortBy: resSortBy, order: resOrder } = response.data.data;
       return {
         wardId,
@@ -119,11 +118,11 @@ export const fetchBeds = createAsyncThunk(
 
 export const updateBed = createAsyncThunk(
   "ward/updateBed",
-  async ({ bedId, updates }, { rejectWithValue, dispatch }) => {
+  async ({ id, updates }, { rejectWithValue, dispatch }) => {
     try {
       const response = await axios.patch(
-        `${API_BASE_URL}/buildings/beds/${bedId}`,
-        updates, 
+        `${API_BASE_URL}/buildings/${id}`,
+        updates, // can be single field or multiple fields
         {
           headers: {
             Authorization: `Bearer ${Cookies.get("Token")}`,
@@ -131,21 +130,15 @@ export const updateBed = createAsyncThunk(
           },
         }
       );
-
-      return response.data.data; 
+      return response.data.data;
     } catch (error) {
       if (error.response?.data?.errorCode === "STATUS_CHECK_TENANT_DENIED") {
         const route = "/status-failed";
         await dispatch(
-          setStatusFail({
-            tenants: error.response.data.tenants,
-            navigate: route,
-          })
+          setStatusFail({ tenants: error.response.data.tenants, navigate: route })
         );
       }
-      return rejectWithValue(
-        error.response?.data?.error?.message || "Something went wrong while updating bed."
-      );
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -171,6 +164,33 @@ export const bookBed = createAsyncThunk(
         await dispatch(setStatusFail({ tenants: error.response.data.tenants, navigate: route }));
       }
       return rejectWithValue(error.response?.data?.error?.message || error.response?.data?.message || "Something went wrong");
+    }
+  }
+);
+
+export const updateBookedBed = createAsyncThunk(
+  "ward/updateBookedBed",
+  async ({ bookedBedId, updates }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axios.patch(
+        `${API_BASE_URL}/booked-beds/${bookedBedId}`,
+        updates, // can be single field or multiple fields
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("Token")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data.data;
+    } catch (error) {
+      if (error.response?.data?.errorCode === "STATUS_CHECK_TENANT_DENIED") {
+        const route = "/status-failed";
+        await dispatch(
+          setStatusFail({ tenants: error.response.data.tenants, navigate: route })
+        );
+      }
+      return rejectWithValue(error.response?.data?.error?.message || "Something went wrong");
     }
   }
 );
@@ -334,20 +354,16 @@ const wardSlice = createSlice({
         };
         state.loading = false;
       })
-      .addCase(updateBed.fulfilled, (state, action) => {
-        const updatedBed = action.payload;
-        state.buildings.forEach((b) =>
-          (b.floors || []).forEach(f =>
-            (f.wards || []).forEach(w => {
-              const index = (w.beds || []).findIndex(bd => bd._id === updatedBed._id);
-              if (index !== -1) w.beds[index] = updatedBed;
-            })
-          )
-        );
+
+.addCase(updateBed.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        // state.beds = action.payload;  // This will store the updated bed data
       })
-      .addCase(updateBed.rejected, (state, action) => {
-        state.error = action.payload;
-      })
+.addCase(updateBed.rejected, (state, action) => {
+  state.error = action.payload;
+})
+
+
       .addCase(bookBed.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -370,6 +386,22 @@ const wardSlice = createSlice({
         state.loading = false;
         state.error = action.payload || 'Failed to book bed';
       })
+
+      .addCase(updateBookedBed.fulfilled, (state, action) => {
+  const updatedBookedBed = action.payload;
+  if (!updatedBookedBed?._id) return;
+
+  // Also update bookedBed array
+  const bookedIndex = state.bookedBed.findIndex(b => b._id === updatedBookedBed._id);
+  if (bookedIndex !== -1) {
+    state.bookedBed[bookedIndex] = { ...state.bookedBed[bookedIndex], ...updatedBookedBed };
+  }
+
+  state.selectedBed = null;
+})
+.addCase(updateBookedBed.rejected, (state, action) => {
+  state.error = action.payload;
+})
       .addCase(updateBedStatus.fulfilled, (state, action) => {
         const updatedBed = action.payload;
         if (!updatedBed?._id) return;
