@@ -152,17 +152,20 @@ function PatientDetails() {
       }
 
       if (currentStatusKey === "Scheduled" && newStatus === "Checked In") {
-  const appointmentTime = new Date(patient.startDateTime); // assuming startDateTime exists
-  const currentTime = new Date();
-  const diffInMinutes = (appointmentTime - currentTime) / (1000 * 60); // difference in minutes
+        const utcDate = new Date(patient.startDateTime);
+        const appointmentTime = new Date(
+          utcDate.getTime() + utcDate.getTimezoneOffset() * 60000
+        );
+        const currentTime = new Date();
+        const diffInMinutes = (appointmentTime - currentTime) / (1000 * 60); // difference in minutes
 
-  if (diffInMinutes > 5) {
-    showErrorToast(
-      `You can only check in this patient within 5 minutes of the appointment time.`
-    );
-    return; // prevent drag-drop
-  }
-}
+        if (diffInMinutes > 5) {
+          showErrorToast(
+            `You can only check in this patient within 5 minutes of the appointment time.`
+          );
+          return; // prevent drag-drop
+        }
+      }
 
 
 
