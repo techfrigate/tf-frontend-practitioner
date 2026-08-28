@@ -50,6 +50,7 @@
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.13",
     "fontkit": "^2.0.4",
+    "framer-motion": "^12.16.0",
     "js-cookie": "^3.0.5",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
@@ -103,6 +104,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "tailwindcss": "^3.4.15"
   }
 }

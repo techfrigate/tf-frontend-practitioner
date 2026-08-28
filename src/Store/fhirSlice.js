@@ -34,7 +34,7 @@ export const searchIllness = createAsyncThunk(
   'fhir/searchIllness',
   async ({term,ecl}, {rejectWithValue,dispatch
   }) => {
-    console.log(term,ecl)
+   
     try {
       const response = await axios.get(`${BASE_URL}/fhir-core/snowstorm/illness?term=${term}&ecl=${ecl}`);
       console.log(response.data,"Search results");
