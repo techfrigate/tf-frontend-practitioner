@@ -2,6 +2,7 @@ import React from "react";
 import { searchIllness } from "../../Store/fhirSlice";
 import { useDispatch } from "react-redux";
 import axios from "axios";
+import { useConsult } from "./consultContext";
 import FHIRFormComponent from "./FHIRFormComponent";
 import {AllergenData} from "../../util/prescriptionData";
 import toast from "react-hot-toast";
@@ -126,6 +127,7 @@ const createAllergyResource = (formData) => {
 };
 
 const AllergyIntolerance = ({closeSheet}) => {
+  const consult = useConsult();
   const initialFormState = {
     allergen: "",
     allergenCode: "",
@@ -154,7 +156,8 @@ const AllergyIntolerance = ({closeSheet}) => {
       `${FHIR_BASE_URL}/fhir-core/create-resource`,
       {
         ...allergyResource,
-        tenantId: "6721a71bba60e77ed113c3b8",
+        tenantId: consult.tenantId,
+        patient: { reference: consult.patientRef },
       }
     );
     toast.success("Resource created successfully!");

@@ -78,8 +78,8 @@ import {
     //   name: "Medical History",
     //   description: "Overall health history of the patient",
     //   icon: <BriefcaseIcon className="w-4 h-4" />, 
-    //   gradient: "from-teal-100 via-teal-100 to-teal-300",
-    //   buttonColor: "text-teal-900 border-teal-900",
+    //   gradient: "from-brand-100 via-brand-100 to-brand-300",
+    //   buttonColor: "text-brand-900 border-brand-900",
     //   backgroundImage: "https://plus.unsplash.com/premium_vector-1682269359035-d0de2962d5f9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8bWVkaWNpbmV8ZW58MHx8MHx8fDA%3D",
     //   resourceType:"Condition"
     // },

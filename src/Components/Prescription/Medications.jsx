@@ -7,6 +7,7 @@ import { searchIllness } from "../../Store/fhirSlice";
 import { useDispatch } from "react-redux";
 import Loader from "../Common/Loader";
 import axios from "axios";
+import { useConsult } from "./consultContext";
 import FHIRFormComponent from "./FHIRFormComponent";
 import {MedicationData} from "../../util/prescriptionData";
 // Field configurations
@@ -38,9 +39,6 @@ const createMedicationRequest = (formData) => {
       reference: "Patient/01fbd394-47df-48d8-b4fb-a70a6c5be7c4", // Replace with actual patient reference
     },
     authoredOn: formData.authoredOn,
-    requester: {
-      reference: "Practitioner/example", // Replace with actual practitioner reference
-    },
     dosageInstruction: [
       {
         text: formData.dosageInstructions,
@@ -107,6 +105,7 @@ const createMedicationRequest = (formData) => {
 };
 
 const Medication = ({closeSheet}) => {
+  const consult = useConsult();
   const initialFormState = {
     medication: "",
     medicationCode: "",
@@ -132,7 +131,9 @@ const Medication = ({closeSheet}) => {
     const medicationResource = createMedicationRequest(formData);
     const response = await axios.post(
       `${FHIR_BASE_URL}/fhir-core/create-resource`,
-      { ...medicationResource, tenantId: "6721a71bba60e77ed113c3b8" }
+      { ...medicationResource, tenantId: consult.tenantId,
+        subject: { reference: consult.patientRef },
+        requester: consult.practitioner }
     );
     toast.success("Medication prescribed successfully!");
   };

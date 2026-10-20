@@ -34,7 +34,7 @@
 //         <div className={`flex border h-10 rounded-lg transition-all ${
 //             isInvalid
 //               ? "border-red-500 shadow-md shadow-red-400/30"
-//               : "border-gray-300 focus-within:border-[#64C6B0] focus-within:shadow-md focus-within:shadow-[#64C6B0]/30"
+//               : "border-gray-300 focus-within:border-brand-500 focus-within:shadow-md focus-within:shadow-brand-500/30"
 //           }`}>
 //           <select
 //              className={`w-1/4 px-3 py-[7px] bg-white rounded-l-lg focus:outline-none`}
@@ -119,7 +119,7 @@ const PhoneNumberInput = ({
           className={`flex border h-10 rounded-lg transition-all ${
             isInvalid
               ? "border-red-500 shadow-md shadow-red-400/30"
-              : "border-gray-300 focus-within:border-[#64C6B0] focus-within:shadow-md focus-within:shadow-[#64C6B0]/30"
+              : "border-gray-300 focus-within:border-brand-500 focus-within:shadow-md focus-within:shadow-brand-500/30"
           }`}
         >
           <select

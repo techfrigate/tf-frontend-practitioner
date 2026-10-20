@@ -16,10 +16,12 @@ import {
 import PatientTableContent from "./PatientTableContent";
 import { showErrorToast } from "../../Components/toastUtils";
 import VideoConsultation from "./VideoConsultation";
-import GlobalSheet from "../../Components/Common/GlobalSheet";
-import categories from "./CategoriesData";
-import FillDetailsSheet from "./FillDetailsSheet";
+import PrescriptionComposer from "../Rx/PrescriptionComposer";
 import PatientColumn from "../../Components/Prescription/PatientColumn";
+import { useNavigate } from "react-router-dom";
+import { isToday as isTodayDate, startOfToday } from "date-fns";
+import { ArrowRight, MonitorSmartphone } from "lucide-react";
+import { wallClock } from "../../util/clinicApi";
 import {
   allowedTransitions,
   initialStatuses,
@@ -28,21 +30,29 @@ import {
 import toast from "react-hot-toast";
 import Loader from "../../Components/Common/Loader";
 
+const COLUMN_DOTS = { Scheduled: "bg-brand-500", "Checked In": "bg-amber-400", "Checked Out": "bg-care-500", Closed: "bg-slate-400" };
+const COLUMN_EMPTY = {
+  Scheduled: "No one waiting",
+  "Checked In": "Check a patient in to start their call",
+  "Checked Out": "Finished calls appear here",
+  Closed: "Closed visits appear here",
+};
+
 function PatientDetails() {
   const [channelName, setChannelName] = useState("");
   const [filteredData, setFilteredData] = useState({});
   const [status, setStatus] = useState("");
   const [currentPatientId, setCurrentPatientId] = useState(""); // Track current patient ID
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [isFormSheetOpen, setIsFormSheetOpen] = useState(false);
+  const [scope, setScope] = useState("today");
+  const [busyId, setBusyId] = useState(null);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { prescriptionData, isLoading, error } = useSelector(
     (state) => state.appointment
   );
   const { profileData } = useSelector((state) => state.profile);
-  console.log(filteredData)
   useEffect(() => {
     getAppointmentData();
   }, [dispatch]);
@@ -58,7 +68,7 @@ function PatientDetails() {
     // Find patients who are checked in but past their endDateTime
     const patientsToCheckout = prescriptionData.filter((patient) => {
       const { bookingStatus, endDateTime } = patient;
-      const appointmentEndTime = new Date(endDateTime);
+      const appointmentEndTime = wallClock(endDateTime);
       
       // Check if patient is checked in but not checked out/closed and past endDateTime
       return (
@@ -98,7 +108,17 @@ function PatientDetails() {
       Closed: [],
     };
 
-    prescriptionData.forEach((patient) => {
+    const today = startOfToday();
+    prescriptionData
+      .filter((patient) => patient.visitType === "Online")
+      .filter((patient) => {
+        const start = wallClock(patient.startDateTime);
+        if (scope === "today") return isTodayDate(start);
+        if (scope === "upcoming") return start >= today;
+        return true;
+      })
+      .sort((a, b) => a.startDateTime.localeCompare(b.startDateTime))
+      .forEach((patient) => {
       const { bookingStatus } = patient;
 
       if (bookingStatus.closed) {
@@ -113,7 +133,7 @@ function PatientDetails() {
     });
 
     setFilteredData(filtered);
-  }, [prescriptionData]);
+  }, [prescriptionData, scope]);
 
   // Check for auto checkout when prescriptionData changes
   useEffect(() => {
@@ -197,6 +217,20 @@ function PatientDetails() {
     }
   };
 
+  const STATUS_KEYS = { "Checked In": "checkIn", "Checked Out": "checkOut", Closed: "closed" };
+  const advance = async (patient, newStatus) => {
+    setBusyId(patient._id);
+    try {
+      await dispatch(updateAppointment({ _id: patient._id, body: { bookingStatus: { [STATUS_KEYS[newStatus]]: new Date() } } })).unwrap();
+      toast.success(`Moved to ${newStatus}`);
+      getAppointmentData();
+    } catch (error) {
+      toast.error(error);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   const updatePatientToCheckedOut = async (patientId) => {
     if (!patientId) {
       console.log("No patient ID provided for checkout");
@@ -227,14 +261,6 @@ function PatientDetails() {
     }
   };
 
-  const handleButtonClick = (category) => {
-    setSelectedCategory(category);
-    setIsFormSheetOpen(true);
-  };
-
-  const closeSheet = () => {
-    setIsFormSheetOpen(false);
-  };
 
   useEffect(() => {
     if (error) {
@@ -256,58 +282,89 @@ function PatientDetails() {
       ) : (
         checkOnlineAppointment(prescriptionData).length >0 ?
         <>
-          <div>
+          <div className={channelName ? "hidden" : "space-y-4 p-3"}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-semibold text-slate-900">Video consultation queue</h2>
+                <p className="text-xs text-slate-500">
+                  Teleconsults only. In-person visits are in{" "}
+                  <button onClick={() => navigate("/appointments")} className="font-medium text-brand-600 hover:text-brand-700">
+                    Appointments <ArrowRight className="inline h-3 w-3" />
+                  </button>
+                </p>
+              </div>
+              <div className="flex rounded-lg bg-slate-100 p-0.5 text-sm">
+                {[
+                  ["today", "Today"],
+                  ["upcoming", "Upcoming"],
+                  ["all", "All"],
+                ].map(([key, label]) => (
+                  <button
+                    key={key}
+                    onClick={() => setScope(key)}
+                    className={`rounded-md px-3 py-1 font-medium ${scope === key ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <Tabs defaultValue="Patient Details">
               <TabsList>
                 <TabsTrigger value="Patient Details">
-                  <StethoscopeIcon className="w-5 h-5" />
-                  <span className="ml-2">Patient Details</span>
+                  <StethoscopeIcon className="w-4 h-4" />
+                  <span className="ml-2">Board</span>
                 </TabsTrigger>
                 <TabsTrigger value="Table">
-                  <TableIcon className="w-5 h-5" />
+                  <TableIcon className="w-4 h-4" />
                   <span className="ml-2">Table</span>
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="Patient Details">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-2">
-                  {initialStatuses.map((status) => (
+                <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2 xl:grid-cols-4">
+                  {initialStatuses.map((status) => {
+                    const items = filteredData[status.display] || [];
+                    return (
                     <div
                       key={status.display}
-                      className="bg-white p-5 pb-20 rounded-xl shadow-lg border border-gray-200 h-[570px] overflow-hidden custom-scrollbar"
+                      className="flex h-[560px] flex-col rounded-xl border border-slate-200 bg-slate-50/70"
                     >
-                      <div
-                        className={`flex justify-between items-center mb-4 p-2 rounded-lg ${
-                          statusColors[status.display]
-                        }`}
-                      >
-                        <h2 className="text-sm font-semibold">
+                      <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2.5">
+                        <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+                          <span className={`h-2 w-2 rounded-full ${COLUMN_DOTS[status.display]}`} />
                           {status.display}
-                        </h2>
+                        </h3>
+                        <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200">{items.length}</span>
                       </div>
-                      <ScrollArea className={`h-full`}>
+                      <ScrollArea className={`flex-1 [&>[data-radix-scroll-area-viewport]>div]:!block`}>
                         <div
                           onDragOver={(event) => event.preventDefault()}
                           onDrop={(event) => onTaskDrop(event, status.display)}
-                          className="p-2 bg-gray-50 rounded-lg shadow-inner h-[570px]"
+                          className="min-h-[480px] p-2.5"
                         >
-                          {
-                            filteredData[status.display]?.map((patient) => (
-                           patient.visitType === "Online" && <PatientColumn
-                              patient={patient}
-                              setChannelName={setChannelName}
-                              setStatus={setStatus}
-                              setCurrentPatientId={setCurrentPatientId} // Pass the setter
-                            />
-                          ))
-                          }
+                          {items.length === 0 ? (
+                            <p className="px-2 py-8 text-center text-xs text-slate-400">{COLUMN_EMPTY[status.display]}</p>
+                          ) : (
+                            items.map((patient) => (
+                              <PatientColumn
+                                key={patient._id}
+                                patient={patient}
+                                setChannelName={setChannelName}
+                                setStatus={setStatus}
+                                setCurrentPatientId={setCurrentPatientId}
+                                onAdvance={advance}
+                                busy={busyId === patient._id}
+                              />
+                            ))
+                          )}
                         </div>
                       </ScrollArea>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </TabsContent>
-
               <TabsContent value="Table">
                 <PatientTableContent
                   patients={prescriptionData}
@@ -329,73 +386,26 @@ function PatientDetails() {
               updatePatientToCheckedOut={updatePatientToCheckedOut} 
             />
           )}
-          <GlobalSheet
-            isDialogOpen={isSheetOpen}
-            setIsDialogOpen={setIsSheetOpen}
-            label={`Patient Status: ${status || "Not Available"}`}
-            triggerText=""
-            buttonClassName="hidden"
-          >
-            <div>
-              {status === "Checked In" && (
-                <ScrollArea className={`h-screen`}>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-xl mx-auto px-5">
-                    {categories.map((category, index) => (
-                      <div
-                        key={index}
-                        className="relative rounded-lg shadow-lg overflow-hidden bg-gray-800"
-                      >
-                        <div
-                          className="absolute inset-0 bg-cover bg-center"
-                          style={{
-                            backgroundImage: `url(${category.backgroundImage})`,
-                          }}
-                        ></div>
-
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1E3A8A]/90 to-[#3B82F6]/70 rounded-md"></div>
-
-                        <div className="relative p-4 text-white z-10 flex flex-col justify-between h-full">
-                          <div className="flex items-center space-x-2">
-                            <div>{category.icon}</div>
-                            <h3 className="text-sm font-semibold ">
-                              {" "}
-                              {category.name}
-                            </h3>
-                          </div>
-                          <p className="text-xs mt-2">{category.description}</p>
-                          <div className="flex justify-between">
-                            <div></div>
-                            <button
-                              onClick={() => handleButtonClick(category)}
-                              className="mt-1 bg-slate-300 text-blue-600 rounded-full shadow-lg flex items-center justify-center w-7 h-7"
-                              aria-label={`Fill details for ${category.name}`}
-                            >
-                              &rarr;
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-
-                    {selectedCategory && (
-                      <FillDetailsSheet
-                        isDialogOpen={isFormSheetOpen}
-                        setIsDialogOpen={setIsFormSheetOpen}
-                        selectedCategory={selectedCategory}
-                        closeSheet={closeSheet}
-                      />
-                    )}
-                  </div>
-                </ScrollArea>
-              )}
-            </div>
-          </GlobalSheet>
+          {isSheetOpen && currentPatientId && (
+            // Prescription panel beside the video call: writes against this appointment.
+            <aside className="fixed inset-y-0 right-0 z-[60] flex w-full max-w-4xl flex-col border-l border-slate-200 bg-slate-50 shadow-2xl" aria-label="Prescription">
+              <div className="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-3">
+                <h2 className="text-base font-semibold text-slate-900">Prescription</h2>
+                <button type="button" onClick={() => setIsSheetOpen(false)} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100" aria-label="Close prescription">
+                  ✕
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4">
+                <PrescriptionComposer embedded appointmentId={currentPatientId} onSigned={() => getAppointmentData()} />
+              </div>
+            </aside>
+          )}
         </>: 
         <div className="min-h-full  flex items-center justify-center">
           <div className="text-center p-8 bg-white rounded-xl shadow-md max-w-96 w-full mx-4">
             <div className="flex flex-col items-center gap-4">
               <div className="rounded-full bg-[#e6f4f1] p-4">
-                <Calendar className="w-8 h-8 text-[#64c6b0]" />
+                <Calendar className="w-8 h-8 text-brand-500" />
               </div>
               <h2 className="text-xl font-semibold text-gray-800">
                 No Appointments Found

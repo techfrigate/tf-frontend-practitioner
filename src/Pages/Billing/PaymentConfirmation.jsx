@@ -15,7 +15,7 @@ const PaymentConfirmation = () => {
           <h2 className="text-2xl font-bold text-gray-800">No billing information found</h2>
           <button 
             onClick={() => navigate('/billing')}
-            className="mt-4 inline-flex items-center px-4 py-2 bg-[#00A182] text-white rounded-md hover:bg-[#008a6c]"
+            className="mt-4 inline-flex items-center px-4 py-2 bg-brand-600 text-white rounded-md hover:bg-[#008a6c]"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Return to Billing
@@ -54,7 +54,7 @@ console.log(billing)
         <div className="bg-white rounded-xl shadow-lg p-8">
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center space-x-3">
-              <ReceiptIndianRupee className="w-8 h-8 text-[#00A182]" />
+              <ReceiptIndianRupee className="w-8 h-8 text-brand-600" />
               <h1 className="text-2xl font-bold text-gray-800">Payment Confirmation</h1>
             </div>
             <div className="flex items-center space-x-2">
@@ -103,7 +103,7 @@ console.log(billing)
                   <span>₹{totalAmount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                  <span>GST (18%)</span>
+                  <span>GST</span>
                   <span>₹{gst.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
@@ -146,7 +146,7 @@ console.log(billing)
               />
               <button 
                 onClick={() => window.print()}
-                className="inline-flex items-center px-6 py-2 bg-[#00A182] text-white rounded-md hover:bg-[#008a6c]"
+                className="inline-flex items-center px-6 py-2 bg-brand-600 text-white rounded-md hover:bg-[#008a6c]"
               >
                 <Printer className="w-4 h-4 mr-2" />
                 Print Receipt

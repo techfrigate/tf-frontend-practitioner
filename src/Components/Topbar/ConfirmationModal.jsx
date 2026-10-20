@@ -38,7 +38,7 @@ const ConfirmationModal = ({ isOpen, onConfirm, onCancel }) => {
           </button>
           <button
             onClick={onConfirm}
-            className="py-2 px-4 bg-[#00A182] rounded-lg text-white hover:bg-[#3e9584]"
+            className="py-2 px-4 bg-brand-600 rounded-lg text-white hover:bg-brand-700"
           >
             Confirm
           </button>

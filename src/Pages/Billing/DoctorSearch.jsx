@@ -39,7 +39,7 @@ const DoctorSearch = ({
 
  
   return (
-    <div className="w-full space-y-4 space-x-2 doctor-search-container">
+    <div className="relative w-full doctor-search-container">
       {!selectedDoctor ? (
         <>
           <div className="relative group">
@@ -52,13 +52,13 @@ const DoctorSearch = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsVisible(true)}
-              className="pl-10 w-full md:w-[25rem] truncate border-2 border-gray-200 rounded-2xl 
+              className="pl-10 w-full truncate border-2 border-gray-200 rounded-2xl 
                 focus:border-gray-300 focus:ring-2 focus:ring-indigo-100 transition-all duration-200 
                 h-14 text-base shadow-sm"
             />
           </div>
           <div
-            className={`absolute w-[24rem] max-h-[300px] bg-white border border-gray-300 rounded-lg 
+            className={`absolute left-0 top-full z-30 mt-2 w-full max-h-[300px] bg-white border border-gray-300 rounded-lg 
               shadow-lg transition-all duration-700 ease-out transform ${
               isVisible
                 ? "opacity-100 translate-y-0"
@@ -70,7 +70,7 @@ const DoctorSearch = ({
               msOverflowStyle: "none",
             }}
           >
-            { practitioners?.length && filteredDoctors().map((doctor) => (
+            { practitioners?.length > 0 && filteredDoctors().map((doctor) => (
               <div
                 key={doctor._id}
                 className="cursor-pointer p-4 hover:bg-gray-50 transition-all duration-200 
@@ -105,7 +105,7 @@ const DoctorSearch = ({
       ) : (
         <div
           className="flex items-center gap-3 p-1.5 bg-emerald-50 border-2 border-emerald-500 
-            rounded-2xl w-full md:w-[25rem] group cursor-pointer transition-all duration-200
+            rounded-2xl w-full group cursor-pointer transition-all duration-200
             hover:bg-emerald-100 shadow-sm"
         >
           <div className="bg-emerald-100 p-2 rounded-lg">

@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { clearError } from "../../Store/patientSlice";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
+import { ipdApi } from "../../util/ipdApi";
 const PatientSearch = ({
   searchQuery,
   setSearchQuery,
@@ -13,8 +14,23 @@ const PatientSearch = ({
   selectedPatient,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const { patients, isLoading, error } = useSelector((state) => state.patient);
+  const { error } = useSelector((state) => state.patient);
   const dispatch = useDispatch();
+  // Search on the server so every patient can be found, not just the first page.
+  const [patients, setPatients] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    if (selectedPatient) return;
+    setIsLoading(true);
+    const t = setTimeout(() => {
+      ipdApi
+        .searchPatients(searchQuery.trim().split(/\s+/)[0] || "")
+        .then(setPatients)
+        .catch((e) => toast.error(e.message))
+        .finally(() => setIsLoading(false));
+    }, 250);
+    return () => clearTimeout(t);
+  }, [searchQuery, selectedPatient]);
   const calculateAge = (dob) => {
     if (!dob) return "N/A";
     const birthDate = new Date(dob);
@@ -37,7 +53,7 @@ const PatientSearch = ({
     searchQuery.trim() === ""
       ? patients.filter((patient) => findActivePatient(patient))
       : patients.filter((patient) => {
-          const findActivePatient =  findActivePatient(patient)
+          const isActive = findActivePatient(patient)
           const searchLower = searchQuery.toLowerCase();
           const fullName =
             `${patient.firstName} ${patient.lastName}`.toLowerCase();
@@ -45,7 +61,7 @@ const PatientSearch = ({
           const email = patient.email?.toLowerCase() || "";
 
           return (
-            (findActivePatient && (fullName.includes(searchLower) ||
+            (isActive && (fullName.includes(searchLower) ||
               phone.includes(searchLower) ||
               email.includes(searchLower)) )
           );
@@ -74,7 +90,7 @@ const PatientSearch = ({
   });
 
   return (
-    <div className="w-full space-y-4 space-x-2 patient-search-container">
+    <div className="relative w-full patient-search-container">
       {!selectedPatient ? (
         <>
           <div className="relative group">
@@ -87,13 +103,13 @@ const PatientSearch = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsVisible(true)}
-              className="pl-10 w-full md:w-[25rem] truncate border-2 border-gray-200 rounded-2xl 
+              className="pl-10 w-full truncate border-2 border-gray-200 rounded-2xl 
                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all duration-200 
                 h-14 text-base shadow-sm"
             />
           </div>
           <div
-            className={`absolute w-[25rem] max-h-[300px] bg-white border border-gray-300 rounded-lg 
+            className={`absolute left-0 top-full z-30 mt-2 w-full max-h-[300px] bg-white border border-gray-300 rounded-lg 
               shadow-lg transition-all duration-700 ease-out transform ${
                 isVisible
                   ? "opacity-100 translate-y-0"
@@ -159,7 +175,7 @@ const PatientSearch = ({
       ) : (
         <div
           className="flex items-center gap-3 p-1.5 bg-emerald-50 border-2 border-emerald-500 
-            rounded-2xl w-full md:w-[26rem] group cursor-pointer transition-all duration-200
+            rounded-2xl w-full group cursor-pointer transition-all duration-200
             hover:bg-emerald-100 shadow-sm"
         >
           <div className="bg-emerald-100 p-2 rounded-lg">

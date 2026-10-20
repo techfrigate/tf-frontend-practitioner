@@ -100,7 +100,7 @@ const Billing = () => {
           {billings.length == 0 && (
             <div className="flex items-center justify-center min-h-[60vh] w-full">
               <div className="flex flex-col items-center justify-center bg-gray-50 shadow-md rounded-lg p-6">
-                <FileText className="w-16 h-16 text-[#64c6b0]" />
+                <FileText className="w-16 h-16 text-brand-500" />
                 <p className="mt-4 text-lg font-semibold text-gray-600">
                   No Billing Records Found
                 </p>
@@ -122,17 +122,17 @@ const Billing = () => {
               containerClassName={"flex justify-center mt-6 mb-0"}
               pageClassName={"mx-1"}
               pageLinkClassName={
-                "block px-4 py-2 rounded hover:bg-[#4cb59c] hover:text-white"
+                "block px-4 py-2 rounded hover:bg-brand-600 hover:text-white"
               }
               previousClassName={"mx-1"}
               previousLinkClassName={
-                "block px-3 py-2 rounded bg-slate-100 hover:bg-[#4cb59c] hover:text-white"
+                "block px-3 py-2 rounded bg-slate-100 hover:bg-brand-600 hover:text-white"
               }
               nextClassName={"mx-1"}
               nextLinkClassName={
-                "block px-3 py-2 rounded bg-slate-100 hover:bg-[#4cb59c] hover:text-white"
+                "block px-3 py-2 rounded bg-slate-100 hover:bg-brand-600 hover:text-white"
               }
-              activeClassName={"bg-[#64c6b0] text-white rounded"}
+              activeClassName={"bg-brand-500 text-white rounded"}
               activeLinkClassName={"border-none"}
             />
           )}

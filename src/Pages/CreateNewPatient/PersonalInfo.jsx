@@ -17,8 +17,8 @@ const PersonalInfo = ({ personalInfoFormData, personalInfo, handleChange,handleP
   return (
     <div className="rounded-xl border bg-white text-gray-900 shadow-md mt-3 p-6 hover:shadow-lg transition-shadow duration-300">
       <div className="flex items-center gap-2 border-b pb-2 mb-4">
-        <User className="w-5 h-5 text-[#64c6b0]" />
-        <h1 className="text-sm font-semibold text-[#1e817e]">PERSONAL INFORMATION</h1>
+        <User className="w-5 h-5 text-brand-500" />
+        <h1 className="text-sm font-semibold text-brand-700">PERSONAL INFORMATION</h1>
       </div>
       <div className="px-4 mt-4 grid grid-cols-3 gap-x-7 gap-y-4">
         {personalInfoFormData?.map((elem) => {

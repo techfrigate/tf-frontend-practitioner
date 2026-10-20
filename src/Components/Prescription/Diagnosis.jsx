@@ -7,6 +7,7 @@ import { searchIllness } from "../../Store/fhirSlice";
 import { useDispatch } from "react-redux";
 import Loader from "../Common/Loader";
 import axios from "axios";
+import { useConsult } from "./consultContext";
 import FHIRFormComponent from "./FHIRFormComponent";
 import {DiagnosisData} from "../../util/prescriptionData";
  import toast from "react-hot-toast";
@@ -115,6 +116,7 @@ const createDiagnosisResource = (formData) => {
 };
 
 const Diagnosis = ({closeSheet}) => {
+  const consult = useConsult();
   const initialFormState = {
     diagnosis: "",
     diagnosisCode: "",
@@ -137,7 +139,8 @@ const Diagnosis = ({closeSheet}) => {
     const diagnosisResource = createDiagnosisResource(formData);
     const response = await axios.post(
       `${FHIR_BASE_URL}/fhir-core/create-resource`,
-      { ...diagnosisResource, tenantId: "6721a71bba60e77ed113c3b8" }
+      { ...diagnosisResource, tenantId: consult.tenantId,
+        subject: { reference: consult.patientRef } }
     );
     toast.success("Diagnosis recorded successfully!");
   };

@@ -10,7 +10,7 @@ const initialState = {
   totalPages: 0, 
   error: null,
   isLoading: false,
-  practitioners:null,
+  practitioners: [],
   serviceData:null
 };
 

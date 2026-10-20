@@ -155,7 +155,7 @@ const FHIRFormComponent = ({
                   onChange={handleInputChange}
                   placeholder={field.placeholder}
                   rows={3}
-                  className="mt-1 p-3 block w-full border border-gray-300 rounded-md focus:outline-none focus:shadow-md focus:border-[#64C6B0] focus:shadow-[#64C6B0]/30 shadow-sm sm:text-sm"
+                  className="mt-1 p-3 block w-full border border-gray-300 rounded-md focus:outline-none focus:shadow-md focus:border-brand-500 focus:shadow-brand-500/30 shadow-sm sm:text-sm"
                 />
                 {errors[field.name] && (
                   <p className="text-[12px] text-red-700 mt-1">{errors[field.name]}</p>

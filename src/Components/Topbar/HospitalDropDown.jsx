@@ -36,7 +36,7 @@ const HospitalDropDown = ({ selectedTenant, tenants, onSelect }) => {
                 selectedTenant?.tenantId !== tenant.tenantId ? (
                   <div
                     key={index}
-                    className="flex items-center justify-between px-4 py-3 bg-white cursor-pointer transition-all duration-300 rounded-md text-gray-700 font-semibold text-sm tracking-wide shadow-sm hover:shadow-md hover:bg-gradient-to-r hover:from-green-400 hover:to-teal-500 hover:text-white"
+                    className="flex items-center justify-between px-4 py-3 bg-white cursor-pointer transition-all duration-300 rounded-md text-gray-700 font-semibold text-sm tracking-wide shadow-sm hover:shadow-md hover:bg-gradient-to-r hover:from-green-400 hover:to-brand-500 hover:text-white"
                     onClick={() => onSelect(tenant)}
                   >
                     <span>{tenant.tenantName}</span>

@@ -88,7 +88,7 @@ const MedicinesTd = () => {
               <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-orange-500 rotate-45"></div>
             </div>
           )}
-          <td className="flex flex-flow-col gap-6 text-xl text-[#64c6b0] py-5 px-7 text-[13px]">
+          <td className="flex flex-flow-col gap-6 text-xl text-brand-500 py-5 px-7 text-[13px]">
             <div
               className="hover:bg-gray-300 rounded-full p-2"
               onClick={() => navigateToBill(item._id)}

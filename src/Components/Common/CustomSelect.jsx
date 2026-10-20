@@ -26,7 +26,7 @@ const CustomSelect = ({
           isInvalid
             ? "border-red-500 shadow-md shadow-red-400/30"
             : "border-gray-300 shadow-md shadow-gray-100/50"
-        } focus:outline-none focus:shadow-md focus:border-[#64C6B0] focus:shadow-[#64C6B0]/30 transition duration-200 ease-in-out`}
+        } focus:outline-none focus:shadow-md focus:border-brand-500 focus:shadow-brand-500/30 transition duration-200 ease-in-out`}
       >
         <option value="" disabled>
           Select {label}

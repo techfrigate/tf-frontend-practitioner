@@ -7,6 +7,7 @@ import { searchIllness } from "../../Store/fhirSlice";
 import { useDispatch } from "react-redux";
 import Loader from "../Common/Loader";
 import axios from "axios";
+import { useConsult } from "./consultContext";
 import { type } from "@testing-library/user-event/dist/type";
 import FHIRFormComponent from "./FHIRFormComponent";
 import {ProcedureData}  from "../../util/prescriptionData";
@@ -99,6 +100,7 @@ const createProcedureResource = (formData) => {
 };
 
 const Procedure = ({closeSheet}) => {
+  const consult = useConsult();
   const initialFormState = {
     procedure: "",
     procedureCode: "",
@@ -119,7 +121,8 @@ const Procedure = ({closeSheet}) => {
     const procedureResource = createProcedureResource(formData);
     const response = await axios.post(
       `${FHIR_BASE_URL}/fhir-core/create-resource`,
-      { ...procedureResource, tenantId: "6721a71bba60e77ed113c3b8" }
+      { ...procedureResource, tenantId: consult.tenantId,
+        subject: { reference: consult.patientRef } }
     );
     toast.success("Procedure recorded successfully!");
   };

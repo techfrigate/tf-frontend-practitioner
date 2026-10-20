@@ -26,7 +26,7 @@ const BillingtrHeader = ({ setLocationId, locationId, handleSort, currentSort })
       <th>   
         <select 
           name="location" 
-          className="bg-[#64c6b0]" 
+          className="bg-brand-500" 
           onChange={handleLocationSelect} 
           value={locationId}
         >

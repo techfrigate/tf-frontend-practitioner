@@ -15,6 +15,7 @@
     "@material-tailwind/react": "^2.1.9",
     "@mui/icons-material": "^6.2.1",
     "@mui/material": "^6.2.1",
+    "@mui/system": "^6.5.0",
     "@mui/x-date-pickers": "^7.23.1",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-avatar": "^1.1.1",
@@ -36,6 +37,7 @@
     "@swc/helpers": "^0.5.15",
     "@syncfusion/ej2-react-schedule": "^26.2.14",
     "@syncfusion/ej2-schedule": "^27.1.57",
+    "@testing-library/dom": "^9.3.4",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -80,8 +82,8 @@
     "zod": "^3.23.8"
   },
   "scripts": {
-    "start": "set PORT=3005 && react-scripts start",
-    "build": "react-scripts build",
+    "start": "PORT=3005 react-scripts start",
+    "build": "CI=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -106,5 +108,8 @@
   "devDependencies": {
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "tailwindcss": "^3.4.15"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }

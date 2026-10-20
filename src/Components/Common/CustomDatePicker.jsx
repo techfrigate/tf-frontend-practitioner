@@ -29,8 +29,8 @@ const CustomDatePicker = ({id,label,value,isInvalid,errorMessage,onChange,requir
                 boxShadow: isInvalid ? '0 0.5px 0 red !important' : '0 0.5px 0 transparent',
               },
               '&.Mui-focused fieldset': {
-                borderColor: '#64c6b0 !important',
-                boxShadow: '0 0.5px 0 #64c6b0 !important',
+                borderColor: '#1769d1 !important',
+                boxShadow: '0 0.5px 0 #1769d1 !important',
               },
             },
           }}

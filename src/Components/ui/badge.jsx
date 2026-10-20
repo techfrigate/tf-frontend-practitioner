@@ -43,7 +43,7 @@ const badgeVariants = cva(
           "border-transparent bg-yellow-100 text-yellow-800 shadow-sm hover:bg-yellow-200",
         dangerLight:
           "border-transparent bg-red-100 text-red-800 shadow-sm hover:bg-red-200",
-        forestLight: "bg-[#e0f5f1] text-[#00A182] shadow-sm",
+        forestLight: "bg-[#e0f5f1] text-brand-600 shadow-sm",
         gradient:
           "bg-gradient-to-r from-blue-500 to-green-500 text-white hover:from-blue-400 hover:to-green-400",
         rounded:

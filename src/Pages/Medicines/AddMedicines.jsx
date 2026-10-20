@@ -154,9 +154,15 @@ useEffect(() => {
 
   const handleDateChange = (name, value) => {
     if (value && value.$d) {
-      const formattedDate = value.toISOString();  
-      setFormData((prev) => ({ ...prev, [name]: formattedDate }));  
-      setInvalidFields((prev) => ({ ...prev, [name]: "" }));  
+      // While the user is still typing, the picker hands over an incomplete (invalid) date;
+      // calling toISOString() on it throws and crashes the page, so wait for a complete date.
+      if (!value.isValid()) {
+        setInvalidFields((prev) => ({ ...prev, [name]: "Enter a valid date" }));
+        return;
+      }
+      const formattedDate = value.toISOString();
+      setFormData((prev) => ({ ...prev, [name]: formattedDate }));
+      setInvalidFields((prev) => ({ ...prev, [name]: "" }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: null })); 
     }
@@ -309,7 +315,7 @@ useEffect(() => {
                       borderColor: '30#D1D5DB'
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#64c6b0',
+                      borderColor: '#1769d1',
                       borderWidth: '1px'
                     },
                     '&.Mui-error fieldset': {

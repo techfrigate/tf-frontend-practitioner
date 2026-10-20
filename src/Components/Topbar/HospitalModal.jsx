@@ -94,7 +94,7 @@ const HospitalModal = ({ selectedTenant, setSelectedTenant }) => {
         };
         
         const url = portMap[userType]
-          ? `${url}:?vt=${token}&ui=${userId}&ti=${nonCentralTenant.tenantId}`
+          ? `${portMap[userType]}?vt=${token}&ui=${userId}&ti=${nonCentralTenant.tenantId}`
           : `${SIGNUP_APP}`;
 
 

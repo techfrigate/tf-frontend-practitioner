@@ -21,7 +21,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
 
         // New Variants
-        forest: "bg-[#00A182] text-white hover:bg-[#00876F] shadow-sm",
+        forest: "bg-brand-600 text-white hover:bg-[#00876F] shadow-sm",
         success: "bg-green-500 text-white hover:bg-green-600 shadow-sm",
         warning: "bg-yellow-500 text-white hover:bg-yellow-600 shadow-sm",
         info: "bg-blue-500 text-white hover:bg-blue-600 shadow-sm",
@@ -38,7 +38,7 @@ const buttonVariants = cva(
         infoOutline:
           "border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white",
         forestOutline:
-          "border border-[#00A182] text-[#00A182] hover:bg-[#00A182] hover:text-white",
+          "border border-brand-600 text-brand-600 hover:bg-brand-600 hover:text-white",
         roseOutline:
           "border border-rose-500 text-rose-500 hover:bg-rose-500 hover:text-white",
         amberOutline:
@@ -76,7 +76,7 @@ const buttonVariants = cva(
         orangeOutline:
           "border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white",
         tealOutline:
-          "border border-teal-500 text-teal-500 hover:bg-teal-500 hover:text-white",
+          "border border-brand-500 text-brand-500 hover:bg-brand-500 hover:text-white",
         pinkOutline:
           "border border-pink-500 text-pink-500 hover:bg-pink-500 hover:text-white",
         indigoOutline:

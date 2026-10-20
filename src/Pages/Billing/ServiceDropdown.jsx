@@ -94,7 +94,8 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
         }
       } : {
         name: serviceItem.name,
-        price: serviceItem.price
+        price: Number(serviceItem.price),
+        ...(category === "diagnostics" && serviceItem.gst !== undefined ? { gstPercentage: parseFloat(serviceItem.gst) } : {})
       }
     )};
     
@@ -214,7 +215,7 @@ const ServiceDropdown = ({ onAddService, billId, selectedLocation, billIdFromUrl
             <button
               onClick={handleAddService}
               disabled={!category || !selectedService || quantity < 0}
-              className="group relative px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl 
+              className="group relative px-6 py-3 bg-gradient-to-r from-emerald-500 to-brand-600 rounded-xl 
                 font-medium text-white shadow-lg shadow-emerald-200 
                 transition-all duration-300 hover:shadow-emerald-300
                 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none">

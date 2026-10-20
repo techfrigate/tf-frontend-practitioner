@@ -15,7 +15,7 @@ const FileUpload = ({ file, setFile }) => {
         </p>
       </div>
       <div className="flex items-center w-3/4">
-        <div className="flex-shrink-0 w-14 h-14 rounded-full bg-[#1e817e] text-white flex items-center justify-center overflow-hidden shadow-md">
+        <div className="flex-shrink-0 w-14 h-14 rounded-full bg-brand-700 text-white flex items-center justify-center overflow-hidden shadow-md">
           {file ? (
             <img
               src={URL.createObjectURL(file)}
@@ -28,9 +28,9 @@ const FileUpload = ({ file, setFile }) => {
         </div>
         <label
           htmlFor="file-upload"
-          className="ml-6 cursor-pointer flex flex-col items-center justify-center border-2 border-dashed border-[#1e817e] rounded-lg p-6 w-full text-center bg-white hover:bg-green-50 transition duration-300"
+          className="ml-6 cursor-pointer flex flex-col items-center justify-center border-2 border-dashed border-brand-700 rounded-lg p-6 w-full text-center bg-white hover:bg-green-50 transition duration-300"
         >
-          <div className="text-[#1e817e] font-semibold">
+          <div className="text-brand-700 font-semibold">
             Click to Upload or drag and drop
           </div>
           <div className="text-gray-500 text-sm">

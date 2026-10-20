@@ -1,7 +1,8 @@
 import { format, parseISO } from "date-fns";
 
 export const formatDateRange = (startDateTime, endDateTime) => {
-  const startDate = new Date(startDateTime);
+  const utc = parseISO(startDateTime);
+  const startDate = new Date(utc.getTime() + utc.getTimezoneOffset() * 60000);
   const formattedDate = format(startDate, "MMMM dd, yyyy");
   const startTime = formatTime(startDateTime);
   const endTime = formatTime(endDateTime);

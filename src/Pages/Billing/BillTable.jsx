@@ -7,7 +7,7 @@ const BillingTable = ({ bills, onDelete, totalAmount, billIdFromUrl }) => {
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-[#64C6B0]">
+            <tr className="bg-brand-500">
               <th className="px-6 py-4 text-sm font-semibold text-white text-left">Service Type</th>
               <th className="px-6 py-4 text-sm font-semibold text-white text-left">Service</th>
               <th className="px-6 py-4 text-sm font-semibold text-white text-right">Rate</th>

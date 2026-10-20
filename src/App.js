@@ -34,6 +34,15 @@ function handleDocumentTitle(location) {
 }
 
 
+// Reads the role and user from the stored login token (display only; the backend verifies the signature).
+const tokenClaims = (token) => {
+  try {
+    return JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+  } catch {
+    return null;
+  }
+};
+
 function App() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -85,14 +94,41 @@ function App() {
     return   <div className="w-full h-[100vh]"> <Loader/> </div>
   }
 
+  const session = tokenClaims(Cookies.get("Token"));
+  if (profileData && session && (session.userType !== "practitioner" || session.sub !== profileData.userId)) {
+    return (
+      <div className="flex h-[100vh] items-center justify-center bg-canvas p-6">
+        <div className="max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-card">
+          <h1 className="text-lg font-semibold text-slate-900">You're signed in to another portal</h1>
+          <p className="mt-2 text-sm text-slate-600">
+            This browser's current session belongs to a {session.userType ? session.userType.replace("_", " ") : "different"} account, so the
+            practitioner workspace can't load Dr. {profileData.firstName}'s data. Sign in again to continue.
+          </p>
+          <a
+            href={process.env.REACT_APP_SIGNIN_URL}
+            className="mt-6 inline-flex rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600"
+          >
+            Sign in again
+          </a>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
-    <div className="flex bg-gray-200 h-[100vh] ">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}/>
-      <div className="flex flex-col w-full h-[100vh] box-border overflow-hidden">
-        <Topbar toggleCreateProviderForm={toggleCreateProviderForm}  onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}/>
-        <div className="px-2 pb-3 h-full w-full overflow-y-hidden">
-          <div className={`w-full h-full customScrollbar rounded-md bg-white`}>
+    <div className="flex h-[100vh] bg-canvas text-slate-900">
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <div className="flex h-[100vh] min-w-0 flex-1 flex-col overflow-hidden">
+        <Topbar toggleCreateProviderForm={toggleCreateProviderForm} onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
+        <main className="customScrollbar flex-1 overflow-y-auto p-4 sm:p-6">
+          <div
+            className={
+              location.pathname === "/dashboard"
+                ? "relative mx-auto w-full max-w-[1400px]"
+                : "relative mx-auto h-full min-h-[calc(100vh-7rem)] w-full max-w-[1400px] overflow-auto rounded-xl border border-slate-200 bg-white shadow-card"
+            }
+          >
             <Suspense fallback={<Loader/>}>
               <Routes>
               {
@@ -103,7 +139,7 @@ function App() {
               </Routes>
             </Suspense>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

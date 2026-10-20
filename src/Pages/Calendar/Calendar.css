@@ -1,0 +1,106 @@
+.calendar-page .fc {
+  --fc-border-color: #e2e8f0;
+  --fc-today-bg-color: #f5f9ff;
+  --fc-now-indicator-color: #e11d48;
+  --fc-page-bg-color: #ffffff;
+  font-size: 0.8125rem;
+}
+
+.calendar-page .fc .fc-toolbar-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.calendar-page .fc .fc-button {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font-weight: 500;
+  text-transform: none;
+  box-shadow: none;
+  padding: 0.35rem 0.75rem;
+}
+
+.calendar-page .fc .fc-button:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.calendar-page .fc .fc-button-primary:not(:disabled).fc-button-active,
+.calendar-page .fc .fc-button-primary:not(:disabled):active {
+  background: #1769d1;
+  border-color: #1769d1;
+  color: #ffffff;
+}
+
+.calendar-page .fc .fc-button:focus {
+  box-shadow: 0 0 0 3px rgba(23, 105, 209, 0.2);
+}
+
+.calendar-page .fc .fc-col-header-cell-cushion,
+.calendar-page .fc .fc-daygrid-day-number {
+  color: #475569;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.calendar-page .fc .fc-timegrid-slot-label-cushion {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.calendar-page .fc .fc-timegrid-slot {
+  height: 1.6rem;
+}
+
+.calendar-page .fc .roster-shift {
+  background: #d9e8fc;
+  opacity: 0.45;
+}
+
+.calendar-page .fc-event {
+  border-width: 0 0 0 3px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.calendar-page .fc-daygrid-event {
+  border-width: 0;
+  background: transparent !important;
+}
+
+.calendar-page .fc-appt {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  overflow: hidden;
+  padding: 1px 4px;
+  white-space: nowrap;
+}
+
+.calendar-page .fc-appt-dot {
+  height: 0.5rem;
+  width: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+}
+
+.calendar-page .fc-appt-time {
+  font-weight: 600;
+}
+
+.calendar-page .fc-appt-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendar-page .fc-appt-icon {
+  height: 0.8rem;
+  width: 0.8rem;
+  flex-shrink: 0;
+}
+
+.calendar-page .fc-list-event:hover td {
+  background: #f8fafc;
+}

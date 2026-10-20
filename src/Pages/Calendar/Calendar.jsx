@@ -1,235 +1,185 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getRosters } from "../../Store/rosterSlice";
+import React, { useCallback, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { addDays, format } from "date-fns";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
-import {Dialog,DialogContent,DialogDescription,DialogHeader,DialogTitle,DialogTrigger,DialogFooter,} from "../../Components/ui/dialog";
-import { Button } from "../../Components/ui/button";
-import { Badge } from "../../Components/ui/badge";
-import { Clock, Calendar as CalendarIcon,  User, FileText } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import Loader from "../../Components/Common/Loader";
+import toast from "react-hot-toast";
+import { CalendarCheck, CalendarPlus, Clock, MapPin, MonitorSmartphone, UserRound } from "lucide-react";
+import { Badge, Button, Modal } from "../../Components/Common/ui";
+import { clinicApi, dayKey, wallClock } from "../../util/clinicApi";
+import "./Calendar.css";
 
-const renderEventContent = (eventInfo) => {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <div
-          className="px-2 py-1.5 rounded-md overflow-hidden text-[0.90em] cursor-pointer transition-all duration-200 hover:opacity-90 hover:shadow-md flex flex-col"
-          style={{
-            backgroundColor: eventInfo.event.backgroundColor,
-            color: eventInfo.event.textColor,
-            lineHeight: "1.3",
-          }}
-        >
-          <div className="font-medium">{eventInfo.timeText}</div>
-          <div className="font-semibold truncate">{eventInfo.event.title}</div>
-        </div>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md rounded-xl">
-        <DialogHeader className="border-b pb-4">
-          <DialogTitle className="text-xl font-bold flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5 text-primary" /> 
-            {eventInfo.event.title}
-          </DialogTitle>
-          <DialogDescription className="text-base">
-            View your appointment details below
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-3">
-          <div className="flex items-start gap-3">
-            <Clock className="h-5 w-5 text-primary mt-0.5" />
-            <div>
-              <p className="font-medium text-gray-700">Appointment Time</p>
-              <p className="text-gray-600">{eventInfo.timeText}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-start gap-3">
-            <FileText className="h-5 w-5 text-primary mt-0.5" />
-            <div>
-              <p className="font-medium text-gray-700">Visit Details</p>
-              <p className="text-gray-600">{eventInfo.event.extendedProps.description || "No description available."}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-start gap-3">
-            <User className="h-5 w-5 text-primary mt-0.5" />
-            <div>
-              <p className="font-medium text-gray-700">Doctor</p>
-              <p className="text-gray-600">{eventInfo.event.extendedProps.doctorName}</p>
-            </div>
-          </div>
-        </div>
-        <DialogFooter className="flex sm:justify-between gap-3 border-t pt-4">
-          <Badge variant="outline" className="bg-primary/10 text-primary">
-            {eventInfo.event.extendedProps.status || "Scheduled"}
-          </Badge>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
+const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
+
+const STAGES = {
+  unconfirmed: { label: "Unconfirmed", color: "red", bg: "#fff1f2", border: "#f43f5e", text: "#9f1239" },
+  scheduled: { label: "Waiting", color: "blue", bg: "#eef5fe", border: "#1769d1", text: "#114691" },
+  checkedIn: { label: "In consultation", color: "amber", bg: "#fffbeb", border: "#f59e0b", text: "#92400e" },
+  completed: { label: "Seen", color: "care", bg: "#ecfdf8", border: "#0fa98a", text: "#0b5f50" },
 };
-const colorPalette = [
-  { bg: "#4F46E5", text: "#ffffff" }, 
-  { bg: "#0EA5E9", text: "#ffffff" },
-  { bg: "#10B981", text: "#ffffff" }, 
-  { bg: "#F59E0B", text: "#ffffff" }, 
-  { bg: "#EC4899", text: "#ffffff" },
-  { bg: "#8B5CF6", text: "#ffffff" }, 
-];
+
+const patientName = (p) => [p?.firstName, p?.lastName].filter(Boolean).join(" ") || "Patient";
 
 const Calendar = () => {
-  const [rosterData, setRosterData] = useState([]);
-  const [viewMode, setViewMode] = useState("dayGridMonth");
-  const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const { profileData } = useSelector((state) => state.profile);
-  const { rostersData, rosterStatus, error } = useSelector(
-    (state) => state.rosters
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const lastRange = useRef("");
+
+  const loadRange = useCallback(
+    async ({ start, end }) => {
+      const from = dayKey(start);
+      const to = dayKey(addDays(end, -1));
+      const key = `${from}:${to}:${profileData?._id}`;
+      if (key === lastRange.current) return;
+      lastRange.current = key;
+      setLoading(true);
+      try {
+        const [appointments, rosters] = await Promise.all([
+          clinicApi.range(from, to),
+          profileData?._id
+            ? axios
+                .get(`${ADMIN_URL}/rosters/practitioner-roster/${profileData._id}`, {
+                  headers: { Authorization: `Bearer ${Cookies.get("Token")}`, tenantid: Cookies.get("TenantId") },
+                })
+                .then((r) => r.data?.data || [])
+                .catch(() => [])
+            : [],
+        ]);
+        setEvents([
+          ...rosters.map((r) => ({
+            id: `roster-${r._id}`,
+            start: wallClock(r.startDate),
+            end: wallClock(r.endDate),
+            display: "background",
+            classNames: ["roster-shift"],
+          })),
+          ...appointments.map((a) => {
+            const stage = STAGES[a.stage] || STAGES.scheduled;
+            return {
+              id: a._id,
+              title: patientName(a.patient),
+              start: wallClock(a.startDateTime),
+              end: wallClock(a.endDateTime),
+              backgroundColor: stage.bg,
+              borderColor: stage.border,
+              textColor: stage.text,
+              extendedProps: { appointment: a },
+            };
+          }),
+        ]);
+      } catch (e) {
+        lastRange.current = "";
+        toast.error(e.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [profileData?._id]
   );
 
-  useEffect(() => {
-    if (profileData) {
-      dispatch(getRosters(profileData._id));
-    }
-  }, [profileData, dispatch]);
-
-  useEffect(() => {
-    if (rostersData) {
-      const newEvents = rostersData?.map((roster, index) => {
-        const startTime = new Date(roster.startDate);
-        const endTime = new Date(roster.endDate);
-        const colorSet = colorPalette[index % colorPalette.length];
-        
-        return {
-          id: roster._id,
-          title: `Appointment with Dr. ${profileData?.lastName}`,
-          start: startTime,
-          end: endTime,
-          backgroundColor: colorSet.bg,
-          borderColor: colorSet.bg,
-          textColor: colorSet.text,
-          display: "block",
-          extendedProps: {
-            description: `Visit Type: ${roster.visitType}`,
-            status: roster.status || "Confirmed",
-            doctorName: `${profileData?.firstName} ${profileData?.lastName}`,
-            visitType: roster.visitType
-          },
-        };
-      });
-
-      setRosterData(newEvents);
-    }
-  }, [rostersData, profileData]);
-
-  const handleViewChange = (newView) => {
-    setViewMode(newView);
-  };
+  const a = selected;
+  const stage = a && (STAGES[a.stage] || STAGES.scheduled);
 
   return (
-    <div className="rounded-md customScrollbar h-full shadow-lg border border-gray-300 bg-white flex flex-col">
-      {/* //  <div className="rounded-md customScrollbar h-full  shadow-md border border-gray-300 p-2"> */}
-      
-      <div className="flex-grow p-4 overflow-auto">
-    
-        <AnimatePresence mode="wait">
-          {rosterStatus === "loading" ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              key="loader"
-            >
-              <Loader />
-            </motion.div>
-          ) : rosterStatus === "failed" ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              key="error"
-              className="bg-red-50 text-red-600 p-8 rounded-lg border border-red-100 text-center"
-            >
-              <div className="inline-block p-3 rounded-full bg-red-100 mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium mb-2">Unable to Load Calendar</h3>
-              <p>{error || "There was an error loading your appointments. Please try again later."}</p>
-              <Button className="mt-4" variant="outline" onClick={() => dispatch(getRosters(profileData?._id))}>
-                Retry
-              </Button>
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              key="calendar"
-              className="h-full"
-            >
-              
-              <FullCalendar
-                timeZone="UTC"
-                plugins={[
-                  dayGridPlugin,
-                  timeGridPlugin,
-                  interactionPlugin,
-                  listPlugin,
-                ]}
-                initialView={viewMode}
-                headerToolbar={{
-                  left: "prev,next today",
-                  center: "title",
-                  right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
-                }}
-                buttonText={{
-                  today: "Today",
-                  month: "Month",
-                  week: "Week",
-                  day: "Day",
-                  list: "List",
-                }}
-                eventTimeFormat={{
-                  hour: "numeric",
-                  minute: "2-digit",
-                  meridiem: "short",
-                  hour12: true,
-                }}
-                events={rosterData}
-                editable={true}
-                selectable={true}
-                selectMirror={true}
-                height="100%"
-                themeSystem="standard"
-                eventContent={renderEventContent}
-                dayMaxEventRows={3}
-                moreLinkClick="popover"
-                moreLinkClassNames="font-medium text-primary hover:underline px-2 py-1"
-                eventDisplay="block"
-                viewDidMount={(info) => handleViewChange(info.view.type)}
-                dayHeaderClassNames="text-gray-600 font-medium py-2"
-                dayCellClassNames="hover:bg-gray-50 transition-colors"
-                slotLabelClassNames="text-sm font-medium text-gray-500"
-                eventClassNames="rounded-md overflow-hidden shadow-sm"
-                slotLaneClassNames="border-gray-100"
-                allDayClassNames="text-xs text-gray-500 font-medium"
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+    <div className="calendar-page p-4 sm:p-5">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600">
+          {Object.values(STAGES).map((s) => (
+            <span key={s.label} className="inline-flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-sm border" style={{ background: s.bg, borderColor: s.border }} />
+              {s.label}
+            </span>
+          ))}
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-sm bg-brand-100" />
+            Your shift
+          </span>
+          {loading && <span className="text-slate-400">Loading…</span>}
+        </div>
+        <Button icon={CalendarPlus} onClick={() => navigate("/appointments/new")}>
+          New appointment
+        </Button>
       </div>
+
+      <FullCalendar
+        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+        initialView="timeGridWeek"
+        headerToolbar={{ left: "prev,next today", center: "title", right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek" }}
+        buttonText={{ today: "Today", month: "Month", week: "Week", day: "Day", list: "List" }}
+        height="auto"
+        slotMinTime="07:00:00"
+        slotMaxTime="21:00:00"
+        slotDuration="00:15:00"
+        slotLabelInterval="01:00"
+        allDaySlot={false}
+        nowIndicator
+        dayMaxEvents={4}
+        events={events}
+        datesSet={loadRange}
+        eventClick={({ event }) => event.extendedProps.appointment && setSelected(event.extendedProps.appointment)}
+        dateClick={({ date }) => navigate(`/appointments?date=${dayKey(date)}`)}
+        eventContent={({ event, timeText, view }) =>
+          event.display === "background" ? null : (
+            <div className="fc-appt">
+              {view.type === "dayGridMonth" && <span className="fc-appt-dot" style={{ background: event.borderColor }} />}
+              <span className="fc-appt-time">{timeText}</span>
+              <span className="fc-appt-title">{event.title}</span>
+              {event.extendedProps.appointment?.visitType === "Online" && <MonitorSmartphone className="fc-appt-icon" />}
+            </div>
+          )
+        }
+        noEventsContent="No appointments in this period"
+      />
+
+      <Modal
+        open={!!a}
+        onClose={() => setSelected(null)}
+        title={a ? patientName(a.patient) : ""}
+        description={a ? [a.patient?.uhid, a.patient?.phone].filter(Boolean).join(" · ") : ""}
+        size="max-w-md"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setSelected(null)}>
+              Close
+            </Button>
+            <Button icon={CalendarCheck} onClick={() => navigate(`/appointments?date=${dayKey(wallClock(a.startDateTime))}`)}>
+              Manage in Appointments
+            </Button>
+          </>
+        }
+      >
+        {a && (
+          <div className="space-y-3 text-sm">
+            <div className="flex flex-wrap gap-1.5">
+              <Badge color={stage.color}>{stage.label}</Badge>
+              <Badge color={a.visitType === "Online" ? "violet" : "blue"}>{a.visitType === "Online" ? "Teleconsult" : "In-person"}</Badge>
+              <Badge color={a.paymentStatus === "completed" ? "green" : "red"}>{a.paymentStatus === "completed" ? "Paid" : "Unpaid"}</Badge>
+            </div>
+            <p className="flex items-center gap-2 text-slate-700">
+              <Clock className="h-4 w-4 text-slate-400" />
+              {format(wallClock(a.startDateTime), "EEEE, d MMM yyyy · h:mm a")} – {format(wallClock(a.endDateTime), "h:mm a")}
+            </p>
+            {a.location && (
+              <p className="flex items-center gap-2 text-slate-700">
+                <MapPin className="h-4 w-4 text-slate-400" /> {a.location}
+              </p>
+            )}
+            <p className="flex items-center gap-2 text-slate-700">
+              <UserRound className="h-4 w-4 text-slate-400" />
+              {[a.patient?.gender, a.patient?.dob ? `born ${format(new Date(a.patient.dob), "d MMM yyyy")}` : null].filter(Boolean).join(" · ") || "—"}
+            </p>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

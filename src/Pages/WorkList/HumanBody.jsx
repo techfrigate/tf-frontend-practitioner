@@ -84,7 +84,7 @@ const HumanBody = () => {
 
   return (
     <div className={`flex flex-col w-full ${isFullscreen ? 'fixed inset-0 z-50 bg-white' : 'relative'}`}>
-      <div className="bg-[#64C6B0] text-white p-3 flex justify-between items-center">
+      <div className="bg-brand-500 text-white p-3 flex justify-between items-center">
         <div className="flex items-center gap-2 ">
         <PersonStanding size={24} />
           <span className="font-semibold  text-lg">Human Body Anatomy Viewer</span>
@@ -92,13 +92,13 @@ const HumanBody = () => {
         <div className="flex items-center gap-2">
           <button 
             onClick={toggleControls}
-            className="p-2 hover:bg-[#56a897] rounded"
+            className="p-2 hover:bg-brand-600 rounded"
             title={showControls ? "Hide controls" : "Show controls"}>
             {showControls ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>       
           <button 
             onClick={toggleFullscreen}
-            className="p-2 hover:bg-[#56a897] rounded"
+            className="p-2 hover:bg-brand-600 rounded"
             title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
             {isFullscreen ? <Minimize2 className="w-5 h-5 " /> : <Maximize2 className="w-5 h-5" />}
           </button>
@@ -118,7 +118,7 @@ const HumanBody = () => {
                   onClick={() => changeSystem(system)}
                   className={`w-full text-left px-3 py-2 rounded flex items-center gap-2 ${
                     activeSystem === system 
-                      ? 'bg-[#64C6B0] text-white' 
+                      ? 'bg-brand-500 text-white' 
                       : 'hover:bg-gray-200'
                   }`}>
                   <SystemIcon system={system} />
@@ -126,15 +126,15 @@ const HumanBody = () => {
                 </button>
               ))}
             </div>         
-            <div className="mt-2 text-[#64C6B0]">
+            <div className="mt-2 text-brand-500">
               <h3 className="font-semibold mb-2 ">Navigation Tips</h3>
               <ul className="text-sm space-y-2 text-gray-700">
                 <li className="flex items-center gap-2">
-                  <ZoomIn className="w-4 h-4 text-[#64C6B0]" />
+                  <ZoomIn className="w-4 h-4 text-brand-500" />
                   <span>Mouse wheel to zoom in/out</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <RotateCw className="w-4 h-4 text-[#64C6B0]" />
+                  <RotateCw className="w-4 h-4 text-brand-500" />
                   <span>Click and drag to rotate</span>
                 </li>
               </ul>

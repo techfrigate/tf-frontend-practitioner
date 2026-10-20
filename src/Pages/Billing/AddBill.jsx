@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { IndianRupee, CreditCard } from "lucide-react";
+import { IndianRupee, CreditCard, BedDouble, ArrowRight, Info } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -18,11 +18,16 @@ import {
   updateBilling
 } from "../../Store/billingSlice";
 import { updateMedicine, getAllMedicines } from "../../Store/MedicinesSlice";
-import { fetchPatients } from "../../Store/patientSlice";
+import { ipdApi } from "../../util/ipdApi";
 import { fetchLocations } from "../../Store/locationSlice";
 import { fetchLocationProfiles } from "../../Store/profileSlice";
 
 const GST_RATE = 0.18;
+// Medicines and diagnostics carry their own GST %; anything without one falls back to the default rate.
+const lineGst = (item) => {
+  const rate = Number(item.gstPercentage);
+  return item.price * item.quantity * (Number.isFinite(rate) && item.gstPercentage !== "" && item.gstPercentage != null ? rate / 100 : GST_RATE);
+};
 
 const AddBill = () => {
   const dispatch = useDispatch();
@@ -40,6 +45,9 @@ const AddBill = () => {
   const [recievePayment, setRecievePayment] = useState(0); // already received payment
   const [dueAmount, setDueAmount] = useState(0);
   const [billId, setBillId] = useState("");
+  // IPD bill being viewed, or an open admission of the patient picked for a new bill.
+  const [ipdBill, setIpdBill] = useState(null);
+  const [openAdmission, setOpenAdmission] = useState(null);
   const [gstAmount, setGstAmount] = useState(0);
 
   const [searchQueries, setSearchQueries] = useState({
@@ -69,10 +77,7 @@ const AddBill = () => {
   // Initial fetch
   useEffect(() => {
     const fetchInitialData = async () => {
-      await Promise.all([
-        dispatch(fetchPatients({ page: null, limit: 5 })),
-        dispatch(fetchLocations({ currentPage: null, itemsPerPage: null, sortBy: null, order: null }))
-      ]);
+      await dispatch(fetchLocations({ currentPage: null, itemsPerPage: null, sortBy: null, order: null }));
     };
     fetchInitialData();
   }, [dispatch]);
@@ -95,6 +100,16 @@ const AddBill = () => {
       dispatch(fetchLocationProfiles({ tenantId: cookieValues.tenantId, locationId, userType, accessToken: cookieValues.token }));
     }
   }, [dispatch, profileData, cookieValues]);
+
+  // A patient who is admitted should be billed on their IPD account, not with a separate counter bill.
+  useEffect(() => {
+    setOpenAdmission(null);
+    if (billIdFromUrl || !selectedPatient?._id) return;
+    ipdApi
+      .list({ status: "admitted" })
+      .then((rows) => setOpenAdmission(rows.find((a) => String(a.patient?._id) === String(selectedPatient._id)) || null))
+      .catch(() => {});
+  }, [selectedPatient, billIdFromUrl]);
 
   // Generate new billId
   useEffect(() => {
@@ -130,10 +145,13 @@ const AddBill = () => {
         if (locationData) setSelectedLocation(locationData);
         else setSelectedLocation({ _id: payload.locationId, name: payload.locationDisplayName || "Unknown Location" });
 
+        setIpdBill(payload.billType === "IPD" ? { admissionId: payload.admissionId, admissionNumber: payload.admissionNumber } : null);
         setBills(payload.services || []);
         setTotalAmount(payload.totalAmount || 0);
         setDoctorFees(payload.doctorFees || 0);
-        setGstAmount(payload.gst || (payload.totalAmount * GST_RATE));
+        // Bills saved before GST was stored: recover it from what was charged (paid + due).
+        const chargedGst = (payload.paidAmount || 0) + (payload.dueAmount || 0) - (payload.totalAmount || 0) - (payload.doctorFees || 0);
+        setGstAmount(payload.gst ?? (chargedGst > 0 ? chargedGst : payload.totalAmount * GST_RATE));
 
         // Payment handling
         setRecievePayment(payload.paidAmount || 0); // already received
@@ -147,7 +165,7 @@ const AddBill = () => {
 
   // Recalculate due whenever totals or payments change
   useEffect(() => {
-    setDueAmount(Math.max(totalWithGST - (recievePayment + paidAmount), 0));
+    setDueAmount(Math.max(Math.round((totalWithGST - (recievePayment + paidAmount)) * 100) / 100, 0));
   }, [totalWithGST, recievePayment, paidAmount]);
 
   // Services handling
@@ -155,7 +173,7 @@ const AddBill = () => {
     const newAmount = newService.price * newService.quantity;
     setBills(prev => [...prev, newService]);
     setTotalAmount(prev => prev + newAmount);
-    setGstAmount(prev => prev + (newAmount * GST_RATE));
+    setGstAmount(prev => prev + lineGst(newService));
   }, []);
 
   const handleDeleteService = useCallback((index) => {
@@ -163,7 +181,7 @@ const AddBill = () => {
       const newBills = [...prev];
       const removedAmount = newBills[index].price * newBills[index].quantity;
       setTotalAmount(prev => prev - removedAmount);
-      setGstAmount(prev => prev - (removedAmount * GST_RATE));
+      setGstAmount(prev => prev - lineGst(newBills[index]));
       newBills.splice(index, 1);
       return newBills;
     });
@@ -171,8 +189,12 @@ const AddBill = () => {
 
   // Payment input
   const handlePaymentChange = useCallback((e) => {
-    setPaidAmount(parseFloat(e.target.value) || 0);
-  }, []);
+    // Never take more than what is still owed on the bill.
+    const outstanding = Math.max(Math.round((totalWithGST - recievePayment) * 100) / 100, 0);
+    const value = Math.max(parseFloat(e.target.value) || 0, 0);
+    if (value > outstanding) toast.error(`Only ₹${outstanding.toFixed(2)} is outstanding on this bill.`);
+    setPaidAmount(Math.min(value, outstanding));
+  }, [totalWithGST, recievePayment]);
 
   const updateSearchQuery = useCallback((field, value) => {
     setSearchQueries(prev => ({ ...prev, [field]: value }));
@@ -240,7 +262,7 @@ const AddBill = () => {
       toast.success(`Billing record ${billIdFromUrl ? 'updated' : 'created'} successfully!`);
       navigate('/paymentconfirmation', {
         state: {
-          billing: { ...result.payload, billId, patientName: selectedPatient.firstName + ' ' + selectedPatient.lastName, doctorName: selectedDoctor.firstName + ' ' + selectedDoctor.lastName, services: bills, gst: gstAmount, totalAmount, doctorFees, dueAmount, status }
+          billing: { ...result.payload, billId: billId || result?.billId || result?.payload?.billId || (Array.isArray(billing) ? billing[0]?.billId : billing?.billId), patientName: selectedPatient.firstName + ' ' + selectedPatient.lastName, doctorName: selectedDoctor.firstName + ' ' + selectedDoctor.lastName, services: bills, gst: gstAmount, totalAmount, doctorFees, dueAmount, status }
         }
       });
     } catch (error) {
@@ -251,7 +273,7 @@ const AddBill = () => {
 
   // UI sections (same as before)
   const searchComponents = useMemo(() => (
-    <div className="flex justify-between items-center w-max gap-5">
+    <div className="grid w-full grid-cols-1 items-start gap-4 lg:grid-cols-3 [&>*]:min-w-0">
       <LocationSearch searchQuery={searchQueries.location} setSearchQuery={(query) => updateSearchQuery('location', query)} locations={locations} onSelect={setSelectedLocation} selectedLocation={selectedLocation} />
       <DoctorSearch searchQuery={searchQueries.doctor} setSearchQuery={(query) => updateSearchQuery('doctor', query)} practitioners={practitioners} onSelect={setSelectedDoctor} selectedDoctor={selectedDoctor} />
       <PatientSearch searchQuery={searchQueries.patient} setSearchQuery={(query) => updateSearchQuery('patient', query)} onSelect={setSelectedPatient} selectedPatient={selectedPatient} />
@@ -261,7 +283,7 @@ const AddBill = () => {
   const summarySection = useMemo(() => (
     <div className="space-y-1">
       <div className="flex justify-between items-center text-gray-600"><span>Subtotal</span><span>₹{totalAmount?.toLocaleString()}</span></div>
-      <div className="flex justify-between items-center text-gray-600"><span>GST (18%)</span><span>₹{gstAmount?.toFixed(2)}</span></div>
+      <div className="flex justify-between items-center text-gray-600"><span>GST</span><span>₹{gstAmount?.toFixed(2)}</span></div>
       <div className="flex justify-between items-center text-gray-600"><span>Doctor Fees</span><span>₹{doctorFees?.toLocaleString()}</span></div>
       <div className="h-px bg-gray-200 my-2" />
       <div className="flex justify-between items-center text-lg font-semibold"><span>Total Amount</span><span>₹{totalWithGST?.toFixed(2)}</span></div>
@@ -275,25 +297,68 @@ const AddBill = () => {
         <label className="block text-sm font-medium text-gray-700 mb-2">Payment Amount</label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><CreditCard className="h-5 w-5 text-gray-400" /></div>
-          <input type="number" value={paidAmount || ""} onChange={handlePaymentChange} max={totalWithGST} className="pl-10 w-full h-12 bg-white border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all duration-200"/>
+          <input type="number" value={paidAmount || ""} onChange={handlePaymentChange} max={Math.max(totalWithGST - recievePayment, 0)} className="pl-10 w-full h-12 bg-white border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all duration-200"/>
         </div>
         {dueAmount > 0 && <p className="mt-2 text-sm text-red-500">Remaining: ₹{dueAmount.toFixed(2)}</p>}
       </div>
       <CustomButton text={billIdFromUrl ? "Update Bill" : "Create Bill"} onclick={handleCreateBilling} loading={isLoading} />
     </div>
-  ), [paidAmount, handlePaymentChange, totalWithGST, dueAmount, billIdFromUrl, handleCreateBilling, isLoading]);
+  ), [paidAmount, handlePaymentChange, totalWithGST, recievePayment, dueAmount, billIdFromUrl, handleCreateBilling, isLoading]);
+
+  const missing = [!selectedLocation && "location", !selectedDoctor && "doctor", !selectedPatient && "patient"].filter(Boolean);
 
   return (
     <div className="p-1 bg-gray-100 flex flex-col customScrollbar max-h-full">
-      {searchComponents}
+      {ipdBill ? (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand-200 bg-brand-50 px-5 py-4">
+          <div className="flex items-center gap-3">
+            <BedDouble className="h-5 w-5 text-brand-600" />
+            <div>
+              <p className="text-sm font-semibold text-slate-900">Inpatient (IPD) final bill · {ipdBill.admissionNumber}</p>
+              <p className="text-xs text-slate-600">Items come from the admission and can't be edited here. Use this page to collect any balance.</p>
+            </div>
+          </div>
+          <button type="button" onClick={() => navigate(`/ipd/admissions/${ipdBill.admissionId}`)} className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:underline">
+            Open admission <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      ) : (
+        searchComponents
+      )}
+      {openAdmission && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+          <div className="flex items-center gap-3">
+            <BedDouble className="h-5 w-5 text-amber-600" />
+            <p className="text-sm text-amber-900">
+              {selectedPatient.firstName} is currently admitted ({openAdmission.admissionNumber}, {openAdmission.bed?.wardName} bed {openAdmission.bed?.bedNumber}).
+              Add charges to the IPD bill so they are settled at discharge.
+            </p>
+          </div>
+          <button type="button" onClick={() => navigate(`/ipd/admissions/${openAdmission._id}`)} className="inline-flex items-center gap-1 rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700">
+            Go to IPD bill <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+      {!showBillingForm && !billIdFromUrl && (
+        <div className="mt-4 flex items-start gap-3 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-8">
+          <Info className="mt-0.5 h-5 w-5 text-brand-500" />
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Start a new OPD bill</p>
+            <p className="mt-1 text-sm text-slate-600">
+              Choose the {missing.join(", ").replace(/, ([^,]*)$/, " and $1")} above. Then add services, diagnostics, packages or medicines and record the payment.
+            </p>
+            <p className="mt-2 text-xs text-slate-500">For admitted patients, charges are added on their admission and the bill is generated at discharge.</p>
+          </div>
+        </div>
+      )}
       {showBillingForm && (
         <div className="mt-4 bg-white rounded-2xl p-6 shadow-md">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-            <ServiceDropdown onAddService={handleAddService} billId={billId} billIdFromUrl={billIdFromUrl} selectedLocation={selectedLocation} />
+          <div className={`grid w-full grid-cols-1 gap-6 [&>*]:min-w-0 ${ipdBill ? "" : "md:grid-cols-2"}`}>
+            {!ipdBill && <ServiceDropdown onAddService={handleAddService} billId={billId} billIdFromUrl={billIdFromUrl} selectedLocation={selectedLocation} />}
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <IndianRupee className="w-5 h-5 text-gray-600" />
-                <h2 className="text-xl font-semibold text-gray-900">Added Services</h2>
+                <h2 className="text-xl font-semibold text-gray-900">{ipdBill ? "Bill items" : "Added Services"}</h2>
               </div>
               <BillTable bills={bills} onDelete={handleDeleteService} totalAmount={totalAmount} billIdFromUrl={billIdFromUrl} />
             </div>

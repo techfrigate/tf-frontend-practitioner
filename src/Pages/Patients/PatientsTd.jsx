@@ -30,7 +30,7 @@ const PatientsTd = () => {
       }?`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#64C6B0",
+      confirmButtonColor: "#1769d1",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, update it!",
       cancelButtonText: "Cancel",
@@ -50,7 +50,7 @@ const PatientsTd = () => {
           text: "Patient status has been updated.",
           icon: "success",
           confirmButtonText: "OK",
-          confirmButtonColor: "#64C6B0",
+          confirmButtonColor: "#1769d1",
         });
       } catch (error) {
         await Swal.fire("Error!", "Failed to update patient status.", "error");
@@ -59,7 +59,7 @@ const PatientsTd = () => {
   };
 
   if (status === "loading") {
-    return <Loading size="16" color="teal-500" className="h-screen" />;
+    return <Loading size="16" color="brand-500" className="h-screen" />;
   }
 
   return (
@@ -95,7 +95,7 @@ const PatientsTd = () => {
                 (tenant) =>
                   tenant.userType === "patient" &&
                   tenant.tenantId === tenantId && (
-                    <td className="py-4 px-6 text-sm text-[#1f7d68] font-semibold">
+                    <td className="py-4 px-6 text-sm text-brand-700 font-semibold">
                       <span
                         className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold ${
                           tenant.status
@@ -114,7 +114,7 @@ const PatientsTd = () => {
               </td>
               <td className="py-4 px-4 text-nowrap text-xs">{maskedPhone}</td>
 
-              <td className="flex flex-flow-col gap-6 text-xl text-[#64c6b0] py-5 px-7 text-[13px]">
+              <td className="flex flex-flow-col gap-6 text-xl text-brand-500 py-5 px-7 text-[13px]">
                 <div
                   className="hover:bg-gray-300 rounded-full p-2"
                   onClick={() => navigateToPatient(item._id)}
@@ -148,7 +148,7 @@ const PatientsTd = () => {
                         />
                         <div
                           className={`w-10 h-6 flex items-center rounded-full p-1 transition duration-300 ease-in-out ${
-                            tenant.status ? "bg-[#64C6B0]" : "bg-gray-300"
+                            tenant.status ? "bg-brand-500" : "bg-gray-300"
                           }   cursor-pointer`}
                         >
                           <div

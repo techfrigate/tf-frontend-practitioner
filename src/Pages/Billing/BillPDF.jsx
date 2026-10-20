@@ -77,7 +77,7 @@ const BillPDF = ({
           ))}
           {/* Summary */}
           <View style={styles.summaryContainer}>
-            <Text style={styles.summaryText}>GST (18%): {gst}</Text>
+            <Text style={styles.summaryText}>GST: {gst}</Text>
             <Text style={styles.summaryText}>Doctor Fees: {doctorFees}</Text>
             <Text style={styles.summaryText}>Total Amount: {totalAmount}</Text>
             <Text style={styles.boldText}>Final Amount: {finalAmount}</Text>
@@ -95,7 +95,7 @@ const BillPDF = ({
     <div >
       <button
       onClick={downloadPDF}
-       className="inline-flex items-center px-6 py-3 bg-[#00A182] text-white rounded-md hover:bg-[#008a6c]">
+       className="inline-flex items-center px-6 py-3 bg-brand-600 text-white rounded-md hover:bg-[#008a6c]">
       Download Bill PDF
       </button>
     </div>

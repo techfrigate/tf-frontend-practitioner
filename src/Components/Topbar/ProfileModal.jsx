@@ -124,20 +124,22 @@ useEffect(() => {
   return (
     <>
       {isEditOpen ? null : (
-        <div className="absolute z-20 top-12 right-0 bg-white rounded-xl shadow-2xl w-80 overflow-hidden">
+        <div className="absolute z-40 top-12 right-0 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
         {/* Header Section with Gradient */}
-        <div className="bg-gradient-to-r from-[#64C6B0]/10 to-[#64C6B0]/5 p-6">
+        <div className="bg-gradient-to-r from-brand-500/10 to-brand-500/5 p-6">
           <div className="flex items-start space-x-4">
             {/* Profile Image */}
             <div className="relative flex-shrink-0">
               <img
                 src={profileImageUrl}
                 alt="Profile"
-                className="w-16 h-16 rounded-full object-cover border-2 border-[#64C6B0]/20 shadow-md"
+                className="w-16 h-16 rounded-full object-cover border-2 border-brand-500/20 shadow-md"
               />
               <button
                 onClick={() => setIsEditOpen(true)}
-                className="absolute -bottom-1 -right-1 bg-[#64C6B0] rounded-full p-1.5 shadow-lg hover:bg-[#58b19e] transition-colors"
+                aria-label="Change profile photo"
+                title="Change profile photo"
+                className="absolute -bottom-1 -right-1 bg-brand-500 rounded-full p-1.5 shadow-lg hover:bg-brand-600 transition-colors"
               >
                 <MdOutlineEdit className="text-white w-3.5 h-3.5" />
               </button>
@@ -149,7 +151,7 @@ useEffect(() => {
                 {firstName} {lastName}
               </h2>
               <p className="text-sm text-gray-500 truncate">{email}</p>
-              <span className="inline-flex items-center px-2.5 py-0.5 mt-2 rounded-full text-xs font-medium bg-[#64C6B0]/10 text-[#64C6B0]">
+              <span className="inline-flex items-center px-2.5 py-0.5 mt-2 rounded-full text-xs font-medium bg-brand-500/10 text-brand-500">
                 {formatStateWord(selectedUserType)}
               </span>
             </div>
@@ -165,7 +167,7 @@ useEffect(() => {
           {/* <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full px-4 py-2 text-left text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#64C6B0] focus:ring-offset-2 transition-colors"
+              className="w-full px-4 py-2 text-left text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <span>Switch Role</span>

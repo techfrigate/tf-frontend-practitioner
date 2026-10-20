@@ -1,6 +1,6 @@
 import React from "react";
 
-const Loading = ({ size = "12", color = "teal-500", className = "" }) => {
+const Loading = ({ size = "12", color = "brand-500", className = "" }) => {
   return (
     <div className={`flex justify-center items-center ${className}`}>
       <div

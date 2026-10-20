@@ -1,6 +1,7 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import axios from "axios";
+import { useConsult } from "./consultContext";
 import FHIRFormComponent from "./FHIRFormComponent";
 import { searchIllness } from "../../Store/fhirSlice";
 import {SurgicalHistoryData} from "../../util/prescriptionData";
@@ -53,6 +54,7 @@ const createProcedureResource = (formData) => {
 };
 
 const SurgicalHistory = ({closeSheet}) => {
+  const consult = useConsult();
   const initialFormState = {
     procedure: "",
     procedureCode: "",
@@ -74,7 +76,8 @@ const SurgicalHistory = ({closeSheet}) => {
       `${FHIR_BASE_URL}/fhir-core/create-resource`,
       {
         ...procedureResource,
-        tenantId: "6721a71bba60e77ed113c3b8"
+        tenantId: consult.tenantId,
+        subject: { reference: consult.patientRef }
       }
     );
     toast.success("Resource created successfully!");

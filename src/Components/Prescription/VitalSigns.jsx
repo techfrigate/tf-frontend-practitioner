@@ -3,6 +3,7 @@ import CustomButton from "../Common/CustomButton";
 import CustomSelect from "../Common/CustomSelect";
 import CustomInput from "../Common/CustomInput";
 import axios from "axios";
+import { useConsult } from "./consultContext";
 import {VitalSignsData} from "../../util/prescriptionData";
 import toast from "react-hot-toast";
 const { vitalSignFields, statusOptions } = VitalSignsData;
@@ -106,6 +107,7 @@ const createVitalSignResource = (formData, vitalSign) => {
 };
 
 const VitalSigns = ({closeSheet}) => {
+  const consult = useConsult();
   const FHIR_BASE_URL = process.env.REACT_APP_FHIR_URL;
   
   const initialFormState = {
@@ -201,7 +203,8 @@ const VitalSigns = ({closeSheet}) => {
         resources.map(resource =>
           axios.post(`${FHIR_BASE_URL}/fhir-core/create-resource`, {
             ...resource,
-            tenantId:"6721a71bba60e77ed113c3b8"
+            tenantId: consult.tenantId,
+        subject: { reference: consult.patientRef }
           })
         )
       );

@@ -2,6 +2,22 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
+const PAYMENT_STATE = {
+  paid: { label: "Paid", className: "bg-green-100 text-green-900" },
+  partial: { label: "Partially paid", className: "bg-amber-100 text-amber-900" },
+  due: { label: "Due", className: "bg-blue-100 text-blue-900" },
+};
+
+// Amount the patient owes for the bill: items + GST + doctor fees.
+const billTotal = (bill) => Number(bill.totalAmount || 0) + Number(bill.gst || 0) + Number(bill.doctorFees || 0);
+
+const paymentState = (bill) => {
+  if (bill.status) return "paid";
+  return Number(bill.paidAmount) > 0 ? "partial" : "due";
+};
+
+const money = (n) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+
 const BillingTd = () => {
   const navigate = useNavigate();
   const { billings } = useSelector((state) => state.billing);
@@ -28,31 +44,28 @@ const BillingTd = () => {
           </td>
           <td className="py-4 px-6 text-left">{item.locationDisplayName}</td>
           <td className="py-4 px-6">{item.uhid}</td>
-          <td className="py-4 px-6">{item.billId}</td>
+          <td className="py-4 px-6">
+            {item.billId}
+            <div className="mt-1">
+              <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${item.billType === "IPD" ? "bg-violet-100 text-violet-800" : "bg-slate-100 text-slate-600"}`}>
+                {item.billType === "IPD" ? `IPD · ${item.admissionNumber || ""}` : "OPD"}
+              </span>
+            </div>
+          </td>
           <td className="py-4 px-6">
             <span
-              className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold ${
-                item.status === false
-                  ? "bg-blue-100 text-blue-900"
-                  : "bg-green-100 text-green-900"
-              }`}
+              className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold ${PAYMENT_STATE[paymentState(item)].className}`}
             >
-              {item.status === false ? "Due" : "Paid"}
+              {PAYMENT_STATE[paymentState(item)].label}
             </span>
+            {paymentState(item) !== "paid" && Number(item.dueAmount) > 0 && (
+              <div className="mt-1 text-xs text-gray-600">₹ {money(item.dueAmount)} due</div>
+            )}
           </td>
           <td className="py-4 px-6 text-[13px] font-medium">
             {formatDateTime(item.updatedAt)}
           </td>
-          <td className="py-4 px-6 text-[13px]">₹ {item.totalAmount}</td>
-          <style jsx>{`
-            tr:hover {
-              z-index: 10;
-            }
-            tr:hover ~ tr {
-              filter: blur(1.5px);
-              transition: filter 0.3s ease-in-out;
-            }
-          `}</style>
+          <td className="py-4 px-6 text-[13px]">₹ {money(billTotal(item))}</td>
         </tr>
       ))}
     </>

@@ -22,7 +22,7 @@ const WorkListTd = ({ offset, itemsPerPage, handlePrescription }) => {
           </td>
           <td className="py-4 px-4 text-nowrap text-xs">
             <div className="flex gap-2 items-center">
-              <div className="bg-[#1e817e] w-[30px] h-[30px] rounded-full flex items-center justify-center text-white text-sm">
+              <div className="bg-brand-700 w-[30px] h-[30px] rounded-full flex items-center justify-center text-white text-sm">
                 PK
               </div>
               <span>{item.assignee}</span>

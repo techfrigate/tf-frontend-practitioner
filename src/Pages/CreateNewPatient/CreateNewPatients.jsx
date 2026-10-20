@@ -8,7 +8,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Cookies from "js-cookie";
-import { getImageUrl } from "../../util/fileUploader";
+import { photoError, uploadPatientPhoto } from "../../util/fileUploader";
 import {
   addPatient,
   fetchPatientById,
@@ -40,6 +40,9 @@ const CreateNewPatients = () => {
   });
   const navigate = useNavigate();
   const [imageUrl, setImageUrl] = useState("");
+  // New photo chosen in the form; uploaded after the patient is saved (new patients get their id then).
+  const [photoFile, setPhotoFile] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [inValidObject, setInvalidObject] = useState({});
   const { profileData } = useSelector((state) => state.profile);
   const dispatch = useDispatch();
@@ -47,14 +50,22 @@ const CreateNewPatients = () => {
   const patientId = searchParams.get("id");
   const { patient, saveStatus } = useSelector((state) => state.patient);
 
-  const handleFileChange = useCallback(async (e) => {
-    try {
-      const url = await getImageUrl(e);
-      setImageUrl(url);
-      setInvalidObject((pre) => ({ ...pre, image: "" }));
-    } catch (error) {
-      console.error("Failed to upload image:", error);
+  const handleFileChange = useCallback((e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const problem = photoError(file);
+    if (problem) {
+      setInvalidObject((pre) => ({ ...pre, image: problem }));
+      toast.error(problem);
+      return;
     }
+    setPhotoFile(file);
+    setImageUrl((prev) => {
+      if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+    setInvalidObject((pre) => ({ ...pre, image: "" }));
   }, []);
 
   const handlePersonalInfoChange = useCallback((e) => {
@@ -111,7 +122,7 @@ const CreateNewPatients = () => {
       invalidObj.zipCode = "Zipcode should be exactly 6 digits";
     }
 
-    if (!imageUrl && !patientId) {
+    if (!photoFile && !imageUrl && !patientId) {
       invalidObj.image = "Please provide a patient photo";
     }
 
@@ -132,6 +143,7 @@ const CreateNewPatients = () => {
         tenantId: Cookies.get("TenantId"),
         tenantName,
         userType: "patient",
+        status: true,
       },
     ];
 
@@ -146,14 +158,12 @@ const CreateNewPatients = () => {
         addressLine2: address2,
         ...restAddress,
       },
-      imageUrl,
     };
 
+    setSaving(true);
     try {
-      !patientId
-        ? await dispatch(
-            addPatient({ ...body, tenants, uhid, status: true })
-          ).unwrap()
+      const saved = !patientId
+        ? await dispatch(addPatient({ ...body, tenants, uhid })).unwrap()
         : await dispatch(
             patchPatientById({
               id: patientId,
@@ -161,15 +171,28 @@ const CreateNewPatients = () => {
               updates: body,
             })
           ).unwrap();
+      const savedId = patientId || saved?._id || saved?.profile?._id || saved?.data?._id;
+      if (photoFile && savedId) {
+        try {
+          await uploadPatientPhoto(savedId, photoFile);
+        } catch (photoErr) {
+          toast.error(`Patient saved, but the photo couldn't be uploaded: ${photoErr.message}`);
+          navigate("/patients");
+          return;
+        }
+      }
       toast.success(`Patient ${patientId ? "updated" : "added"} successfully`);
       navigate("/patients");
     } catch (error) {
-      toast.error(error);
+      toast.error(typeof error === "string" ? error : error?.message || "Could not save the patient");
+    } finally {
+      setSaving(false);
     }
   }, [
     personalInfo,
     addressInfo,
     imageUrl,
+    photoFile,
     patientId,
     profileData,
     patient,
@@ -263,7 +286,7 @@ const CreateNewPatients = () => {
         setInvalidObject={setInvalidObject}
       />
       <div className="flex justify-center gap-2 mt-4">
-        <button className="px-4 pb-2 pt-1.5 text-[14px] border border-[#1e817e] hover:bg-[#239591] hover:text-white rounded"
+        <button className="px-4 pb-2 pt-1.5 text-[14px] border border-brand-700 hover:bg-brand-700 hover:text-white rounded"
         onClick={() => navigate(-1)}>
           Cancel
         </button>
@@ -271,7 +294,7 @@ const CreateNewPatients = () => {
           type="text"
           text={patientId ? "Update" : "Create"}
           onclick={handleSavePatient}
-          loading={saveStatus}
+          loading={saveStatus || saving}
         />
       </div>
     </div>

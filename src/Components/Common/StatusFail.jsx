@@ -78,7 +78,7 @@ const StatusFail = () => {
                   <div
                     key={tenant.tenantId}
                     onClick={() => onSelectTenant(tenant)}
-                    className="p-6 text-center bg-gradient-to-br from-white to-gray-100 rounded-lg shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:-translate-y-2 cursor-pointer border-2 border-transparent hover:border-[#64c6b0]"
+                    className="p-6 text-center bg-gradient-to-br from-white to-gray-100 rounded-lg shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:-translate-y-2 cursor-pointer border-2 border-transparent hover:border-brand-500"
                   >
                     <h3 className="text-lg font-semibold text-gray-800">
                       {tenant.tenantName}

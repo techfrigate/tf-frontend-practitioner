@@ -3,10 +3,12 @@ import FHIRFormComponent from "./FHIRFormComponent";
 import { useDispatch } from "react-redux";
 import { searchIllness } from "../../Store/fhirSlice";
 import axios from "axios";
+import { useConsult } from "./consultContext";
 import {ChiefComplaintData} from "../../util/prescriptionData";
 
 const formatDate = (date) => new Date(date).toISOString();
 const ChiefComplaints = ({closeSheet}) => {
+  const consult = useConsult();
   const FHIR_BASE_URL = process.env.REACT_APP_FHIR_URL;
   const dispatch = useDispatch();
 
@@ -99,7 +101,8 @@ const ChiefComplaints = ({closeSheet}) => {
 
     await axios.post(`${FHIR_BASE_URL}/fhir-core/create-resource`, {
       ...resource,
-      tenantId: "6721a71bba60e77ed113c3b8",
+      tenantId: consult.tenantId,
+        subject: { reference: consult.patientRef },
     });
   };
 

@@ -5,9 +5,9 @@ const CustomButton = ({ type, text, onclick, width,disabled ,loading}) => {
     <button
       disabled={disabled || loading}
       type={type}
-      className={`px-4 pb-2 pt-1.5 cursor-pointer text-[16px] bg-[#64C6B0] text-white 
-        hover:bg-[#56a897] transition duration-300 ease-in-out rounded focus:outline-none
-        focus:ring-2 focus:ring-[#56a897] focus:ring-offset-2
+      className={`inline-flex items-center justify-center gap-1.5 px-3.5 py-2 cursor-pointer text-sm font-medium bg-brand-500 text-white
+        shadow-sm hover:bg-brand-600 transition-colors rounded-lg focus:outline-none
+        focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:ring-offset-2
         ${width ? width : ""} 
         ${disabled || loading ? "cursor-not-allowed opacity-50" : ""}`}
        onClick={onclick}
