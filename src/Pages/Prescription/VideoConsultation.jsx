@@ -17,7 +17,6 @@ import { useAgoraRTM } from '../../hooks/VideoCunsultations/useAgoraRTM';
 import { ParticipantsList } from '../../Components/VideoConsultation/ParticipantsList';
 import { useSelector } from 'react-redux';
 
-const APP_ID = process.env.REACT_APP_AGORA_APP_ID;
 const ACCOUNTS_URL = process.env.REACT_APP_ACCOUNTS_URL;
 
 const VideoConsultation = ({ 
@@ -37,6 +36,8 @@ const VideoConsultation = ({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [rtcToken, setRtcToken] = useState('');
   const [rtmToken, setRtmToken] = useState('');
+  // The App ID comes from the backend with the tokens, so the frontend build needs no Agora config.
+  const [APP_ID, setAppId] = useState('');
   // Numeric uid, fresh per call: Agora treats string uids as accounts, which don't mix with the patient's numeric uid.
   const uidRef = useRef(Math.floor(Math.random() * 1e9) + 1);
   // Chat (RTM) id: unique for every call session, so two windows never knock each other out.
@@ -91,10 +92,12 @@ const VideoConsultation = ({
       try {
         // Tokens are only issued to people who belong to this consultation.
         const data = await callApi.tokens(currentPatientId, { rtcUid: Number(uidRef.current), rtmUid: chatuid.current });
+        setAppId(data.appId);
         setRtcToken(data.rtcToken);
         setRtmToken(data.rtmToken)
       } catch (error) {
         console.error('Failed to fetch token:', error);
+        toast.error(error.message || 'Could not start the video call');
       }
     };
     
