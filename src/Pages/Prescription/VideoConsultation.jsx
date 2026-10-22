@@ -1,12 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import Cookies from 'js-cookie';
 import { useDevices } from '../../hooks/VideoCunsultations/useDevices';
 import { useMeeting } from '../../Context/MeetingContext';
 import { useAgoraClient } from '../../hooks/VideoCunsultations/useAgoraClient';
 import { useAgoraControls } from '../../hooks/VideoCunsultations/useAgoraControls';
 import { Chat } from '../../Components/VideoConsultation/Chat';
+import AddPeoplePanel from '../../Components/VideoConsultation/AddPeoplePanel';
+import { callApi } from '../../util/callApi';
+import toast from 'react-hot-toast';
 import { MinimizedMeeting } from '../../Components/VideoConsultation/MinimizedMeeting';
 import { VideoGrid } from '../../Components/VideoConsultation/VideoGrid';
 import { MeetingControls } from '../../Components/VideoConsultation/MeetingControls';
@@ -15,7 +17,7 @@ import { useAgoraRTM } from '../../hooks/VideoCunsultations/useAgoraRTM';
 import { ParticipantsList } from '../../Components/VideoConsultation/ParticipantsList';
 import { useSelector } from 'react-redux';
 
-const APP_ID = "b7e860008eb7454d8a6eb53957ba3952";
+const APP_ID = process.env.REACT_APP_AGORA_APP_ID;
 const ACCOUNTS_URL = process.env.REACT_APP_ACCOUNTS_URL;
 
 const VideoConsultation = ({ 
@@ -35,17 +37,41 @@ const VideoConsultation = ({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [rtcToken, setRtcToken] = useState('');
   const [rtmToken, setRtmToken] = useState('');
-  const uidRef = useRef(Cookies.get('uid') || Math.floor(Math.random() * 10000).toString());
-  const chatuid = useRef(Cookies.get('uidRtm') || Math.floor(Math.random() * 10000).toString())
+  // Numeric uid, fresh per call: Agora treats string uids as accounts, which don't mix with the patient's numeric uid.
+  const uidRef = useRef(Math.floor(Math.random() * 1e9) + 1);
+  // Chat (RTM) id: unique for every call session, so two windows never knock each other out.
+  const chatuid = useRef(`d-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e6).toString(36)}`)
 
   const{profileData} = useSelector((state)=>state.profile)
   const userName = `${profileData?.firstName || ''} ${profileData?.lastName || ''}`.trim() || 'You';
+  const chatName = profileData?.firstName ? `Dr. ${userName}` : undefined;
   
   const {client,localTracks,screenTrack,remoteUsers,isScreenSharing,setIsScreenSharing,initializeClient,cleanup} = useAgoraClient(APP_ID, channelName, rtcToken, uidRef.current);
 
   const {isAudioMuted,isVideoMuted,handleAudioToggle,handleVideoToggle,toggleScreenShare} = useAgoraControls(client, localTracks, screenTrack, setIsScreenSharing,isScreenSharing);
 
-  const {messages,sendMessage} = useAgoraRTM(APP_ID, channelName, rtmToken, chatuid.current);
+  const {messages,sendMessage,status: chatStatus,error: chatError,peers} = useAgoraRTM(APP_ID, channelName, rtmToken, chatuid.current, chatName, Number(uidRef.current), 'practitioner');
+
+  // People in the call besides the doctor and patient: guest links, added doctors/patients, patient requests.
+  const [callInfo, setCallInfo] = useState(null);
+  const [isAddPeopleOpen, setIsAddPeopleOpen] = useState(false);
+  const seenRequests = useRef(new Set());
+  const loadCallInfo = useCallback(() => {
+    if (!currentPatientId) return;
+    callApi.details(currentPatientId).then((d) => {
+      setCallInfo(d);
+      d.invites.filter((i) => i.status === 'pending' && !seenRequests.current.has(i._id)).forEach((i) => {
+        seenRequests.current.add(i._id);
+        toast(`${i.requestedBy?.name} wants to invite ${i.label}`, { icon: '👋' });
+      });
+    }).catch(() => {});
+  }, [currentPatientId]);
+  useEffect(() => {
+    loadCallInfo();
+    const t = setInterval(loadCallInfo, 5000);
+    return () => clearInterval(t);
+  }, [loadCallInfo]);
+  const pendingRequests = (callInfo?.invites || []).filter((i) => i.status === 'pending').length;
 
   useEffect(() => {
     console.log(isAudioMuted, "isAudioMuted");
@@ -63,12 +89,8 @@ const VideoConsultation = ({
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const response = await fetch(
-          `${ACCOUNTS_URL}/auth/tokens?channelName=${channelName}&uid=${uidRef.current}&role=publisher&uidRtm=${chatuid.current}`
-        );
-        const data = await response.json();
-        Cookies.set('uid', uidRef.current);
-        Cookies.set('uidRtm', uidRef.current);
+        // Tokens are only issued to people who belong to this consultation.
+        const data = await callApi.tokens(currentPatientId, { rtcUid: Number(uidRef.current), rtmUid: chatuid.current });
         setRtcToken(data.rtcToken);
         setRtmToken(data.rtmToken)
       } catch (error) {
@@ -190,7 +212,7 @@ const VideoConsultation = ({
       isVideoMuted,
       isScreenSharing,
     },
-    ...remoteUsers
+    ...remoteUsers.map((u) => ({ ...u, name: peers[String(u.uid)]?.name || 'Joining…' })),
   ];
 
   return (
@@ -219,9 +241,15 @@ const VideoConsultation = ({
                 onLeave={handleLeave}
                 isSheetOpen={isSheetOpen}
                 setIsSheetOpen={setIsSheetOpen}
+                canAddPeople={callInfo?.role === 'host'}
+                pendingRequests={pendingRequests}
+                onAddPeople={() => setIsAddPeopleOpen((o) => !o)}
               />
             </div>
           </div>
+          {isAddPeopleOpen && callInfo?.role === 'host' && (
+            <AddPeoplePanel appointmentId={currentPatientId} invites={callInfo.invites} onChanged={loadCallInfo} onClose={() => setIsAddPeopleOpen(false)} />
+          )}
         </main>
 
         <Chat 
@@ -229,6 +257,8 @@ const VideoConsultation = ({
           onClose={() => setIsChatOpen(false)}
           messages={messages}
           onSendMessage={sendMessage}
+          status={chatStatus}
+          error={chatError}
         />
 
         <ParticipantsList

@@ -18,7 +18,7 @@ import { showErrorToast } from "../../Components/toastUtils";
 import VideoConsultation from "./VideoConsultation";
 import PrescriptionComposer from "../Rx/PrescriptionComposer";
 import PatientColumn from "../../Components/Prescription/PatientColumn";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { isToday as isTodayDate, startOfToday } from "date-fns";
 import { ArrowRight, MonitorSmartphone } from "lucide-react";
 import { wallClock } from "../../util/clinicApi";
@@ -48,6 +48,17 @@ function PatientDetails() {
   const [busyId, setBusyId] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Joining a call another doctor added us to (from CallInviteBanner).
+  useEffect(() => {
+    const appt = searchParams.get("joinAppointment");
+    const channel = searchParams.get("channel");
+    if (!appt || !channel) return;
+    setCurrentPatientId(appt);
+    setChannelName(channel);
+    setSearchParams({}, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const { prescriptionData, isLoading, error } = useSelector(
     (state) => state.appointment

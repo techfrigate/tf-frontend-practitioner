@@ -1,8 +1,8 @@
 import React from 'react';
-import {Mic,MicOff,Video,VideoOff,Monitor,MonitorOff,MessageCircle,Users,PhoneOff,Minimize2,Settings, ClipboardPenLine, ClipboardPen} from 'lucide-react';
+import {Mic,MicOff,Video,VideoOff,Monitor,MonitorOff,MessageCircle,Users,PhoneOff,Minimize2,Settings, ClipboardPenLine, ClipboardPen, UserPlus} from 'lucide-react';
 
 export const MeetingControls = ({currentPatientId,isAudioMuted,isVideoMuted,isScreenSharing,onAudioToggle,onVideoToggle,onScreenShare,onChatToggle,onParticipantsToggle,onLeave,onMinimize,onSettingsToggle,
-  isSheetOpen,setIsSheetOpen}) => {
+  isSheetOpen,setIsSheetOpen,canAddPeople,pendingRequests,onAddPeople}) => {
   return (
     <div className="mx-auto flex max-w-4xl items-center justify-between">
       <div className="flex gap-4">
@@ -53,6 +53,19 @@ export const MeetingControls = ({currentPatientId,isAudioMuted,isVideoMuted,isSc
          
       </div>
       <div className="flex gap-4">
+        {canAddPeople && (
+          <button
+            onClick={onAddPeople}
+            className="relative flex items-center gap-2 rounded-full bg-gray-200 px-4 py-2 hover:bg-gray-300"
+            title="Add people"
+            aria-label="Add people"
+          >
+            <UserPlus size={20} />
+            {pendingRequests > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">{pendingRequests}</span>
+            )}
+          </button>
+        )}
         <button
           onClick={onChatToggle}
           className="flex items-center gap-2 rounded-full bg-gray-200 px-4 py-2 hover:bg-gray-300"

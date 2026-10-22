@@ -10,6 +10,7 @@ import Sidebar from "./Components/Sidebar/Sidebar";
 import Topbar from "./Components/Topbar/Topbar";
 import "./App.css";
 import Loader from "./Components/Common/Loader";
+import CallInviteBanner from "./Components/VideoConsultation/CallInviteBanner";
 
 
 function handleDocumentTitle(location) {
@@ -118,6 +119,7 @@ function App() {
 
   return (
     <div className="flex h-[100vh] bg-canvas text-slate-900">
+      <CallInviteBanner />
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <div className="flex h-[100vh] min-w-0 flex-1 flex-col overflow-hidden">
         <Topbar toggleCreateProviderForm={toggleCreateProviderForm} onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
