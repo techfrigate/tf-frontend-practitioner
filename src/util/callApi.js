@@ -22,6 +22,7 @@ export const callApi = {
   addPerson: (appointmentId, profileId) => unwrap(axios.post(`${ADMIN_URL}/calls/appointment/${appointmentId}/invites`, { type: "user", profileId }, { headers: headers() })),
   approve: (id) => unwrap(axios.post(`${ADMIN_URL}/calls/invites/${id}/approve`, {}, { headers: headers() })),
   reject: (id) => unwrap(axios.post(`${ADMIN_URL}/calls/invites/${id}/reject`, {}, { headers: headers() })),
+  endLive: (appointmentId) => unwrap(axios.delete(`${ADMIN_URL}/calls/appointment/${appointmentId}/live`, { headers: headers() })),
   revoke: (id) => unwrap(axios.delete(`${ADMIN_URL}/calls/invites/${id}`, { headers: headers() })),
   people: (q) => unwrap(axios.get(`${ADMIN_URL}/calls/people`, { params: { q }, headers: headers() })),
   myInvites: () => unwrap(axios.get(`${ADMIN_URL}/calls/my-invites`, { headers: headers() })),

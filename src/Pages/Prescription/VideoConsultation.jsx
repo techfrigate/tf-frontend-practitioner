@@ -144,6 +144,7 @@ const VideoConsultation = ({
 
     if (result.isConfirmed) {
       try {
+        callApi.endLive(currentPatientId).catch(() => {}); // patients stop seeing "doctor is ready"
         await cleanup();
         setInMeeting(false);
         setIsMinimized(false);
