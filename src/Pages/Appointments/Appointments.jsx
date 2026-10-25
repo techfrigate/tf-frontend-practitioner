@@ -144,7 +144,8 @@ const Appointments = () => {
           Confirm
         </Button>
       );
-    if (a.stage === "scheduled")
+    // Check-in is only possible on the appointment day (the server enforces the same rule).
+    if (a.stage === "scheduled" && viewingToday)
       buttons.push(
         <Button key="checkin" loading={busy} icon={LogIn} onClick={() => act(a, { bookingStatus: { checkIn: new Date() } }, `${patientName(a.patient)} checked in`)}>
           Check in

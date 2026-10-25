@@ -68,8 +68,8 @@ const PatientsTd = () => {
         patients.map((item) => {
           const maskedPhone = `${item.phoneNumber.value}`;
           const formattedDob = format(new Date(item.dob), "MMM dd, yyyy");
-          const formattedUpdatedAt = format(
-            new Date(item.updatedAt),
+          const formattedCreatedAt = format(
+            new Date(item.createdAt),
             "MMM dd, yyyy"
           );
           return (
@@ -79,11 +79,18 @@ const PatientsTd = () => {
             >
               <td className="py-4 px-4 text-nowrap text-xs">
                 <div className="flex gap-2 items-center">
-                  <img
-                    src={item.imageUrl}
-                    alt={`${item.firstName} ${item.lastName}`}
-                    className="w-8 h-8 rounded-full object-contain"
-                  />
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt={`${item.firstName} ${item.lastName}`}
+                      className="w-8 h-8 rounded-full object-contain"
+                    />
+                  ) : (
+                    // Photo is optional at registration; show initials instead of a broken image.
+                    <span className="w-8 h-8 rounded-full bg-brand-50 text-brand-700 text-xs font-semibold flex items-center justify-center">
+                      {`${item.firstName?.[0] || ""}${item.lastName?.[0] || ""}`.toUpperCase()}
+                    </span>
+                  )}
                   <div className="flex flex-col">
                     <p>{`${item.firstName} ${item.lastName}`}</p>
                     <p className="text-gray-500">{item.gender}</p>
@@ -95,7 +102,7 @@ const PatientsTd = () => {
                 (tenant) =>
                   tenant.userType === "patient" &&
                   tenant.tenantId === tenantId && (
-                    <td className="py-4 px-6 text-sm text-brand-700 font-semibold">
+                    <td key={`status-${tenant.tenantId}`} className="py-4 px-6 text-sm text-brand-700 font-semibold">
                       <span
                         className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold ${
                           tenant.status
@@ -110,7 +117,7 @@ const PatientsTd = () => {
               )}
               <td className="py-4 px-4 text-nowrap text-xs">{formattedDob}</td>
               <td className="py-4 px-4 text-nowrap text-xs">
-                {formattedUpdatedAt}
+                {formattedCreatedAt}
               </td>
               <td className="py-4 px-4 text-nowrap text-xs">{maskedPhone}</td>
 
@@ -127,7 +134,7 @@ const PatientsTd = () => {
                 (tenant) =>
                   tenant.userType === "patient" &&
                   tenant.tenantId === tenantId && (
-                    <td className="py-4 px-6">
+                    <td key={`toggle-${tenant.tenantId}`} className="py-4 px-6">
                       <label
                         htmlFor={`toggle-${item._id}-${tenant._id}`}
                         className="flex items-center gap-2 w-full max-w-full cursor-pointer"

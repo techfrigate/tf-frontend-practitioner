@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import toast from "react-hot-toast";
 import { setStatusFail } from './statusFailSlice';
 
 const initialState = {
@@ -46,6 +47,9 @@ export const fetchUserProfile = createAsyncThunk(
       if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
         route = "/status-failed"
         await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))
+      }else if (!error.response || error.response.status >= 500) {
+        // Network blip or server error: keep the session and let the user retry instead of logging them out.
+        toast.error("The service is temporarily unavailable. Please refresh in a moment.");
       }else{
         navigate(route)
       }

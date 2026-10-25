@@ -27,6 +27,8 @@ export const getRosters = createAsyncThunk(
     
       return response.data.data;
     } catch (error) {
+      // The API answers 404 when the practitioner simply has no roster yet; that is an empty calendar, not an error.
+      if (error.response?.status === 404) return [];
       if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
         const route = "/status-failed"
         await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))

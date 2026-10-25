@@ -18,7 +18,8 @@ function PatientTableContent({ patients, setChannelName, setStatus }) {
   };
   
   const formatDateRange = (startDateTime, endDateTime) => {
-    const startDate = new Date(startDateTime);
+    const utcStart = new Date(startDateTime);
+    const startDate = new Date(utcStart.getTime() + utcStart.getTimezoneOffset() * 60000);
     const formattedDate = format(startDate, "MMMM dd, yyyy");
     const startTime = formatTime(startDateTime);
     const endTime = formatTime(endDateTime);

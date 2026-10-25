@@ -23,7 +23,11 @@ const ConceptPicker = ({ type, locationId, placeholder, onPick, autoFocus, allow
   const reqId = useRef(0);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      // Closing cancels any pending lookup, whose finally() would otherwise never clear the spinner.
+      setLoading(false);
+      return;
+    }
     const id = ++reqId.current;
     setLoading(true);
     const t = setTimeout(() => {

@@ -61,6 +61,8 @@ export const getPrescriptions = createAsyncThunk(
       );
       return response.data.data;
     } catch (error) {
+      // The API answers 404 when the doctor simply has no appointments; show an empty worklist.
+      if (error.response?.status === 404) return [];
       if(error.response?.data?.errorCode == "STATUS_CHECK_TENANT_DENIED"){
         const route = "/status-failed"
         await dispatch(setStatusFail({tenants:error.response.data.tenants,navigate:route}))

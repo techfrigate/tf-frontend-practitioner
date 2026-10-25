@@ -122,10 +122,6 @@ const CreateNewPatients = () => {
       invalidObj.zipCode = "Zipcode should be exactly 6 digits";
     }
 
-    if (!photoFile && !imageUrl && !patientId) {
-      invalidObj.image = "Please provide a patient photo";
-    }
-
     if (Object.keys(invalidObj).length > 0) {
       return setInvalidObject(invalidObj);
     }
