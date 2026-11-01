@@ -7,6 +7,7 @@ export const useAgoraClient = (APP_ID, channelName, rtcToken, uid) => {
   const screenTrack = useRef(null);
   const [remoteUsers, setRemoteUsers] = useState([]);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [localReady, setLocalReady] = useState(false);
 
   const handleUserPublished = async (user, mediaType) => {
     if (!client.current) return;
@@ -27,7 +28,6 @@ export const useAgoraClient = (APP_ID, channelName, rtcToken, uid) => {
           isVideoMuted: false 
         }];
       });
-      user.videoTrack?.play(`player-${user.uid}`);
     }
 
     if (mediaType === 'audio') {
@@ -79,7 +79,7 @@ export const useAgoraClient = (APP_ID, channelName, rtcToken, uid) => {
       localTracks.current = { audioTrack, videoTrack };
 
       await client.current.publish([audioTrack, videoTrack]);
-      videoTrack.play('player-local');
+      setLocalReady(true);
     } catch (error) {
       console.error('Error initializing Agora:', error);
       throw error;
@@ -97,6 +97,7 @@ export const useAgoraClient = (APP_ID, channelName, rtcToken, uid) => {
     localTracks.current = { audioTrack: null, videoTrack: null };
     screenTrack.current = null;
     setRemoteUsers([]);
+    setLocalReady(false);
   };
 
   return {
@@ -104,6 +105,7 @@ export const useAgoraClient = (APP_ID, channelName, rtcToken, uid) => {
     localTracks: localTracks,
     screenTrack: screenTrack,
     remoteUsers,
+    localReady,
     isScreenSharing,
     setIsScreenSharing,
     initializeClient,

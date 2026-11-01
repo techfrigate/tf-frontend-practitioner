@@ -6,6 +6,7 @@ import EditProfileModal from "./EditProfileModal";
 import ConfirmationModal from "./ConfirmationModal";
 import Cookies from "js-cookie";
 import { useSelector } from "react-redux";
+import CopyEmail from "../Common/CopyEmail";
 
 const PROVIDER_APP = process.env.REACT_APP_PROVIDER_URL;
 const PATIENT_APP = process.env.REACT_APP_PATIENT_URL;
@@ -150,7 +151,7 @@ useEffect(() => {
               <h2 className="text-lg font-semibold text-gray-800 truncate">
                 {firstName} {lastName}
               </h2>
-              <p className="text-sm text-gray-500 truncate">{email}</p>
+              <p className="text-sm text-gray-500 truncate"><CopyEmail email={email} /></p>
               <span className="inline-flex items-center px-2.5 py-0.5 mt-2 rounded-full text-xs font-medium bg-brand-500/10 text-brand-500">
                 {formatStateWord(selectedUserType)}
               </span>

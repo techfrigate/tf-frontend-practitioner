@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Archive, BedDouble, Building2, ClipboardList, FileText, UserPlus, CalendarCheck, CalendarDays, CalendarPlus, MonitorSmartphone, Pill, Receipt, Users, X } from "lucide-react";
+import { IndianRupee, Archive, BedDouble, Building2, ClipboardList, FileText, UserPlus, CalendarCheck, CalendarDays, CalendarPlus, MonitorSmartphone, Pill, Receipt, Users, X } from "lucide-react";
 import { useTenantBranding } from "../../hooks/useTenantBranding";
 
 const sections = [
@@ -33,6 +33,7 @@ const sections = [
       { name: "Medicines", icon: Pill, route: "/medicines" },
       { name: "Medical racks", icon: Archive, route: "/MedicalRackApp" },
       { name: "Billing", icon: Receipt, route: "/billing" },
+      { name: "My earnings", icon: IndianRupee, route: "/earnings" },
     ],
   },
 ];

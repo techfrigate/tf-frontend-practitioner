@@ -52,6 +52,7 @@ const PatientsttrHeader = ({sortBy, setSortBy, setOrder, order})=>{
        {returnSortIcon("createdAt")}
     </th>
     <th className="py-4 px-6">Phone</th>
+    <th className="py-4 px-6">Email</th>
     <th className="py-4 px-6">Edit</th>
     <th className="py-4 px-6">Toggle Status</th>
   </tr>

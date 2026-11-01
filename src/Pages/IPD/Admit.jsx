@@ -7,6 +7,7 @@ import { BedDouble, Check, Search, UserPlus, X } from "lucide-react";
 import { Button, Card, Field, PageHeader, inputClass } from "../../Components/Common/ui";
 import { ADMISSION_TYPES, PAYMENT_METHODS, ageSex, fullName, inr, ipdApi } from "../../util/ipdApi";
 import { BedPicker, LocationSelect, useIpdLocations } from "./common";
+import CopyEmail from "../../Components/Common/CopyEmail";
 
 const Step = ({ n, title, done, children, aside }) => (
   <Card className="p-5">
@@ -88,8 +89,9 @@ const PatientPicker = ({ value, onChange }) => {
               <span>
                 <span className="block text-sm font-medium text-slate-900">{fullName(p)}</span>
                 <span className="block text-xs text-slate-500">
-                  {[ageSex(p), p.phoneNumber?.value, p.email].filter(Boolean).join(" · ")}
+                  {[ageSex(p), p.phoneNumber?.value].filter(Boolean).join(" · ")}
                 </span>
+                {p.email && <span className="block text-xs text-slate-500"><CopyEmail email={p.email} /></span>}
               </span>
               <span className="text-xs font-medium text-brand-600">Select</span>
             </button>

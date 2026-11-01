@@ -47,7 +47,7 @@ const VideoConsultation = ({
   const userName = `${profileData?.firstName || ''} ${profileData?.lastName || ''}`.trim() || 'You';
   const chatName = profileData?.firstName ? `Dr. ${userName}` : undefined;
   
-  const {client,localTracks,screenTrack,remoteUsers,isScreenSharing,setIsScreenSharing,initializeClient,cleanup} = useAgoraClient(APP_ID, channelName, rtcToken, uidRef.current);
+  const {client,localTracks,screenTrack,remoteUsers,localReady,isScreenSharing,setIsScreenSharing,initializeClient,cleanup} = useAgoraClient(APP_ID, channelName, rtcToken, uidRef.current);
 
   const {isAudioMuted,isVideoMuted,handleAudioToggle,handleVideoToggle,toggleScreenShare} = useAgoraControls(client, localTracks, screenTrack, setIsScreenSharing,isScreenSharing);
 
@@ -177,23 +177,25 @@ const VideoConsultation = ({
 
   const handleMinimize = () => {
     setIsMinimized(true);
-
-    setTimeout(() => {
-      const videoContainer = document.getElementById('minimized-video');
-      if (videoContainer && localTracks.current.videoTrack) {
-        localTracks.current.videoTrack.play(videoContainer);
-      }
-    }, 0);
   };
 
   const handleMaximize = () => {
     setIsMinimized(false);
-    setTimeout(()=>{
-      if (localTracks.current.videoTrack) {
-        localTracks.current.videoTrack.play('player-local');
-      }
-    },0)
   };
+
+  // Minimising swaps the video elements, so every track has to be played into the ones now on screen.
+  useEffect(() => {
+    const local = localTracks.current.videoTrack;
+    const remotes = (client.current?.remoteUsers || []).filter((u) => u.videoTrack);
+    if (isMinimized) {
+      // The small window shows the patient, or the doctor's own camera until someone joins.
+      const shown = remotes[0]?.videoTrack || local;
+      if (shown) shown.play('minimized-video');
+      return;
+    }
+    if (local) local.play('player-local');
+    remotes.forEach((u) => u.videoTrack.play(`player-${u.uid}`));
+  }, [isMinimized, localReady, remoteUsers]);
 
   if (isMinimized) {
     return (

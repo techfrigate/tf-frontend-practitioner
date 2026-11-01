@@ -10,6 +10,7 @@ import {
 } from "../../Store/patientSlice";
 import { MdModeEdit } from "react-icons/md";
 import Cookies from "js-cookie";
+import CopyEmail from "../../Components/Common/CopyEmail";
 const PatientsTd = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -120,6 +121,7 @@ const PatientsTd = () => {
                 {formattedCreatedAt}
               </td>
               <td className="py-4 px-4 text-nowrap text-xs">{maskedPhone}</td>
+              <td className="py-4 px-4 text-nowrap text-xs"><CopyEmail email={item.email} /></td>
 
               <td className="flex flex-flow-col gap-6 text-xl text-brand-500 py-5 px-7 text-[13px]">
                 <div

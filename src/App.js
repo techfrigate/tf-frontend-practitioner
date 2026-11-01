@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import Cookies from 'js-cookie';
 import { useDispatch, useSelector } from "react-redux";
 
@@ -11,6 +11,8 @@ import Topbar from "./Components/Topbar/Topbar";
 import "./App.css";
 import Loader from "./Components/Common/Loader";
 import CallInviteBanner from "./Components/VideoConsultation/CallInviteBanner";
+
+const CallHost = lazy(() => import("./Components/VideoConsultation/CallHost"));
 
 
 function handleDocumentTitle(location) {
@@ -120,6 +122,7 @@ function App() {
   return (
     <div className="flex h-[100vh] bg-canvas text-slate-900">
       <CallInviteBanner />
+      <Suspense fallback={null}><CallHost /></Suspense>
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <div className="flex h-[100vh] min-w-0 flex-1 flex-col overflow-hidden">
         <Topbar toggleCreateProviderForm={toggleCreateProviderForm} onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />

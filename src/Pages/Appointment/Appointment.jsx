@@ -22,10 +22,10 @@ import {
   X,
 } from "lucide-react";
 import { Badge, Button, Card, EmptyState, Spinner, inputClass } from "../../Components/Common/ui";
+import { paymentApi } from "../../util/paymentApi";
 import { clinicApi, dayKey, wallClock } from "../../util/clinicApi";
 
-const inr = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
-const GST = 18;
+const inr = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", minimumFractionDigits: 0, maximumFractionDigits: 2 });
 const fullName = (p) => [p?.firstName, p?.lastName].filter(Boolean).join(" ");
 const dayLabel = (d) => (isToday(d) ? "Today" : isTomorrow(d) ? "Tomorrow" : format(d, "EEE"));
 
@@ -69,7 +69,7 @@ const Appointment = () => {
   const [visitType, setVisitType] = useState("Offline");
   const [date, setDate] = useState("");
   const [slot, setSlot] = useState(null);
-  const [payNow, setPayNow] = useState(false);
+  const [payNow, setPayNow] = useState(true);
   const [method, setMethod] = useState("CASH");
   const [saving, setSaving] = useState(false);
   const [booked, setBooked] = useState(null);
@@ -99,9 +99,23 @@ const Appointment = () => {
   }, [doctors, profileData, doctorKey]);
 
   const doctor = doctors?.find((d) => keyOf(d) === doctorKey);
-  const fee = Number(visitType === "Online" ? doctor?.practitionerData?.work?.online : doctor?.practitionerData?.work?.inPerson) || 0;
-  const gst = Math.round((fee * GST) / 100);
-  const total = fee + gst;
+  const practitionerId = doctor?.practitionerData?._id;
+  const [price, setPrice] = useState(null);
+
+  // The server sets the price when booking, so show its figures rather than working them out here.
+  useEffect(() => {
+    setPrice(null);
+    if (!practitionerId) return undefined;
+    let stale = false;
+    paymentApi.consultationPrice(practitionerId, visitType)
+      .then((data) => { if (!stale) setPrice(data); })
+      .catch((error) => { if (!stale) toast.error(error.message); });
+    return () => { stale = true; };
+  }, [practitionerId, visitType]);
+
+  const fee = price?.amount || 0;
+  const gst = (price?.taxPaise || 0) / 100;
+  const total = price?.netAmount || 0;
 
   const supports = (type) => doctor?.slots?.some((s) => s.visitType === "Both" || s.visitType === type);
 
@@ -181,16 +195,13 @@ const Appointment = () => {
         locationId: doctor.locationData._id,
         practitionerId: doctor.practitionerData._id,
         channelName: `${patient._id}${doctor.practitionerData._id}${slot.rosterSlotId}`,
-        amountDetails: { amount: fee, gst: GST, discount: 0, netAmount: total },
-        paymentMethod: "offline",
-        paymentStatus: payNow ? "completed" : "pending",
-        ...(payNow ? { transactionId: `COUNTER-${method}-${now.getTime()}` } : {}),
         bookingStatus: { pending: now, booked: now },
         startDateTime: slot.startDateTime,
         endDateTime: slot.endDateTime,
         visitType,
         duration: slot.duration,
       });
+      if (payNow) await paymentApi.offline({ appointmentId: appointment._id, method: String(method).toLowerCase(), clientKey: `book-${appointment._id}` });
       setBooked({ appointment, patient, doctor, slot, visitType, total, payNow, method });
       load();
     } catch (e) {
@@ -209,7 +220,7 @@ const Appointment = () => {
     setPatient(null);
     setQuery("");
     setSlot(null);
-    setPayNow(false);
+    setPayNow(true);
   };
 
   if (booked) {
@@ -522,7 +533,7 @@ const Appointment = () => {
               <span>{inr.format(fee)}</span>
             </div>
             <div className="flex justify-between text-slate-600">
-              <span>GST ({GST}%)</span>
+              <span>Tax</span>
               <span>{inr.format(gst)}</span>
             </div>
             <div className="flex justify-between pt-1 text-base font-semibold text-slate-900">

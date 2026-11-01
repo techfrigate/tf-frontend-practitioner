@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { addDays, differenceInYears, format, isToday, parseISO } from "date-fns";
 import toast from "react-hot-toast";
 import {
+  Send,
   Banknote,
   CalendarClock,
   CalendarPlus,
@@ -23,6 +24,9 @@ import {
 } from "lucide-react";
 import { Badge, Button, Card, EmptyState, Modal, Spinner } from "../../Components/Common/ui";
 import { clinicApi, dayKey, wallClock } from "../../util/clinicApi";
+import { useMeeting } from "../../Context/MeetingContext";
+import { paymentApi } from "../../util/paymentApi";
+import RequestPaymentModal from "../../Components/Payments/RequestPaymentModal";
 
 const STAGES = {
   unconfirmed: { label: "Unconfirmed", color: "red", dot: "bg-rose-500" },
@@ -71,7 +75,9 @@ const Appointments = () => {
   const [status, setStatus] = useState("all");
   const [visit, setVisit] = useState("all");
   const [busyId, setBusyId] = useState(null);
+  const { startCall } = useMeeting();
   const [paying, setPaying] = useState(null);
+  const [requesting, setRequesting] = useState(null);
   const [method, setMethod] = useState("CASH");
 
   const load = useCallback(async () => {
@@ -113,18 +119,22 @@ const Appointments = () => {
     }
   };
 
+  const startVideoCall = (a) => startCall({ appointmentId: a._id, channelName: String(a.channelName).slice(0, 16) });
+
+  // A real payment entry that feeds the cash report, not just a flag on the appointment.
   const collectPayment = async () => {
     const a = paying;
-    await act(
-      a,
-      {
-        paymentStatus: "completed",
-        paymentMethod: "offline",
-        transactionId: `COUNTER-${method}-${Date.now()}`,
-        ...(a.stage === "unconfirmed" ? { bookingStatus: { booked: new Date() } } : {}),
-      },
-      `Payment recorded for ${patientName(a.patient)}`
-    );
+    setBusyId(a._id);
+    try {
+      if (a.stage === "unconfirmed") await clinicApi.updateAppointment(a._id, { bookingStatus: { booked: new Date() } });
+      await paymentApi.offline({ appointmentId: a._id, method: String(method).toLowerCase(), clientKey: `${a._id}-${paying._id}-${method}` });
+      toast.success(`Payment recorded for ${patientName(a.patient)}`);
+      await load();
+    } catch (e) {
+      toast.error(e.message);
+    } finally {
+      setBusyId(null);
+    }
     setPaying(null);
   };
 
@@ -144,8 +154,14 @@ const Appointments = () => {
           Confirm
         </Button>
       );
-    // Check-in is only possible on the appointment day (the server enforces the same rule).
-    if (a.stage === "scheduled" && viewingToday)
+    // In-person check-in is only possible on the appointment day (the server enforces the same rule); teleconsults can start any time.
+    if (a.stage === "scheduled" && online)
+      buttons.push(
+        <Button key="call" disabled icon={MonitorSmartphone} title="Check in the patient first">
+          Start video call
+        </Button>
+      );
+    if (a.stage === "scheduled" && (viewingToday || online))
       buttons.push(
         <Button key="checkin" loading={busy} icon={LogIn} onClick={() => act(a, { bookingStatus: { checkIn: new Date() } }, `${patientName(a.patient)} checked in`)}>
           Check in
@@ -155,7 +171,7 @@ const Appointments = () => {
     const writeRx = () => navigate(`/prescriptions/write?appointmentId=${a._id}`);
     if (a.stage === "checkedIn" && online)
       buttons.push(
-        <Button key="call" icon={MonitorSmartphone} onClick={() => navigate("/worklist")}>
+        <Button key="call" icon={MonitorSmartphone} onClick={() => startVideoCall(a)}>
           Start video call
         </Button>,
         <Button key="rx" variant="secondary" icon={FileText} onClick={writeRx}>
@@ -185,6 +201,9 @@ const Appointments = () => {
       );
     if (a.paymentStatus !== "completed")
       buttons.push(
+        <Button key="request" variant="secondary" icon={Send} onClick={() => setRequesting(a)}>
+          Request payment
+        </Button>,
         <Button key="pay" variant="secondary" icon={Banknote} onClick={() => setPaying(a)}>
           Collect payment
         </Button>
@@ -426,6 +445,15 @@ const Appointments = () => {
           ))}
         </div>
       </Modal>
+      {requesting && (
+        <RequestPaymentModal
+          appointment={requesting}
+          patientLabel={patientName(requesting.patient)}
+          outstanding={requesting.paymentStatus === "completed" ? 0 : requesting.amount || 0}
+          onClose={() => setRequesting(null)}
+          onChanged={load}
+        />
+      )}
     </div>
   );
 };

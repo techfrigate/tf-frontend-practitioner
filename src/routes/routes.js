@@ -2,6 +2,7 @@ import { Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute"
 import { lazy } from "react";
 import StatusFail from "../Components/Common/StatusFail";
+const MyEarnings = lazy(() => import("../Pages/Earnings/MyEarnings"));
 const Appointments = lazy(() => import("../Pages/Appointments/Appointments"));
  
 const WorkList  =  lazy(()=>import("../Pages/WorkList/WorkList"))
@@ -43,6 +44,7 @@ const routes = [
     { path: "/ipd/admissions/:id", component: <ProtectedRoute><AdmissionDetail/></ProtectedRoute> },
     { path: "/patients", component: <ProtectedRoute><Patients/></ProtectedRoute> },
     { path: "/calendar", component: <ProtectedRoute><Calendar/></ProtectedRoute> },
+    { path: "/earnings", component: <ProtectedRoute><MyEarnings/></ProtectedRoute> },
     { path: "/billing", component: <ProtectedRoute><Billing/></ProtectedRoute> },
     { path: "/new-patient", component: <ProtectedRoute><CreateNewPatients/></ProtectedRoute> },
     { path: "/add-bill", component: <ProtectedRoute><CreateBill/></ProtectedRoute> },

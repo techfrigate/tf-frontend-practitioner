@@ -7,6 +7,7 @@ import { clearError } from "../../Store/patientSlice";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import { ipdApi } from "../../util/ipdApi";
+import CopyEmail from "../../Components/Common/CopyEmail";
 const PatientSearch = ({
   searchQuery,
   setSearchQuery,
@@ -153,7 +154,7 @@ const PatientSearch = ({
                         </div>
                         <div className="flex items-center gap-2">
                           <Mail className="h-4 w-4" />
-                          <span>{patient.email || "No email"}</span>
+                          <CopyEmail email={patient.email} fallback="No email" />
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4" />

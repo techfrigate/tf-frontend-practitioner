@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ScrollArea } from "../../Components/ui/scroll-area";
 import {
   Tabs,
@@ -15,8 +15,7 @@ import {
 } from "../../../src/Store/appointmentSlice";
 import PatientTableContent from "./PatientTableContent";
 import { showErrorToast } from "../../Components/toastUtils";
-import VideoConsultation from "./VideoConsultation";
-import PrescriptionComposer from "../Rx/PrescriptionComposer";
+import { useMeeting } from "../../Context/MeetingContext";
 import PatientColumn from "../../Components/Prescription/PatientColumn";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isToday as isTodayDate, startOfToday } from "date-fns";
@@ -39,11 +38,10 @@ const COLUMN_EMPTY = {
 };
 
 function PatientDetails() {
-  const [channelName, setChannelName] = useState("");
   const [filteredData, setFilteredData] = useState({});
-  const [status, setStatus] = useState("");
-  const [currentPatientId, setCurrentPatientId] = useState(""); // Track current patient ID
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const { call, startCall } = useMeeting();
+  const callRef = useRef(call);
+  callRef.current = call;
   const [scope, setScope] = useState("today");
   const [busyId, setBusyId] = useState(null);
   const navigate = useNavigate();
@@ -55,10 +53,9 @@ function PatientDetails() {
     const appt = searchParams.get("joinAppointment");
     const channel = searchParams.get("channel");
     if (!appt || !channel) return;
-    setCurrentPatientId(appt);
-    setChannelName(channel);
+    startCall({ appointmentId: appt, channelName: channel, guest: true });
     setSearchParams({}, { replace: true });
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, startCall]);
 
   const { prescriptionData, isLoading, error } = useSelector(
     (state) => state.appointment
@@ -79,7 +76,12 @@ function PatientDetails() {
     // Find patients who are checked in but past their endDateTime
     const patientsToCheckout = prescriptionData.filter((patient) => {
       const { bookingStatus, endDateTime } = patient;
-      const appointmentEndTime = wallClock(endDateTime);
+      if (patient._id === callRef.current?.appointmentId) return false; // still on the call
+      // A call started late still gets its full slot, counted from check-in.
+      const slotMs = wallClock(endDateTime) - wallClock(patient.startDateTime);
+      const appointmentEndTime = patient.visitType === "Online"
+        ? Math.max(wallClock(endDateTime), new Date(bookingStatus.checkIn).getTime() + slotMs)
+        : wallClock(endDateTime);
       
       // Check if patient is checked in but not checked out/closed and past endDateTime
       return (
@@ -228,6 +230,11 @@ function PatientDetails() {
     }
   };
 
+  const startVideoCall = (patient) => {
+    if (!patient.bookingStatus?.checkIn) return;
+    startCall({ appointmentId: patient._id, channelName: patient.channelName.slice(0, 16) });
+  };
+
   const STATUS_KEYS = { "Checked In": "checkIn", "Checked Out": "checkOut", Closed: "closed" };
   const advance = async (patient, newStatus) => {
     setBusyId(patient._id);
@@ -235,43 +242,14 @@ function PatientDetails() {
       await dispatch(updateAppointment({ _id: patient._id, body: { bookingStatus: { [STATUS_KEYS[newStatus]]: new Date() } } })).unwrap();
       toast.success(`Moved to ${newStatus}`);
       getAppointmentData();
+      return true;
     } catch (error) {
       toast.error(error);
+      return false;
     } finally {
       setBusyId(null);
     }
   };
-
-  const updatePatientToCheckedOut = async (patientId) => {
-    if (!patientId) {
-      console.log("No patient ID provided for checkout");
-      return;
-    }
-    
-    console.log("Updating patient to checked out:", patientId);
-    
-    const patient = prescriptionData.find((item) => item._id === patientId);
-    if (!patient) {
-      console.error("Patient not found in prescriptionData");
-      return;
-    }
-
-    const updatedStatus = {
-      checkOut: new Date(),
-    };
-
-    const body = { bookingStatus: updatedStatus };
-    try {
-      await dispatch(updateAppointment({ _id: patientId, body })).unwrap();
-      toast.success("Patient status updated to Checked Out");
-      getAppointmentData();
-      console.log("Patient successfully updated to checked out");
-    } catch (error) {
-      console.error("Error updating patient status:", error);
-      toast.error(error);
-    }
-  };
-
 
   useEffect(() => {
     if (error) {
@@ -287,13 +265,13 @@ function PatientDetails() {
   }
 
   return (
-    <div className={`h-full w-full   ${channelName?"p-0":"p-2"} relative`}>
+    <div className="h-full w-full p-2 relative">
       {isLoading ? (
         <Loader />
       ) : (
         checkOnlineAppointment(prescriptionData).length >0 ?
         <>
-          <div className={channelName ? "hidden" : "space-y-4 p-3"}>
+          <div className="space-y-4 p-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-base font-semibold text-slate-900">Video consultation queue</h2>
@@ -361,9 +339,7 @@ function PatientDetails() {
                               <PatientColumn
                                 key={patient._id}
                                 patient={patient}
-                                setChannelName={setChannelName}
-                                setStatus={setStatus}
-                                setCurrentPatientId={setCurrentPatientId}
+                                onStartCall={startVideoCall}
                                 onAdvance={advance}
                                 busy={busyId === patient._id}
                               />
@@ -379,38 +355,12 @@ function PatientDetails() {
               <TabsContent value="Table">
                 <PatientTableContent
                   patients={prescriptionData}
-                  setChannelName={setChannelName}
-                  setStatus={setStatus}
-                  setCurrentPatientId={setCurrentPatientId} // Pass the setter
+                  onStartCall={startVideoCall}
                 />
               </TabsContent>
             </Tabs>
           </div>
 
-          {channelName && (
-            <VideoConsultation
-              channelName={channelName}
-              setChannelName={setChannelName}
-              isSheetOpen={isSheetOpen}
-              setIsSheetOpen={setIsSheetOpen}
-              currentPatientId={currentPatientId}
-              updatePatientToCheckedOut={updatePatientToCheckedOut} 
-            />
-          )}
-          {isSheetOpen && currentPatientId && (
-            // Prescription panel beside the video call: writes against this appointment.
-            <aside className="fixed inset-y-0 right-0 z-[60] flex w-full max-w-4xl flex-col border-l border-slate-200 bg-slate-50 shadow-2xl" aria-label="Prescription">
-              <div className="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-3">
-                <h2 className="text-base font-semibold text-slate-900">Prescription</h2>
-                <button type="button" onClick={() => setIsSheetOpen(false)} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100" aria-label="Close prescription">
-                  ✕
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4">
-                <PrescriptionComposer embedded appointmentId={currentPatientId} onSigned={() => getAppointmentData()} />
-              </div>
-            </aside>
-          )}
         </>: 
         <div className="min-h-full  flex items-center justify-center">
           <div className="text-center p-8 bg-white rounded-xl shadow-md max-w-96 w-full mx-4">

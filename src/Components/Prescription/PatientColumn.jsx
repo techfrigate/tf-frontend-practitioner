@@ -11,7 +11,7 @@ export const stageOf = (bookingStatus = {}) => {
   return "Scheduled";
 };
 
-const PatientColumn = ({ patient, setChannelName, setStatus, setCurrentPatientId, onAdvance, busy }) => {
+const PatientColumn = ({ patient, onStartCall, onAdvance, busy }) => {
   const p = patient?.patientData || {};
   const stage = stageOf(patient.bookingStatus);
   const start = wallClock(patient.startDateTime);
@@ -20,12 +20,6 @@ const PatientColumn = ({ patient, setChannelName, setStatus, setCurrentPatientId
 
   const onTaskDragStart = (event) => {
     event.dataTransfer.setData("text/plain", patient._id.toString());
-  };
-
-  const startCall = () => {
-    setChannelName(patient.channelName.slice(0, 16));
-    setStatus("Checked In");
-    setCurrentPatientId(patient._id);
   };
 
   return (
@@ -65,19 +59,29 @@ const PatientColumn = ({ patient, setChannelName, setStatus, setCurrentPatientId
       </div>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
+        {/* This board is teleconsults only, which can be checked in on any day. The call opens after check-in. */}
         {stage === "Scheduled" && (
-          <button
-            disabled={busy}
-            onClick={() => onAdvance(patient, "Checked In")}
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-brand-500 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-brand-600 disabled:opacity-60"
-          >
-            <LogIn className="h-3.5 w-3.5" /> Check in
-          </button>
+          <>
+            <button
+              disabled={busy}
+              onClick={() => onAdvance(patient, "Checked In")}
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-brand-500 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-brand-600 disabled:opacity-60"
+            >
+              <LogIn className="h-3.5 w-3.5" /> Check in
+            </button>
+            <button
+              disabled
+              title="Check in the patient first"
+              className="inline-flex items-center justify-center gap-1 rounded-md bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-slate-400 cursor-not-allowed"
+            >
+              <Video className="h-3.5 w-3.5" /> Start video call
+            </button>
+          </>
         )}
         {stage === "Checked In" && (
           <>
             <button
-              onClick={startCall}
+              onClick={() => onStartCall(patient)}
               className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-care-500 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-care-600"
             >
               <Video className="h-3.5 w-3.5" /> Start video call

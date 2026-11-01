@@ -70,11 +70,6 @@ const MedicinesTd = () => {
             tr:hover {
               z-index: 20;
             }
-
-            tr:hover ~ tr {
-              filter: blur(1.5px);
-              transition: filter 0.3s ease-in-out;
-            }
           `}</style>
                     {item.unit <= item.minQuantity && (
             <div className="absolute invisible group-hover:visible bg-red-500 text-white px-3 py-1.5 text-sm rounded shadow-lg -top-10 left-1/2 transform -translate-x-1/2 w-64 z-50">

@@ -28,10 +28,22 @@ export const MinimizedMeeting = ({
     const boxHeight = size.height;
     
     setPosition({
-      x: (windowWidth - boxWidth) / 2, // Center horizontally
-      y: (windowHeight - boxHeight) / 2, // Center vertically
+      x: windowWidth - boxWidth - 24, // Bottom-right, clear of the page content
+      y: windowHeight - boxHeight - 24,
     });
   }, []);
+
+  // Keep the window on screen when the browser gets smaller.
+  useEffect(() => {
+    const keepOnScreen = () => {
+      setPosition((p) => ({
+        x: Math.max(0, Math.min(p.x, window.innerWidth - size.width)),
+        y: Math.max(0, Math.min(p.y, window.innerHeight - size.height)),
+      }));
+    };
+    window.addEventListener('resize', keepOnScreen);
+    return () => window.removeEventListener('resize', keepOnScreen);
+  }, [size]);
 
   const handleMouseDown = (e) => {
     if (e.target.classList.contains('resize-handle')) return;
@@ -142,13 +154,13 @@ export const MinimizedMeeting = ({
   return (
     <div
       style={{
-        position: 'absolute',
+        position: 'fixed',
         top: `${position.y}px`,
         left: `${position.x}px`,
         width: `${size.width}px`,
         height: `${size.height}px`,
         cursor: dragging ? 'grabbing' : 'grab',
-        zIndex: 50,
+        zIndex: 9999,
       }}
       className={`flex flex-col overflow-hidden rounded-lg bg-white shadow-lg ${className || ''}`}
       onMouseDown={handleMouseDown}
@@ -156,7 +168,7 @@ export const MinimizedMeeting = ({
       {/* Header */}
       <div className="flex items-center justify-between bg-gray-800 p-2 text-white flex-shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">Meeting: {channelName}</span>
+          <span className="text-sm font-medium">Video call</span>
           <div className="flex gap-1">
             {isAudioMuted && <MicOff size={14} className="text-red-500" />}
             {isVideoMuted && <VideoOff size={14} className="text-red-500" />}
